@@ -1,11 +1,11 @@
-
+ï»¿
 /*
- * min max adapter für iobroker
+ * min max adapter fÃ¼r iobroker
  *
  * Created: 07.12.2018 21:12:28
  *  Author: Rene
 
-Copyright(C)[2018][René Glaß]
+Copyright(C)[2018][RenÃ© GlaÃŸ]
 
 */
 
@@ -22,7 +22,7 @@ const utils = require('@iobroker/adapter-core');
 const adapter = utils.Adapter('minmax');
 
 var lastUpdate = new Date();
-var objects = [];
+var myObjects = [];
 
 
 // is called when adapter shuts down - callback has to be called under any circumstances!
@@ -72,10 +72,10 @@ adapter.on('objectChange', (id, obj) => {
 
     try {
 
-        adapter.log.debug("### before objects: " + JSON.stringify(objects));
+        adapter.log.debug("### before objects: " + JSON.stringify(myObjects));
 
         var sObjectName = id;
-        var obj1 = findObjectByKey(objects, 'name', sObjectName);
+        var obj1 = findObjectByKey(myObjects, 'name', sObjectName);
         var bEnabled = false;
         //obj could be null ir removed..
         if (obj && obj.common && obj.common.custom && obj.common.custom[adapter.namespace]) {
@@ -90,7 +90,7 @@ adapter.on('objectChange', (id, obj) => {
         if (obj1 === null && bEnabled) {
             //not available; just add it to list
             adapter.log.debug("add to object list " + id);
-            objects.push({
+            myObjects.push({
                 id: id,
                 name: sObjectName,
                 enabled: true
@@ -104,10 +104,10 @@ adapter.on('objectChange', (id, obj) => {
             else {
                 adapter.log.debug("remove from object list " + id);
 
-                RemoveObjectByKey(objects, 'name', id);
+                RemoveObjectByKey(myObjects, 'name', id);
             }
         }
-        adapter.log.debug("### after objects: " + JSON.stringify(objects));
+        adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
         UpdateSubsriptions();
         SaveSetup();
     }
@@ -129,7 +129,7 @@ adapter.on('stateChange', (id, state) => {
 
         if (state && state.ack) {
 
-            var obj1 = findObjectByKey(objects, 'id', id);
+            var obj1 = findObjectByKey(myObjects, 'id', id);
 
             if (obj1 != null) {
                 var key = obj1.name + '.TodayMin';
@@ -363,87 +363,87 @@ function UpdateSubsriptions() {
 
     adapter.log.debug("!!!! UpdateSubsriptions ");
 
-    if (typeof adapter.config.objects !== 'undefined' && objects.length > 0) {
+    if (typeof myObjects !== 'undefined' && myObjects.length > 0) {
 
-        for (var i = 0; i < objects.length; i++) {
-            adapter.log.debug("subsribe " + objects[i].name);
+        for (var i = 0; i < myObjects.length; i++) {
+            adapter.log.debug("subsribe " + myObjects[i].name);
             //subscribe to be informed
-            adapter.subscribeForeignStates(objects[i].id);
+            adapter.subscribeForeignStates(myObjects[i].id);
 
             //add states to do 
-            adapter.setObjectNotExists(objects[i].name, {
+            adapter.setObjectNotExists(myObjects[i].name, {
                 type: 'channel',
                 role: 'statistic',
                 common: { name: 'min and max' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.TodayMin', {
+            adapter.setObjectNotExists(myObjects[i].name + '.TodayMin', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'todays minimum value' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.TodayMinTime', {
+            adapter.setObjectNotExists(myObjects[i].name + '.TodayMinTime', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'time of todays minimum value', type: 'string' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.TodayMax', {
+            adapter.setObjectNotExists(myObjects[i].name + '.TodayMax', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'todays maximum value' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.TodayMaxTime', {
+            adapter.setObjectNotExists(myObjects[i].name + '.TodayMaxTime', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'time of todays maximum value', type: 'string' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.MonthMin', {
+            adapter.setObjectNotExists(myObjects[i].name + '.MonthMin', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'month minimum value' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.MonthMinDate', {
+            adapter.setObjectNotExists(myObjects[i].name + '.MonthMinDate', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'date and time of month minimum value', type: 'string' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.MonthMax', {
+            adapter.setObjectNotExists(myObjects[i].name + '.MonthMax', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'month maximum value' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.MonthMaxDate', {
+            adapter.setObjectNotExists(myObjects[i].name + '.MonthMaxDate', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'date and time of month maximum value', type: 'string' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.YearMin', {
+            adapter.setObjectNotExists(myObjects[i].name + '.YearMin', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'year minimum value' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.YearMinDate', {
+            adapter.setObjectNotExists(myObjects[i].name + '.YearMinDate', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'date of year minimum value', type: 'string' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.YearMax', {
+            adapter.setObjectNotExists(myObjects[i].name + '.YearMax', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'year maximum value' },
                 native: { location: adapter.config.location }
             });
-            adapter.setObjectNotExists(objects[i].name + '.YearMaxDate', {
+            adapter.setObjectNotExists(myObjects[i].name + '.YearMaxDate', {
                 type: 'state',
                 role: 'statistic',
                 common: { name: 'date of year maximum value', type: 'string' },
@@ -471,7 +471,7 @@ function SaveSetup() {
 
     var fileData = {};
 
-    fileData.objects = objects;
+    fileData.myObjects = myObjects;
 
     fs.writeFileSync(cacheFile, JSON.stringify(fileData));
 }
@@ -484,9 +484,9 @@ function ReadSetup() {
                 
                 return value;
             });
-            if (tempData.objects) objects = tempData.objects;
+            if (tempData.myObjects) myObjects = tempData.myObjects;
            
-            adapter.log.debug("### after file read objects: " + JSON.stringify(objects));
+            adapter.log.debug("### after file read objects: " + JSON.stringify(myObjects));
             fs.unlinkSync(cacheFile);
         }
     }

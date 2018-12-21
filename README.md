@@ -1,4 +1,4 @@
-![Logo](admin/minmax.png)
+﻿![Logo](admin/minmax.png)
 # ioBroker.minmax
 
 [![NPM version](http://img.shields.io/npm/v/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
@@ -18,7 +18,7 @@ When the adapter is running, simply enable logging for the required data point i
 ## Changelog
 
 ### 0.0.1 (2018-12-xxx)
-* (Ren�) initial release 
+* (René) initial release 
 
 ## License
 
