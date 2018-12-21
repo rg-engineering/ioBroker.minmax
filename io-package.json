@@ -1,8 +1,19 @@
 {
   "common": {
     "name": "minmax",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "news": {
+      "0.0.2": {
+        "en": "bug fix after travis testing",
+        "de": "Bugfix nach Travis-Tests",
+        "ru": "исправление ошибки после тестирования travis",
+        "pt": "correção de bug após o teste travis",
+        "nl": "fout verholpen na travis testen",
+        "fr": "correction de bugs après les tests",
+        "it": "correzione di errori dopo il test di Travis",
+        "es": "corrección de errores después de la prueba de travis",
+        "pl": "naprawa błędów po testach Travis"
+      },
       "0.0.1": {
         "en": "inital release",
         "de": "Erstveröffentlichung",
