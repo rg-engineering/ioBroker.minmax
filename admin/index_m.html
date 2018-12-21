@@ -1,0 +1,93 @@
+<html>
+    
+    <head>
+        <link rel="stylesheet" type="text/css" href="../../css/adapter.css" />
+        <link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
+    
+        <script type="text/javascript" src="../../lib/js/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="../../socket.io/socket.io.js"></script>
+    
+        <script type="text/javascript" src="../../js/translate.js"></script>
+        <script type="text/javascript" src="../../lib/js/materialize.js"></script>
+        <script type="text/javascript" src="../../js/adapter-settings.js"></script>
+        <script type="text/javascript" src="words.js"></script>
+    
+        <script type="text/javascript">
+    
+            var groups = [];
+
+            function setValue(id, value, onChange) {
+                var $value = $('#' + id + '.value');
+    
+                if ($value.attr('type') === 'checkbox') {
+                    $value.prop('checked', value).on('change', function () {
+                        onChange();
+                    });
+                } else {
+                    $value.val(value).on('change', function () {
+                        onChange();
+                    }).on('keyup', function () {
+                        onChange();
+                    });
+                }
+            }
+    
+            // the function loadSettings has to exist ...
+            function load(settings, onChange) {
+                if (!settings) return;
+                groups = settings.groups || [];
+    
+                for (var key in settings) {
+                    if (!settings.hasOwnProperty(key)) continue;
+                    setValue(key, settings[key], onChange);
+                }
+                values2table('values', groups, onChange);
+    
+                // Signal to admin, that no changes yet
+                onChange(false);
+    
+            }
+
+            function save(callback) {
+                var obj = {};
+                $('.value').each(function () {
+                    var $this = $(this);
+                    if ($this.attr('type') === 'checkbox') {
+                        obj[$this.attr('id')] = $this.prop('checked');
+                    } else {
+                        obj[$this.attr('id')] = $this.val();
+                    }
+                });
+                // Get edited table
+                obj.groups = table2values('values');
+                callback(obj);
+            }
+    
+        </script>
+        <style>
+            .sub-title {
+                margin-top: 2rem!important;
+                padding: 0.5rem;
+                background: #64b5f6;
+                color: white;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <!-- you have to put your config page in a div with id adapter-container -->
+        <div class="m adapter-container">
+
+            <div class="row">
+                    <div class="row">
+                        <div class="input-field col s8">
+                            <input type="text" id="timezone" class="value"/>
+                            <label for="timezone">Time zone</label>
+                            <span class="translate">E.g. Europe/Berlin. Leave it empty for default settings</span>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </body>
+    
+</html>

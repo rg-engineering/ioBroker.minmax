@@ -1,0 +1,60 @@
+{
+  "common": {
+    "name": "minmax",
+    "version": "0.0.1",
+    "news": {
+      "0.0.1": {
+        "en": "inital release",
+        "de": "Erstveröffentlichung",
+        "ru": "Первый выпуск",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie"
+      }
+    },
+    "title": "minmax",
+    "titleLang": {
+      "en": "min and max for states"
+
+    },
+    "desc": {
+      "en": ""
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "icon": "minmax.png",
+    "enabled": false,
+    "preserveSettings": "custom",
+    "extIcon": "https://raw.githubusercontent.com/rg-engineering/ioBroker.minmax/master/admin/minmax.png",
+    "keywords": [
+      "minimum",
+      "maximum"
+    ],
+    "readme": "https://github.com/rg-engineering/ioBroker.minmax/blob/master/README.md",
+    "loglevel": "debug",
+    "type": "logic",
+    "materialize": true,
+    "supportCustoms": true,
+    "dependencies": [
+      {
+        "admin": ">=3.5.10",
+        "@iobroker/adapter-core": ">=1.0.1"
+
+      }
+    ],
+    "authors": [
+      {
+        "name": "René",
+        "email": "info@rg-engineering.eu"
+      }
+
+    ]
+  },
+
+  "native": {
+    
+  }
+}
