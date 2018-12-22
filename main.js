@@ -147,8 +147,8 @@ adapter.on('stateChange', (id, state) => {
                             adapter.setState(key + "Time", { ack: true, val: timeConverter(true)  });
                         }
                     }
-                    //key = obj1.name + '.TodayMax';
-                    adapter.log.debug(' === ' + key);
+                    key = obj1.name + '.TodayMax';
+                    //adapter.log.debug(' === ' + key);
                     adapter.getState(key, function (err, obj) {
                         if (err) {
                             adapter.log.error(err);

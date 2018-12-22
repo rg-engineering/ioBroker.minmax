@@ -1,8 +1,19 @@
 {
   "common": {
     "name": "minmax",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "news": {
+      "0.0.3": {
+        "en": "bug fix: today minimum not recorded",
+        "de": "Bugfix: heute Minimum nicht aufgezeichnet",
+        "ru": "исправлена ​​ошибка: минимальный сегодня не записан",
+        "pt": "correção de bug: hoje mínimo não registrado",
+        "nl": "fout opgelost: vandaag minimum niet opgenomen",
+        "fr": "correction de bogue: minimum enregistré aujourd'hui",
+        "it": "correzione bug: oggi minimo non registrato",
+        "es": "corrección de errores: hoy mínimo no registrado",
+        "pl": "naprawienie błędu: dzisiaj nie zarejestrowano minimum"
+      },
       "0.0.2": {
         "en": "bug fix after travis testing",
         "de": "Bugfix nach Travis-Tests",
