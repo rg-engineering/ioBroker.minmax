@@ -17,6 +17,9 @@ When the adapter is running, simply enable logging for the required data point i
 
 ## Changelog
 
+### 0.0.4 (2018-12-25)
+* (René) added cron to reset at midnight
+
 ### 0.0.3 (2018-12-22)
 * (René) bug fix: today minimum not recorded
 

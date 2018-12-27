@@ -17,18 +17,20 @@ Copyright(C)[2018][René Glaß]
 // you have to require the utils module and call adapter function
 //const utils = require('./lib/utils'); // Get common adapter utils
 const utils = require('@iobroker/adapter-core');
-
+const CronJob = require('cron').CronJob;
 
 const adapter = utils.Adapter('minmax');
 
 var lastUpdate = new Date();
-var myObjects = [];
+let myObjects = [];
+let crons = {};
 
-
-// is called when adapter shuts down - callback has to be called under any circumstances!
+//#######################################
+//  is called when adapter shuts down - callback has to be called under any circumstances!
 adapter.on('unload', callback => {
     try {
         adapter && adapter.log && adapter.log.info && adapter.log.info('cleaned everything up...');
+        CronStop();
         callback();
     } catch (e) {
         callback();
@@ -36,7 +38,11 @@ adapter.on('unload', callback => {
 
 });
 
-// is called if a subscribed object changes
+process.on('SIGINT', CronStop);
+
+
+//#######################################
+//  is called if a subscribed object changes
 adapter.on('objectChange', (id, obj) => {
     // Warning, obj can be null if it was deleted
     adapter.log.debug('### received objectChange ' + id + ' obj  ' + JSON.stringify(obj));
@@ -117,6 +123,8 @@ adapter.on('objectChange', (id, obj) => {
 
 });
 
+
+//#######################################
 // is called if a subscribed state changes
 adapter.on('stateChange', (id, state) => {
     // Warning, state can be null if it was deleted
@@ -124,100 +132,15 @@ adapter.on('stateChange', (id, state) => {
 
     var toReset=CheckReset();
 
-
     try {
-
         if (state && state.ack) {
 
             var obj1 = findObjectByKey(myObjects, 'id', id);
 
             if (obj1 != null) {
-                var key = obj1.name + '.TodayMin';
+                var key = obj1.name;
                 var value = state.val;
-
-                //adapter.log.debug(' === ' + key);
-                adapter.getState(key, function (err, obj) {
-                    if (err) {
-                        adapter.log.error(err);
-
-                    } else {
-                        //adapter.log.debug(' === ' + JSON.stringify(obj));
-                        if (obj == null || value < obj.val || toReset.isNewDay) {
-                            adapter.setState(key, { ack: true, val: value });
-                            adapter.setState(key + "Time", { ack: true, val: timeConverter(true)  });
-                        }
-                    }
-                    key = obj1.name + '.TodayMax';
-                    //adapter.log.debug(' === ' + key);
-                    adapter.getState(key, function (err, obj) {
-                        if (err) {
-                            adapter.log.error(err);
-
-                        } else {
-
-                            if (obj == null || value > obj.val || toReset.isNewDay) {
-                                adapter.setState(key, { ack: true, val: value });
-                                adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
-                            }
-                        }
-                        key = obj1.name + '.MonthMin';
-                        //adapter.log.debug(' === ' + key);
-                        adapter.getState(key, function (err, obj) {
-                            if (err) {
-                                adapter.log.error(err);
-
-                            } else {
-
-                                if (obj == null || value < obj.val || toReset.isNewMonth) {
-                                    adapter.setState(key, { ack: true, val: value });
-                                    adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
-                                }
-                            }
-                            key = obj1.name + '.MonthMax';
-                            //adapter.log.debug(' === ' + key);
-                            adapter.getState(key, function (err, obj) {
-                                if (err) {
-                                    adapter.log.error(err);
-
-                                } else {
-
-                                    if (obj == null || value > obj.val || toReset.isNewMonth) {
-                                        adapter.setState(key, { ack: true, val: value });
-                                        adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
-                                    }
-                                }
-                                key = obj1.name + '.YearMin';
-                                //adapter.log.debug(' === ' + key);
-                                adapter.getState(key, function (err, obj) {
-                                    if (err) {
-                                        adapter.log.error(err);
-
-                                    } else {
-
-                                        if (obj == null || value < obj.val || toReset.isNewYear) {
-                                            adapter.setState(key, { ack: true, val: value });
-                                            adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
-                                        }
-                                    }
-                                    key = obj1.name + '.YearMax';
-                                    //adapter.log.debug(' === ' + key);
-                                    adapter.getState(key, function (err, obj) {
-                                        if (err) {
-                                            adapter.log.error(err);
-
-                                        } else {
-
-                                            if (obj == null || value > obj.val || toReset.isNewYear) {
-                                                adapter.setState(key, { ack: true, val: value });
-                                                adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
-                                            }
-                                        }
-                                    });
-                                });
-                            });
-                        });
-                    });
-                });
+                CalcMinMax(key, value, toReset);
             }
         }
     }
@@ -227,7 +150,8 @@ adapter.on('stateChange', (id, state) => {
 
 });
 
-// Some message was sent to adapter instance over message box. Used by email, pushover, text2speech, ...
+//#######################################
+// not used yet...
 adapter.on('message', obj => {
 
     if (obj) {
@@ -243,13 +167,17 @@ adapter.on('message', obj => {
 // start here!
 adapter.on('ready', main);
 
-
+//#######################################
+// main entry
 function main() {
 
     ReadSetup();
     // subscribe to objects, so the settings in the object are arriving to the adapter
     adapter.subscribeForeignObjects('*');
     UpdateSubsriptions();
+    CronCreate();
+    getCronStat();
+
 }
 
 
@@ -293,7 +221,8 @@ function RemoveObjectByKey(array, key, value) {
     return retVal;
 }
 
-
+//#######################################
+// is it time to reset?
 function CheckReset() {
     const now = new Date();
 
@@ -331,6 +260,95 @@ function CheckReset() {
     return bRet;
 }
 
+//#######################################
+// main to check whether new value to be set
+function CalcMinMax(name, value, toReset) {
+    var key = name + '.TodayMin';
+    //adapter.log.debug(' === ' + key);
+    adapter.getState(key, function (err, obj) {
+        if (err) {
+            adapter.log.error(err);
+
+        } else {
+            //adapter.log.debug(' === ' + JSON.stringify(obj));
+            if (obj === null || toReset.isNewDay || value < obj.val  ) {
+                adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+                adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
+            }
+        }
+        key = name + '.TodayMax';
+        //adapter.log.debug(' === ' + key);
+        adapter.getState(key, function (err, obj) {
+            if (err) {
+                adapter.log.error(err);
+
+            } else {
+
+                if (obj == null || toReset.isNewDay || value > obj.val ) {
+                    adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+                    adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
+                }
+            }
+            key = name + '.MonthMin';
+            //adapter.log.debug(' === ' + key);
+            adapter.getState(key, function (err, obj) {
+                if (err) {
+                    adapter.log.error(err);
+
+                } else {
+
+                    if (obj == null || toReset.isNewMonth || value < obj.val ) {
+                        adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+                        adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
+                    }
+                }
+                key = name + '.MonthMax';
+                //adapter.log.debug(' === ' + key);
+                adapter.getState(key, function (err, obj) {
+                    if (err) {
+                        adapter.log.error(err);
+
+                    } else {
+
+                        if (obj == null || toReset.isNewMonth || value > obj.val ) {
+                            adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+                            adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
+                        }
+                    }
+                    key = name + '.YearMin';
+                    //adapter.log.debug(' === ' + key);
+                    adapter.getState(key, function (err, obj) {
+                        if (err) {
+                            adapter.log.error(err);
+
+                        } else {
+
+                            if (obj == null || toReset.isNewYear || value < obj.val ) {
+                                adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+                                adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
+                            }
+                        }
+                        key = name + '.YearMax';
+                        //adapter.log.debug(' === ' + key);
+                        adapter.getState(key, function (err, obj) {
+                            if (err) {
+                                adapter.log.error(err);
+
+                            } else {
+
+                                if (obj == null || toReset.isNewYear || value > obj.val ) {
+                                    adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+                                    adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
+                                }
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+
 function timeConverter(timeonly) {
     const a = new Date();
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -356,6 +374,8 @@ function timeConverter(timeonly) {
     return sRet;
 }
 
+//#######################################
+// create states and subscribe state
 function UpdateSubsriptions() {
 
     //unsubscribe all
@@ -494,4 +514,57 @@ function ReadSetup() {
         adapter.log.info('No stored data from last exit found');
     }
 
+}
+
+//#######################################
+// reset at midnight
+function CronStop() {
+    for (const type in crons) {
+        if (crons.hasOwnProperty(type) && crons[type]) {
+            crons[type].stop();
+            crons[type] = null;
+        }
+    }
+}
+
+function CronCreate() {
+    const timezone = adapter.config.timezone || 'Europe/Berlin';
+
+    // test every hour
+    crons.daySave = new CronJob('* * * * *',
+
+//    crons.daySave = new CronJob('0 0 * * *',
+        () => ResetValues(),
+        () => adapter.log.debug('Reset values at midnight'), // This function is executed when the job stops
+        true,
+        timezone
+    );
+}
+
+function ResetValues() {
+
+    var toReset = CheckReset();
+
+    try {
+        for (var obj in myObjects) {
+      
+            if (obj != null) {
+                var key = obj.name;
+                var value = null;
+                CalcMinMax(key, value, toReset);
+            }
+        }
+    }
+    catch (e) {
+        adapter.log.error('exception in ResetValues [' + e + ']');
+    }
+
+}
+
+function getCronStat() {
+    for (const type in crons) {
+        if (crons.hasOwnProperty(type)) {
+            adapter.log.debug('[INFO] ' +  '      status = ' + crons[type].running + ' next event: ' + timeConverter(crons[type].nextDates()));
+        }
+    }
 }

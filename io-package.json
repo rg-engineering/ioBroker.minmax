@@ -1,8 +1,19 @@
 {
   "common": {
     "name": "minmax",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "news": {
+      "0.0.4": {
+        "en": "added cron to reset at midnight",
+        "de": "Cron zum Rücksetzen um Mitternacht hinzugefügt",
+        "ru": "добавлен cron для сброса в полночь",
+        "pt": "Adicionado cron para redefinir à meia-noite",
+        "nl": "cron toegevoegd om te worden gereset om middernacht",
+        "fr": "ajout de cron pour réinitialiser à minuit",
+        "it": "aggiunto cron per resettare a mezzanotte",
+        "es": "añadido cron para restablecer a la medianoche",
+        "pl": "dodano crona do zresetowania o północy"
+      },
       "0.0.3": {
         "en": "bug fix: today minimum not recorded",
         "de": "Bugfix: heute Minimum nicht aufgezeichnet",
@@ -61,11 +72,7 @@
     "materialize": true,
     "supportCustoms": true,
     "dependencies": [
-      {
-        "admin": ">=3.5.10",
-        "@iobroker/adapter-core": ">=1.0.1"
-
-      }
+      
     ],
     "authors": [
       {
@@ -77,6 +84,6 @@
   },
 
   "native": {
-    
+
   }
 }
