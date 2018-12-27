@@ -264,28 +264,30 @@ function CheckReset() {
 // main to check whether new value to be set
 function CalcMinMax(name, value, toReset) {
     var key = name + '.TodayMin';
-    //adapter.log.debug(' === ' + key);
+    adapter.log.debug(' == ' + key);
     adapter.getState(key, function (err, obj) {
         if (err) {
             adapter.log.error(err);
 
         } else {
-            //adapter.log.debug(' === ' + JSON.stringify(obj));
-            if (obj === null || toReset.isNewDay || value < obj.val  ) {
-                adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+            adapter.log.debug(' === ' + JSON.stringify(obj));
+            if (obj === null || toReset.isNewDay || value < obj.val) {
+                adapter.log.debug(' ==== set new value' + value);
+                adapter.setState(key, { ack: true, val: value });
                 adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
             }
         }
         key = name + '.TodayMax';
-        //adapter.log.debug(' === ' + key);
+        adapter.log.debug(' == ' + key);
         adapter.getState(key, function (err, obj) {
             if (err) {
                 adapter.log.error(err);
 
             } else {
-
-                if (obj == null || toReset.isNewDay || value > obj.val ) {
-                    adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+                adapter.log.debug(' === ' + JSON.stringify(obj));
+                if (obj == null || toReset.isNewDay || value > obj.val) {
+                    adapter.log.debug(' ==== set new value' + value);
+                    adapter.setState(key, { ack: true, val: value });
                     adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
                 }
             }
@@ -298,7 +300,8 @@ function CalcMinMax(name, value, toReset) {
                 } else {
 
                     if (obj == null || toReset.isNewMonth || value < obj.val ) {
-                        adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+
+                        adapter.setState(key, { ack: true, val: value});
                         adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
                     }
                 }
@@ -311,7 +314,8 @@ function CalcMinMax(name, value, toReset) {
                     } else {
 
                         if (obj == null || toReset.isNewMonth || value > obj.val ) {
-                            adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+
+                            adapter.setState(key, { ack: true, val: value });
                             adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
                         }
                     }
@@ -324,7 +328,8 @@ function CalcMinMax(name, value, toReset) {
                         } else {
 
                             if (obj == null || toReset.isNewYear || value < obj.val ) {
-                                adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+
+                                adapter.setState(key, { ack: true, val: value});
                                 adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
                             }
                         }
@@ -337,7 +342,8 @@ function CalcMinMax(name, value, toReset) {
                             } else {
 
                                 if (obj == null || toReset.isNewYear || value > obj.val ) {
-                                    adapter.setState(key, { ack: true, val: value != null ? value : obj.val });
+
+                                    adapter.setState(key, { ack: true, val: value });
                                     adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
                                 }
                             }
@@ -530,10 +536,10 @@ function CronStop() {
 function CronCreate() {
     const timezone = adapter.config.timezone || 'Europe/Berlin';
 
-    // test every hour
-    crons.daySave = new CronJob('* * * * *',
+    // test every minute
+    //crons.daySave = new CronJob('0 * * * * *',
 
-//    crons.daySave = new CronJob('0 0 * * *',
+    crons.daySave = new CronJob('0 0 0 * * *',
         () => ResetValues(),
         () => adapter.log.debug('Reset values at midnight'), // This function is executed when the job stops
         true,
@@ -543,15 +549,19 @@ function CronCreate() {
 
 function ResetValues() {
 
+
+    adapter.log.info('check to reset?')
     var toReset = CheckReset();
 
+    //test only; to be removed
+    //toReset.isNewDay = true;
+
     try {
-        for (var obj in myObjects) {
+        for (var i = 0; i < myObjects.length; i++) {
       
-            if (obj != null) {
-                var key = obj.name;
-                var value = null;
-                CalcMinMax(key, value, toReset);
+            if (myObjects[i] != null) {
+
+                getCurrentValue(i, toReset);
             }
         }
     }
@@ -560,6 +570,32 @@ function ResetValues() {
     }
 
 }
+
+
+function getCurrentValue(idx,toReset) {
+
+    adapter.log.debug('get value for ' + myObjects[idx].id);
+
+    var id = myObjects[idx].id;
+    var name = myObjects[idx].name;
+
+    adapter.getForeignState(id, function (err, obj) {
+        if (err) {
+            adapter.log.error(err);
+
+        } else {
+            adapter.log.debug("+++ " + JSON.stringify(obj));
+            //{ "val": 93, "ack": true, "ts": 1545926525405, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545925016555 }
+            //{ "val": 3.9, "ack": true, "ts": 1545926525360, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545926375376 }
+
+            if (obj != null) {
+                adapter.log.debug('reset for ' + name + " to " + obj.val);
+                CalcMinMax(name, obj.val, toReset);
+            }
+        }
+    });
+}
+
 
 function getCronStat() {
     for (const type in crons) {
