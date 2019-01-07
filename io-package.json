@@ -1,8 +1,19 @@
 {
   "common": {
     "name": "minmax",
-    "version": "0.0.4",
+    "version": "0.1.0",
     "news": {
+      "0.1.0": {
+        "en": "support of compact adapter",
+        "de": "Unterstützung des Kompaktadapters",
+        "ru": "поддержка компактного адаптера",
+        "pt": "suporte de adaptador compacto",
+        "nl": "ondersteuning voor compacte adapter",
+        "fr": "support de l'adaptateur compact",
+        "it": "supporto di adattatore compatto",
+        "es": "soporte de adaptador compacto",
+        "pl": "obsługa adaptera kompaktowego"
+      },
       "0.0.4": {
         "en": "added cron to reset at midnight",
         "de": "Cron zum Rücksetzen um Mitternacht hinzugefügt",
@@ -50,8 +61,15 @@
     },
     "title": "minmax",
     "titleLang": {
-      "en": "min and max for states"
-
+      "en": "min and max for states",
+      "de": "min und max für Zustände",
+      "ru": "мин и макс для штатов",
+      "pt": "min e max para estados",
+      "nl": "min en max voor toestanden",
+      "fr": "min et max pour les états",
+      "it": "min e max per stati",
+      "es": "min y max para estados",
+      "pl": "min i maks. dla stanów"
     },
     "desc": {
       "en": ""
@@ -70,10 +88,8 @@
     "loglevel": "debug",
     "type": "logic",
     "materialize": true,
+    "compact": true,
     "supportCustoms": true,
-    "dependencies": [
-      
-    ],
     "authors": [
       {
         "name": "René",

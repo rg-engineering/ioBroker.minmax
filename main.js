@@ -19,15 +19,152 @@ Copyright(C)[2018][René Glaß]
 const utils = require('@iobroker/adapter-core');
 const CronJob = require('cron').CronJob;
 
-const adapter = utils.Adapter('minmax');
+//const adapter = utils.Adapter('minmax');
 
 var lastUpdate = new Date();
 let myObjects = [];
 let crons = {};
 
+
+let adapter;
+function startAdapter(options) {
+    options = options || {};
+    Object.assign(options, {
+        name: 'daswetter',
+        ready: function () { main(); },
+
+        //#######################################
+        //  is called when adapter shuts down
+        unload: function () {
+            adapter && adapter.log && adapter.log.info && adapter.log.info('cleaned everything up...');
+            CronStop();
+        },
+        SIGINT: function () {
+            adapter && adapter.log && adapter.log.info && adapter.log.info('cleaned everything up...');
+            CronStop();
+        },
+
+        //#######################################
+        //  is called if a subscribed object changes
+        objectChange: function (id, obj) {
+            // Warning, obj can be null if it was deleted
+            adapter.log.debug('### received objectChange ' + id + ' obj  ' + JSON.stringify(obj));
+
+            /*
+            minmax.0 received objectChange daswetter.0.NextHours.Location_1.Day_1.Hour_1.clouds_value obj 
+            { "type": "state", 
+              "common": 
+                   { "name": "clouds", 
+                     "type": "string", 
+                     "role": "weather.clouds.forecast.0", 
+                     "unit": "%", 
+                     "read": true, 
+                     "write": false, 
+                     "custom": 
+                         { "minmax.0": 
+                             { "enabled": true,   <- wir brauchen das
+                             "logName": "Wolken"  <- und das
+                             } 
+                         }
+                   },
+              "from": "system.adapter.daswetter.0", 
+              "ts": 1541954105039, 
+              "_id": "daswetter.0.NextHours.Location_1.Day_1.Hour_1.clouds_value", 
+              "acl": 
+                   { "object": 1636, 
+                     "state": 1636, 
+                     "owner": "system.user.admin", 
+                     "ownerGroup": "system.group.administrator" 
+                   } 
+            }
+            */
+
+            try {
+
+                adapter.log.debug("### before objects: " + JSON.stringify(myObjects) + " " + adapter.namespace);
+
+                var sObjectName = id;
+                
+                var bEnabled = false;
+                //obj could be null or removed..
+                if (obj && obj.common && obj.common.custom && obj.common.custom[adapter.namespace]) {
+                    bEnabled = obj.common.custom[adapter.namespace].enabled;
+
+                    var sName = obj.common.custom[adapter.namespace].logName;
+                    if (sName.length > 0) {
+                        sObjectName = sName;
+                    }
+
+                    adapter.log.debug("xxx " + adapter.namespace + " " + sName + " " + bEnabled);
+                }
+
+                var obj1 = findObjectByKey(myObjects, 'name', sObjectName);
+
+
+                if (obj1 === null && bEnabled) {
+                    //not available; just add it to list
+                    adapter.log.debug("add to object list " + id);
+                    myObjects.push({
+                        id: id,
+                        name: sObjectName,
+                        enabled: true
+                    });
+                }
+                else {
+                    //if disabled, remove it from list
+                    if (bEnabled) {
+                        adapter.log.debug("object " + id + " already there");
+                    }
+                    else {
+                        adapter.log.debug("remove from object list " + id);
+
+                        RemoveObjectByKey(myObjects, 'name', id);
+                    }
+                }
+                adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
+                UpdateSubsriptions();
+                SaveSetup();
+            }
+            catch (e) {
+                adapter.log.error('exception in OnObjectChange [' + e + ']');
+            }
+        },
+
+        //#######################################
+        // is called if a subscribed state changes
+        stateChange: function (id, state) {
+            adapter.log.debug('[STATE CHANGE] ==== ' + id + ' === ' + JSON.stringify(state));
+
+            var toReset = CheckReset();
+
+            try {
+                if (state && state.ack) {
+
+                    var obj1 = findObjectByKey(myObjects, 'id', id);
+
+                    if (obj1 != null) {
+                        var key = obj1.name;
+                        var value = state.val;
+                        CalcMinMax(key, value, toReset);
+                    }
+                }
+            }
+            catch (e) {
+                adapter.log.error('exception in OnStateChange [' + e + ']');
+            }
+        }
+
+
+    });
+    adapter = new utils.Adapter(options);
+
+    return adapter;
+};
+
+
 //#######################################
 //  is called when adapter shuts down - callback has to be called under any circumstances!
-adapter.on('unload', callback => {
+/* adapter.on('unload', callback => {
     try {
         adapter && adapter.log && adapter.log.info && adapter.log.info('cleaned everything up...');
         CronStop();
@@ -37,44 +174,18 @@ adapter.on('unload', callback => {
     }
 
 });
-
-process.on('SIGINT', CronStop);
+*/
+//process.on('SIGINT', CronStop);
 
 
 //#######################################
 //  is called if a subscribed object changes
+/*
 adapter.on('objectChange', (id, obj) => {
     // Warning, obj can be null if it was deleted
     adapter.log.debug('### received objectChange ' + id + ' obj  ' + JSON.stringify(obj));
 
-    /*
-    minmax.0 received objectChange daswetter.0.NextHours.Location_1.Day_1.Hour_1.clouds_value obj 
-    { "type": "state", 
-      "common": 
-           { "name": "clouds", 
-             "type": "string", 
-             "role": "weather.clouds.forecast.0", 
-             "unit": "%", 
-             "read": true, 
-             "write": false, 
-             "custom": 
-                 { "minmax.0": 
-                     { "enabled": true,   <- wir brauchen das
-                     "logName": "Wolken"  <- und das
-                     } 
-                 }
-           },
-      "from": "system.adapter.daswetter.0", 
-      "ts": 1541954105039, 
-      "_id": "daswetter.0.NextHours.Location_1.Day_1.Hour_1.clouds_value", 
-      "acl": 
-           { "object": 1636, 
-             "state": 1636, 
-             "owner": "system.user.admin", 
-             "ownerGroup": "system.group.administrator" 
-           } 
-    }
-    */
+    
 
     try {
 
@@ -123,10 +234,12 @@ adapter.on('objectChange', (id, obj) => {
 
 });
 
+*/
+
 
 //#######################################
 // is called if a subscribed state changes
-adapter.on('stateChange', (id, state) => {
+/* adapter.on('stateChange', (id, state) => {
     // Warning, state can be null if it was deleted
     adapter.log.debug('[STATE CHANGE] ==== ' + id + ' === ' + JSON.stringify(state));
 
@@ -149,10 +262,11 @@ adapter.on('stateChange', (id, state) => {
     }
 
 });
+*/
 
 //#######################################
 // not used yet...
-adapter.on('message', obj => {
+/*adapter.on('message', obj => {
 
     if (obj) {
         switch (obj.command) {
@@ -162,10 +276,10 @@ adapter.on('message', obj => {
     }
     
 });
-
+*/
 // is called when databases are connected and adapter received configuration.
 // start here!
-adapter.on('ready', main);
+//adapter.on('ready', main);
 
 //#######################################
 // main entry
@@ -604,3 +718,12 @@ function getCronStat() {
         }
     }
 }
+
+
+// If started as allInOne/compact mode => return function to create instance
+if (module && module.parent) {
+    module.exports = startAdapter;
+} else {
+    // or start the instance directly
+    startAdapter();
+} 
