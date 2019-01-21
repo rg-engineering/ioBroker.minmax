@@ -11,3 +11,5 @@ package-lock.json
 /statistics.njsproj
 /todo.txt
 /minmax.njsproj
+/.project
+/.settings/
