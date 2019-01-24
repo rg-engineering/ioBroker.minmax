@@ -30,7 +30,7 @@ let adapter;
 function startAdapter(options) {
     options = options || {};
     Object.assign(options, {
-        name: 'daswetter',
+        name: 'minmax',
         ready: function () { main(); },
 
         //#######################################
