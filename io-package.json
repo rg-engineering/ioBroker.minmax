@@ -87,6 +87,7 @@
     "readme": "https://github.com/rg-engineering/ioBroker.minmax/blob/master/README.md",
     "loglevel": "debug",
     "type": "logic",
+    "license": "MIT",
     "materialize": true,
     "compact": true,
     "supportCustoms": true,
