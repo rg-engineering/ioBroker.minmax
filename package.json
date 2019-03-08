@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "description": "ioBroker min max Adapter",
   "author": {
-    "name": "René",
+    "name": "Renï¿½",
     "email": "info@rg-enginerring.eu"
   },
-
   "homepage": "https://github.com/rg-engineering/ioBroker.minmax",
   "license": "MIT",
   "keywords": [
@@ -23,12 +22,12 @@
   },
   "devDependencies": {
     "gulp": "^4.0.0",
-    "mocha": "^5.2.0",
+    "mocha": "^6.0.2",
     "chai": "^4.2.0"
   },
   "main": "main.js",
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha"
+    "test": "node node_modules/mocha/bin/mocha --exit"
   },
   "bugs": {
     "url": "https://github.com/rg-engineering/ioBroker.minmax/issues"
