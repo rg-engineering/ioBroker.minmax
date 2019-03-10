@@ -1,7 +1,7 @@
 ﻿![Logo](admin/minmax.png)
 # ioBroker.minmax
 
-[![NPM version](http://img.shields.io/npm/v/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
+![Number of Installations](http://iobroker.live/badges/minmax-installed.svg) ![Number of Installations](http://iobroker.live/badges/minmax-stable.svg) [![NPM version](http://img.shields.io/npm/v/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
 [![Tests](https://travis-ci.org/rg-engineering/ioBroker.minmax.svg?branch=master)](https://travis-ci.org/rg-engineering/ioBroker.minmax)
 
