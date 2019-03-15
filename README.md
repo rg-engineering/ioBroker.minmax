@@ -1,10 +1,11 @@
 ﻿![Logo](admin/minmax.png)
 # ioBroker.minmax
-![Number of Installations](http://iobroker.live/badges/minmax-installed.svg) ![Number of Installations](http://iobroker.live/badges/minmax-stable.svg)
+![Number of Installations](http://iobroker.live/badges/minmax-installed.svg) ![Number of Installations](http://iobroker.live/badges/minmax-stable.svg) 
 
 [![NPM version](https://img.shields.io/npm/v/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
 [![Tests](https://travis-ci.org/rg-engineering/ioBroker.minmax.svg?branch=master)](https://travis-ci.org/rg-engineering/ioBroker.minmax)
+
 [![NPM](https://nodei.co/npm/iobroker.minmax.png?downloads=true)](https://nodei.co/npm/iobroker.minmax/)
 
 
