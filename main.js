@@ -142,7 +142,7 @@ function startAdapter(options) {
 
                     var obj1 = findObjectByKey(myObjects, 'id', id);
 
-                    if (obj1 != null) {
+                    if (obj1 !== null) {
                         var key = obj1.name;
                         var value = state.val;
                         CalcMinMax(key, value, toReset);
@@ -159,7 +159,7 @@ function startAdapter(options) {
     adapter = new utils.Adapter(options);
 
     return adapter;
-};
+}
 
 
 //#######################################
@@ -340,7 +340,7 @@ function RemoveObjectByKey(array, key, value) {
 function CheckReset() {
     const now = new Date();
 
-    var bRet = { isNewDay: false, isNewMonth:false, isNewYear:false};;
+    var bRet = { isNewDay: false, isNewMonth:false, isNewYear:false};
 
     //let minuteNow = now.getMinutes();
     //let minuteLast = lastUpdate.getMinutes();
@@ -349,21 +349,21 @@ function CheckReset() {
     let dateNow = now.getDate();
     let dateLast = lastUpdate.getDate();
 
-    if (dateNow != dateLast) {
+    if (dateNow !== dateLast) {
         bRet.isNewDay = true;
         adapter.log.debug('new day');
     }
 
     let monthNow = now.getMonth();
     let monthLast = lastUpdate.getMonth();
-    if (monthNow != monthLast) {
+    if (monthNow !== monthLast) {
         bRet.isNewMonth = true;
         adapter.log.debug('new month');
     }
 
     let yearNow = now.getFullYear();
     let yearLast = lastUpdate.getFullYear();
-    if (yearNow != yearLast) {
+    if (yearNow !== yearLast) {
         bRet.isNewYear = true;
         adapter.log.debug('new year');
     }
@@ -399,7 +399,7 @@ function CalcMinMax(name, value, toReset) {
 
             } else {
                 adapter.log.debug(' === ' + JSON.stringify(obj));
-                if (obj == null || toReset.isNewDay || value > obj.val) {
+                if (obj === null || toReset.isNewDay || value > obj.val) {
                     adapter.log.debug(' ==== set new value' + value);
                     adapter.setState(key, { ack: true, val: value });
                     adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
@@ -413,7 +413,7 @@ function CalcMinMax(name, value, toReset) {
 
                 } else {
 
-                    if (obj == null || toReset.isNewMonth || value < obj.val ) {
+                    if (obj === null || toReset.isNewMonth || value < obj.val ) {
 
                         adapter.setState(key, { ack: true, val: value});
                         adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
@@ -427,7 +427,7 @@ function CalcMinMax(name, value, toReset) {
 
                     } else {
 
-                        if (obj == null || toReset.isNewMonth || value > obj.val ) {
+                        if (obj === null || toReset.isNewMonth || value > obj.val ) {
 
                             adapter.setState(key, { ack: true, val: value });
                             adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
@@ -441,7 +441,7 @@ function CalcMinMax(name, value, toReset) {
 
                         } else {
 
-                            if (obj == null || toReset.isNewYear || value < obj.val ) {
+                            if (obj === null || toReset.isNewYear || value < obj.val ) {
 
                                 adapter.setState(key, { ack: true, val: value});
                                 adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
@@ -455,7 +455,7 @@ function CalcMinMax(name, value, toReset) {
 
                             } else {
 
-                                if (obj == null || toReset.isNewYear || value > obj.val ) {
+                                if (obj === null || toReset.isNewYear || value > obj.val ) {
 
                                     adapter.setState(key, { ack: true, val: value });
                                     adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
@@ -488,7 +488,7 @@ function timeConverter(timeonly) {
         sRet = hour + ':' + min + ':' + sec;
     }
     else {
-        sRet = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec
+        sRet = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
     }
 
     return sRet;
@@ -664,7 +664,7 @@ function CronCreate() {
 function ResetValues() {
 
 
-    adapter.log.info('check to reset?')
+    adapter.log.info('check to reset?');
     var toReset = CheckReset();
 
     //test only; to be removed
@@ -673,7 +673,7 @@ function ResetValues() {
     try {
         for (var i = 0; i < myObjects.length; i++) {
       
-            if (myObjects[i] != null) {
+            if (myObjects[i] !== null) {
 
                 getCurrentValue(i, toReset);
             }
@@ -702,7 +702,7 @@ function getCurrentValue(idx,toReset) {
             //{ "val": 93, "ack": true, "ts": 1545926525405, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545925016555 }
             //{ "val": 3.9, "ack": true, "ts": 1545926525360, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545926375376 }
 
-            if (obj != null) {
+            if (obj !== null) {
                 adapter.log.debug('reset for ' + name + " to " + obj.val);
                 CalcMinMax(name, obj.val, toReset);
             }
