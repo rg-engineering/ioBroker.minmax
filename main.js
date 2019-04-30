@@ -604,8 +604,10 @@ function UpdateSubsriptions() {
 // we need to store setup to get it back after restart of adapter
 var fs = require('fs');
 var path = require('path');
-var dataDir = path.normalize(utils.controllerDir + '/' + require(utils.controllerDir + '/lib/tools').getDefaultDataDir());
-var cacheFile = dataDir + 'minmax.json';
+//var dataDir = path.normalize(utils.controllerDir + '/' + require(utils.controllerDir + '/lib/tools').getDefaultDataDir());
+//var cacheFile = dataDir + 'minmax.json';
+
+var cacheFile = path.normalize(utils.controllerDir + '/iobroker-data/')+'minmax.json';
 
 function SaveSetup() {
 
