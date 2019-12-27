@@ -8,6 +8,10 @@
 
 [![NPM](https://nodei.co/npm/iobroker.minmax.png?downloads=true)](https://nodei.co/npm/iobroker.minmax/)
 
+**If you like it, please consider a donation:**
+                                                                          
+[![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YBAZTEBT9SYC2&source=url)
+
 
 ## Description
 This adapter logs the minimum and maximum values of a given data point for today, the current month, and the current year.
@@ -17,6 +21,12 @@ The value is reset at the beginning of the period and changed to the current tim
 When the adapter is running, simply enable logging for the required data point in the object view. Optionally, you can assign a specific name.
 
 ## Changelog
+
+### 1.0.0 (2019-06-01)
+* (René) first official release
+
+### 0.1.1 (2019-06-01)
+* (René) create path for setup data if not exists
 
 ### 0.1.0 (2019-01-05)
 * (René) support of compact mode

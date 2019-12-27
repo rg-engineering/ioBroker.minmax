@@ -1,8 +1,14 @@
 {
   "common": {
     "name": "minmax",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "news": {
+      "1.0.0": {
+        "en": "first official release"
+      },
+      "0.1.1": {
+        "en": "create setup path if not exist"
+      },
       "0.1.0": {
         "en": "support of compact adapter",
         "de": "Unterstützung des Kompaktadapters",
@@ -85,7 +91,7 @@
       "maximum"
     ],
     "readme": "https://github.com/rg-engineering/ioBroker.minmax/blob/master/README.md",
-    "loglevel": "debug",
+    "loglevel": "info",
     "type": "logic",
     "license": "MIT",
     "materialize": true,

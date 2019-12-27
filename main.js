@@ -614,15 +614,29 @@ var path = require('path');
 //var dataDir = path.normalize(utils.controllerDir + '/' + require(utils.controllerDir + '/lib/tools').getDefaultDataDir());
 //var cacheFile = dataDir + 'minmax.json';
 
-var cacheFile = path.normalize(utils.controllerDir + '/iobroker-data/')+'minmax.json';
+//to do: besser im eigenen Install-Verzeichnis
+var cachePath = path.normalize(utils.controllerDir + '/iobroker-data/');
+var cacheFile = cachePath +'minmax.json';
 
 function SaveSetup() {
 
+
+    //to do: Rechte richtig?
+    if (!fs.existsSync(cachePath)) {
+        fs.mkdirSync(cachePath, 777);
+    }
+
+
     var fileData = {};
+    try {
+        fileData.myObjects = myObjects;
 
-    fileData.myObjects = myObjects;
+        fs.writeFileSync(cacheFile, JSON.stringify(fileData));
+    }
+    catch (e) {
+        adapter.log.error('exception in SaveSetup [' + e + ']');
+    }
 
-    fs.writeFileSync(cacheFile, JSON.stringify(fileData));
 }
 
 function ReadSetup() {
