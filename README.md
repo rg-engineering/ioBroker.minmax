@@ -8,10 +8,11 @@
 
 [![NPM](https://nodei.co/npm/iobroker.minmax.png?downloads=true)](https://nodei.co/npm/iobroker.minmax/)
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/rg-engineering/ioBroker.minmax.svg)](https://greenkeeper.io/)
+
 **If you like it, please consider a donation:**
                                                                           
-[![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YBAZTEBT9SYC2&source=url) [![Greenkeeper badge](https://badges.greenkeeper.io/rg-engineering/ioBroker.minmax.svg)](https://greenkeeper.io/)
-
+[![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YBAZTEBT9SYC2&source=url) 
 
 ## Description
 This adapter logs the minimum and maximum values of a given data point for today, the current month, and the current year.
