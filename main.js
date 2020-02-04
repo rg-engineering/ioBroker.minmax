@@ -55,7 +55,7 @@ function startAdapter(options) {
         //  is called if a subscribed object changes
         objectChange: function (id, obj) {
             // Warning, obj can be null if it was deleted
-            adapter.log.debug('### received objectChange ' + id + ' obj  ' + JSON.stringify(obj));
+            //adapter.log.debug('### received objectChange ' + id + ' obj  ' + JSON.stringify(obj));
 
             /*
             minmax.0 received objectChange daswetter.0.NextHours.Location_1.Day_1.Hour_1.clouds_value obj 
@@ -90,14 +90,16 @@ function startAdapter(options) {
 
                 adapter.log.debug("### before objects: " + JSON.stringify(myObjects) + " " + adapter.namespace);
 
-                var sObjectName = id;
+                let sObjectName = id;
                 
-                var bEnabled = false;
+                let bEnabled = false;
                 //obj could be null or removed..
                 if (obj && obj.common && obj.common.custom && obj.common.custom[adapter.namespace]) {
+
+
                     bEnabled = obj.common.custom[adapter.namespace].enabled;
 
-                    var sName = obj.common.custom[adapter.namespace].logName;
+                    const sName = obj.common.custom[adapter.namespace].logName;
                     if (sName.length > 0) {
                         sObjectName = sName;
                     }
@@ -105,7 +107,7 @@ function startAdapter(options) {
                     adapter.log.debug("xxx " + adapter.namespace + " " + sName + " " + bEnabled);
                 }
 
-                var obj1 = findObjectByKey(myObjects, 'name', sObjectName);
+                let obj1 = findObjectByKey(myObjects, 'name', sObjectName);
 
 
                 if (obj1 === null && bEnabled) {
@@ -393,7 +395,7 @@ function CalcMinMax(name, value, toReset) {
         } else {
             adapter.log.debug(' === ' + JSON.stringify(obj));
             if (obj === null || toReset.isNewDay || value < obj.val) {
-                adapter.log.debug(' ==== set new value' + value);
+                adapter.log.debug(' ==== set new value ' + value);
                 adapter.setState(key, { ack: true, val: value });
                 adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
             }
@@ -407,7 +409,7 @@ function CalcMinMax(name, value, toReset) {
             } else {
                 adapter.log.debug(' === ' + JSON.stringify(obj));
                 if (obj === null || toReset.isNewDay || value > obj.val) {
-                    adapter.log.debug(' ==== set new value' + value);
+                    adapter.log.debug(' ==== set new value ' + value);
                     adapter.setState(key, { ack: true, val: value });
                     adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
                 }

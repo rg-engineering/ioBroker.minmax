@@ -1,8 +1,11 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "news": {
+      "1.0.1": {
+        "en": "some bug fixes"
+      },
       "1.0.0": {
         "en": "first official release"
       },
