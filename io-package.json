@@ -4,81 +4,32 @@
     "version": "1.0.1",
     "news": {
       "1.0.1": {
-        "en": "some bug fixes"
-      },
-      "1.0.0": {
-        "en": "first official release"
-      },
-      "0.1.1": {
-        "en": "create setup path if not exist"
-      },
-      "0.1.0": {
-        "en": "support of compact adapter",
-        "de": "Unterstützung des Kompaktadapters",
-        "ru": "поддержка компактного адаптера",
-        "pt": "suporte de adaptador compacto",
-        "nl": "ondersteuning voor compacte adapter",
-        "fr": "support de l'adaptateur compact",
-        "it": "supporto di adattatore compatto",
-        "es": "soporte de adaptador compacto",
-        "pl": "obsługa adaptera kompaktowego"
-      },
-      "0.0.4": {
-        "en": "added cron to reset at midnight",
-        "de": "Cron zum Rücksetzen um Mitternacht hinzugefügt",
-        "ru": "добавлен cron для сброса в полночь",
-        "pt": "Adicionado cron para redefinir à meia-noite",
-        "nl": "cron toegevoegd om te worden gereset om middernacht",
-        "fr": "ajout de cron pour réinitialiser à minuit",
-        "it": "aggiunto cron per resettare a mezzanotte",
-        "es": "añadido cron para restablecer a la medianoche",
-        "pl": "dodano crona do zresetowania o północy"
-      },
-      "0.0.3": {
-        "en": "bug fix: today minimum not recorded",
-        "de": "Bugfix: heute Minimum nicht aufgezeichnet",
-        "ru": "исправлена ​​ошибка: минимальный сегодня не записан",
-        "pt": "correção de bug: hoje mínimo não registrado",
-        "nl": "fout opgelost: vandaag minimum niet opgenomen",
-        "fr": "correction de bogue: minimum enregistré aujourd'hui",
-        "it": "correzione bug: oggi minimo non registrato",
-        "es": "corrección de errores: hoy mínimo no registrado",
-        "pl": "naprawienie błędu: dzisiaj nie zarejestrowano minimum"
-      },
-      "0.0.2": {
-        "en": "bug fix after travis testing",
-        "de": "Bugfix nach Travis-Tests",
-        "ru": "исправление ошибки после тестирования travis",
-        "pt": "correção de bug após o teste travis",
-        "nl": "fout verholpen na travis testen",
-        "fr": "correction de bugs après les tests",
-        "it": "correzione di errori dopo il test di Travis",
-        "es": "corrección de errores después de la prueba de travis",
-        "pl": "naprawa błędów po testach Travis"
-      },
-      "0.0.1": {
-        "en": "inital release",
-        "de": "Erstveröffentlichung",
-        "ru": "Первый выпуск",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie"
+        "en": "some bug fixes",
+        "de": "einige Bugfixes",
+        "ru": "некоторые исправления ошибок",
+        "pt": "algumas correções de bugs",
+        "nl": "enkele bugfixes",
+        "fr": "quelques corrections de bugs",
+        "it": "alcune correzioni di bug",
+        "es": "algunas correcciones de errores",
+        "pl": "niektóre poprawki błędów",
+        "zh-cn": "一些错误修复"
       }
+      
+      
     },
     "title": "minmax",
     "titleLang": {
-      "en": "min and max for states",
-      "de": "min und max für Zustände",
-      "ru": "мин и макс для штатов",
-      "pt": "min e max para estados",
-      "nl": "min en max voor toestanden",
-      "fr": "min et max pour les états",
-      "it": "min e max per stati",
-      "es": "min y max para estados",
-      "pl": "min i maks. dla stanów"
+      "en": "minimum and maximum for state",
+      "de": "Minimum und Maximum für Zustand",
+      "ru": "минимум и максимум для государства",
+      "pt": "mínimo e máximo para o estado",
+      "nl": "minimum en maximum voor staat",
+      "fr": "minimum et maximum pour l'état",
+      "it": "minimo e massimo per lo stato",
+      "es": "mínimo y máximo por estado",
+      "pl": "minimum i maksimum dla stanu",
+      "zh-cn": "状态的最小和最大"
     },
     "desc": {
       "en": ""

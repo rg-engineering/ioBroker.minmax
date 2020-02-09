@@ -23,8 +23,8 @@ When the adapter is running, simply enable logging for the required data point i
 
 ## Changelog
 
-### 1.0.1 (2020-02-xx)
-* (René) first official release
+### 1.0.1 (2020-02-09)
+* (René) some bug fixes
 
 ### 1.0.0 (2019-06-01)
 * (René) first official release
