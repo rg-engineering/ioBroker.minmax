@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "news": {
-      "1.0.1": {
+      "1.0.2": {
         "en": "some bug fixes",
         "de": "einige Bugfixes",
         "ru": "некоторые исправления ошибок",

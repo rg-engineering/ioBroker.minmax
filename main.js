@@ -617,15 +617,21 @@ const path = require("path");
 //var cacheFile = dataDir + 'minmax.json';
 
 //to do: besser im eigenen Install-Verzeichnis
-const cachePath = path.normalize(utils.controllerDir + "/iobroker-data/");
+//const cachePath = path.normalize(utils.controllerDir + "/iobroker-data/");
+const cachePath = path.normalize(__dirname + "/../../" + "iobroker-data/minmax/");
 const cacheFile = cachePath +"minmax.json";
+
+//const rootDir = path.normalize(__dirname + "/../../" + "iobroker-data/minmax");
+
+//opt/iobroker/node_modules/iobroker.js-controller/iobroker-data/minmax.json']
 
 function SaveSetup() {
 
 
     //to do: Rechte richtig?
     if (!fs.existsSync(cachePath)) {
-        fs.mkdirSync(cachePath, 777);
+        adapter.log.info("creating path " + cachePath);
+        fs.mkdirSync(cachePath);
     }
 
 
@@ -634,6 +640,8 @@ function SaveSetup() {
         fileData.myObjects = myObjects;
 
         fs.writeFileSync(cacheFile, JSON.stringify(fileData));
+
+        adapter.log.info("config stored in " + cachePath);
     }
     catch (e) {
         adapter.log.error("exception in SaveSetup [" + e + "]");
@@ -642,6 +650,10 @@ function SaveSetup() {
 }
 
 function ReadSetup() {
+
+
+    adapter.log.info("reading " + cacheFile);
+
     try {
         if (fs.statSync(cacheFile).isFile()) {
             const fileContent = fs.readFileSync(cacheFile);
