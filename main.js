@@ -118,6 +118,8 @@ function startAdapter(options) {
                         name: sObjectName,
                         enabled: true
                     });
+                    UpdateSubsriptions();
+                    SaveSetup();
                 }
                 else {
                     //if disabled, remove it from list
@@ -128,11 +130,13 @@ function startAdapter(options) {
                         adapter.log.debug("remove from object list " + id);
 
                         RemoveObjectByKey(myObjects, "name", id);
+                        UpdateSubsriptions();
+                        SaveSetup();
                     }
                 }
                 adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
-                UpdateSubsriptions();
-                SaveSetup();
+               
+               
             }
             catch (e) {
                 adapter.log.error("exception in OnObjectChange [" + e + "]");
