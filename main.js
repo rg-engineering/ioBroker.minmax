@@ -645,7 +645,7 @@ function SaveSetup() {
 
         fs.writeFileSync(cacheFile, JSON.stringify(fileData));
 
-        adapter.log.info("config stored in " + cachePath);
+        adapter.log.debug("config stored in " + cachePath);
     }
     catch (e) {
         adapter.log.error("exception in SaveSetup [" + e + "]");
