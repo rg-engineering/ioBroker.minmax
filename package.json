@@ -1,6 +1,6 @@
 {
   "name": "iobroker.minmax",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "ioBroker min max Adapter",
   "author": {
     "name": "René G.",
@@ -17,8 +17,8 @@
     "url": "git+https://github.com/rg-engineering/ioBroker.minmax.git"
   },
   "dependencies": {
-    "cron": "^1.7.0",
-    "@iobroker/adapter-core": "^2.0.0"
+    "cron": "1.8.2",
+    "@iobroker/adapter-core": "2.4.0"
   },
   "devDependencies": {
     "@iobroker/testing": "^2.2.0",

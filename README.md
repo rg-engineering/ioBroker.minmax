@@ -23,6 +23,9 @@ When the adapter is running, simply enable logging for the required data point i
 
 ## Changelog
 
+### 1.1.0 (2020-10-03)
+* (René) diff values added (as an option)
+
 ### 1.0.2 (2020-07-24)
 * (René) save optimisations
 

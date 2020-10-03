@@ -4,14 +4,18 @@
     
     <div class="row">
         <div class="input-field col s4">
-            <input type="checkbox" data-field="enabled" data-default="false"/>
+            <input type="checkbox" data-field="enabled" data-default="false" />
             <!-- this field is mandatory, just to find out if to include this settings or not</span-->
             <span class="translate">enabled</span>
         </div>
         <div class="input-field col s4">
-            <input type="text" data-field="logName"/>
-            <label for="logName" class="translate">Name for Logging</label>
-            <p class="translate">Name of statistics log</p>
+            <input type="text" data-field="logName" />
+            <label for="logName" class="translate">Name of statistics log</label>
+            <!--<p class="translate">Name of statistics log</p>-->
+        </div>
+        <div class="input-field col s4">
+            <input type="checkbox" data-field="calcDiff" data-default="false" />
+            <span class="translate">calcDiff</span>
         </div>
     </div>
     
@@ -22,19 +26,54 @@
 <!-- translations -->
 <script type="text/javascript">
     systemDictionary = $.extend(systemDictionary, {
-     });
+        "enabled": {
+            "en": "enabled",
+            "de": "aktiviert",
+            "ru": "???????",
+            "pt": "ativado",
+            "nl": "ingeschakeld",
+            "fr": "activée",
+            "it": "abilitato",
+            "es": "habilitado",
+            "pl": "w??czone",
+            "zh-cn": "???"
+        },
+        "calcDiff": {
+            "en": "calculate difference",
+            "de": "Differenz berechnen",
+            "ru": "?????????? ???????",
+            "pt": "calcular diferença",
+            "nl": "bereken het verschil",
+            "fr": "calculer la différence",
+            "it": "calcolare la differenza",
+            "es": "calcular la diferencia",
+            "pl": "obliczy? ró?nic?",
+            "zh-cn": "????"
+        },
+        "Name of statistics log": {
+            "en": "Name of statistics log",
+            "de": "Name des Statistikprotokolls",
+            "ru": "??? ??????? ??????????",
+            "pt": "Nome do log de estatísticas",
+            "nl": "Naam van statistiekenlogboek",
+            "fr": "Nom du journal de statistiques",
+            "it": "Nome del registro delle statistiche",
+            "es": "Nombre del registro de estadísticas",
+            "pl": "Naam van statistiekenlogboek"
+        }
 
+    });
 
-    console.log("### hier");
     // There are two ways how to predefine default settings:
     // - with attribute "data-default" (content independent)
     // - with function in global variable "defaults". Function name is equal with adapter name.
     //   as input function receives object with all information concerning it
     if (typeof defaults !== 'undefined') {
-        defaults.statistics = function (obj, instanceObj) {
+        defaults.minmax = function (obj, instanceObj) {
             return {
                 enabled:    false,
-                logName:    (obj && obj.common && obj.common.name) || (obj && obj._id) || '',
+                logName: (obj && obj.common && obj.common.name) || (obj && obj._id) || '',
+                calcDiff: false
             };
         }
     }

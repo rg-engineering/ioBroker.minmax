@@ -31,7 +31,15 @@ function startAdapter(options) {
     options = options || {};
     Object.assign(options, {
         name: "minmax",
-        ready: function () { main(); },
+        ready: function () {
+            try {
+                //adapter.log.debug("start");
+                main();
+            }
+            catch (e) {
+                adapter.log.error("exception catch after ready [" + e + "]");
+            }
+        },
 
         //#######################################
         //  is called when adapter shuts down
@@ -54,117 +62,13 @@ function startAdapter(options) {
         //#######################################
         //  is called if a subscribed object changes
         objectChange: function (id, obj) {
-            // Warning, obj can be null if it was deleted
-            //adapter.log.debug('### received objectChange ' + id + ' obj  ' + JSON.stringify(obj));
-
-            /*
-            minmax.0 received objectChange daswetter.0.NextHours.Location_1.Day_1.Hour_1.clouds_value obj 
-            { "type": "state", 
-              "common": 
-                   { "name": "clouds", 
-                     "type": "string", 
-                     "role": "weather.clouds.forecast.0", 
-                     "unit": "%", 
-                     "read": true, 
-                     "write": false, 
-                     "custom": 
-                         { "minmax.0": 
-                             { "enabled": true,   <- wir brauchen das
-                             "logName": "Wolken"  <- und das
-                             } 
-                         }
-                   },
-              "from": "system.adapter.daswetter.0", 
-              "ts": 1541954105039, 
-              "_id": "daswetter.0.NextHours.Location_1.Day_1.Hour_1.clouds_value", 
-              "acl": 
-                   { "object": 1636, 
-                     "state": 1636, 
-                     "owner": "system.user.admin", 
-                     "ownerGroup": "system.group.administrator" 
-                   } 
-            }
-            */
-
-            try {
-
-                adapter.log.debug("### before objects: " + JSON.stringify(myObjects) + " " + adapter.namespace);
-
-                let sObjectName = id;
-                
-                let bEnabled = false;
-                //obj could be null or removed..
-                if (obj && obj.common && obj.common.custom && obj.common.custom[adapter.namespace]) {
-
-
-                    bEnabled = obj.common.custom[adapter.namespace].enabled;
-
-                    const sName = obj.common.custom[adapter.namespace].logName;
-                    if (sName.length > 0) {
-                        sObjectName = sName;
-                    }
-
-                    adapter.log.debug("xxx " + adapter.namespace + " " + sName + " " + bEnabled);
-                }
-
-                const obj1 = findObjectByKey(myObjects, "name", sObjectName);
-
-
-                if (obj1 === null && bEnabled) {
-                    //not available; just add it to list
-                    adapter.log.debug("add to object list " + id);
-                    myObjects.push({
-                        id: id,
-                        name: sObjectName,
-                        enabled: true
-                    });
-                    UpdateSubsriptions();
-                    SaveSetup();
-                }
-                else {
-                    //if disabled, remove it from list
-                    if (bEnabled) {
-                        adapter.log.debug("object " + id + " already there");
-                    }
-                    else {
-                        adapter.log.debug("remove from object list " + id);
-
-                        RemoveObjectByKey(myObjects, "name", id);
-                        UpdateSubsriptions();
-                        SaveSetup();
-                    }
-                }
-                adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
-               
-               
-            }
-            catch (e) {
-                adapter.log.error("exception in OnObjectChange [" + e + "]");
-            }
+            HandleObjectChange(id, obj);
         },
 
         //#######################################
         // is called if a subscribed state changes
         stateChange: function (id, state) {
-            adapter.log.debug("[STATE CHANGE] ==== " + id + " === " + JSON.stringify(state));
-
-            const toReset = CheckReset();
-
-            try {
-                if (state && state.ack) {
-
-                    const obj1 = findObjectByKey(myObjects, "id", id);
-
-                    if (obj1 !== null) {
-                        const key = obj1.name;
-                        const value = state.val;
-                        CalcMinMax(key, value, toReset);
-                    }
-                }
-            }
-            catch (e) {
-                adapter.log.error("exception in OnStateChange [" + e + "]");
-            }
+            HandleStateChange(id, state);
         }
 
 
@@ -175,128 +79,10 @@ function startAdapter(options) {
 }
 
 
-//#######################################
-//  is called when adapter shuts down - callback has to be called under any circumstances!
-/* adapter.on('unload', callback => {
-    try {
-        adapter && adapter.log && adapter.log.info && adapter.log.info('cleaned everything up...');
-        CronStop();
-        callback();
-    } catch (e) {
-        callback();
-    }
-
-});
-*/
-//process.on('SIGINT', CronStop);
-
-
-//#######################################
-//  is called if a subscribed object changes
-/*
-adapter.on('objectChange', (id, obj) => {
-    // Warning, obj can be null if it was deleted
-    adapter.log.debug('### received objectChange ' + id + ' obj  ' + JSON.stringify(obj));
-
-    
-
-    try {
-
-        adapter.log.debug("### before objects: " + JSON.stringify(myObjects));
-
-        var sObjectName = id;
-        var obj1 = findObjectByKey(myObjects, 'name', sObjectName);
-        var bEnabled = false;
-        //obj could be null ir removed..
-        if (obj && obj.common && obj.common.custom && obj.common.custom[adapter.namespace]) {
-            bEnabled = obj.common.custom[adapter.namespace].enabled;
-
-            var sName = obj.common.custom[adapter.namespace].logName;
-            if (sName.length > 0) {
-                sObjectName = sName;
-            }
-        }
-
-        if (obj1 === null && bEnabled) {
-            //not available; just add it to list
-            adapter.log.debug("add to object list " + id);
-            myObjects.push({
-                id: id,
-                name: sObjectName,
-                enabled: true
-            });
-        }
-        else {
-            //if disabled, remove it from list
-            if (bEnabled) {
-                adapter.log.debug("object " + id + " already there");
-            }
-            else {
-                adapter.log.debug("remove from object list " + id);
-
-                RemoveObjectByKey(myObjects, 'name', id);
-            }
-        }
-        adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
-        UpdateSubsriptions();
-        SaveSetup();
-    }
-    catch (e) {
-        adapter.log.error('exception in OnObjectChange [' + e + ']');
-    }
-
-});
-
-*/
-
-
-//#######################################
-// is called if a subscribed state changes
-/* adapter.on('stateChange', (id, state) => {
-    // Warning, state can be null if it was deleted
-    adapter.log.debug('[STATE CHANGE] ==== ' + id + ' === ' + JSON.stringify(state));
-
-    var toReset=CheckReset();
-
-    try {
-        if (state && state.ack) {
-
-            var obj1 = findObjectByKey(myObjects, 'id', id);
-
-            if (obj1 != null) {
-                var key = obj1.name;
-                var value = state.val;
-                CalcMinMax(key, value, toReset);
-            }
-        }
-    }
-    catch (e) {
-        adapter.log.error('exception in OnStateChange [' + e + ']');
-    }
-
-});
-*/
-
-//#######################################
-// not used yet...
-/*adapter.on('message', obj => {
-
-    if (obj) {
-        switch (obj.command) {
-            default:
-                break;
-        }
-    }
-    
-});
-*/
-// is called when databases are connected and adapter received configuration.
-// start here!
-//adapter.on('ready', main);
 
 //#######################################
 // main entry
-function main() {
+async function main() {
 
     ReadSetup();
     // subscribe to objects, so the settings in the object are arriving to the adapter
@@ -307,7 +93,103 @@ function main() {
 
 }
 
+//#######################################
+async function HandleObjectChange(id, obj) {
 
+    try {
+
+        adapter.log.debug("### before objects: " + JSON.stringify(myObjects) + " " + adapter.namespace);
+
+        let sObjectName = id;
+
+        let bEnabled = false;
+        let bCalcDiff = false;
+        //obj could be null or removed..
+        if (obj && obj.common && obj.common.custom && obj.common.custom[adapter.namespace]) {
+
+
+            bEnabled = obj.common.custom[adapter.namespace].enabled;
+            bCalcDiff = obj.common.custom[adapter.namespace].calcDiff;
+
+            const sName = obj.common.custom[adapter.namespace].logName;
+            if (sName.length > 0) {
+                sObjectName = sName;
+            }
+
+            adapter.log.debug("xxx " + adapter.namespace + " " + sName + " " + bEnabled);
+        }
+
+        const obj1 = findObjectByKey(myObjects, "name", sObjectName);
+
+
+        if (obj1 === null && bEnabled) {
+
+            
+
+            //not available; just add it to list
+            adapter.log.debug("add to object list " + id);
+            myObjects.push({
+                id: id,
+                name: sObjectName,
+                enabled: true,
+                calcDiff: bCalcDiff
+            });
+            UpdateSubsriptions();
+            SaveSetup();
+        }
+        else {
+
+            //if changed
+            if (bEnabled) {
+                adapter.log.debug("object " + id + " already there, change settings");
+
+                obj1.name = sObjectName;
+                obj1.calcDiff = bCalcDiff;
+
+
+            }
+            //if disabled, remove it from list
+            else {
+                adapter.log.debug("remove from object list " + id);
+
+                RemoveObjectByKey(myObjects, "id", id);
+                UpdateSubsriptions();
+                SaveSetup();
+            }
+        }
+        adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
+
+
+    }
+    catch (e) {
+        adapter.log.error("exception in OnObjectChange [" + e + "]");
+    }
+}
+
+
+async function HandleStateChange(id, state) {
+
+    adapter.log.debug("[STATE CHANGE] ==== " + id + " === " + JSON.stringify(state));
+
+    const toReset = CheckReset();
+
+    try {
+        if (state && state.ack) {
+
+            const obj1 = findObjectByKey(myObjects, "id", id);
+
+            if (obj1 !== null) {
+                const key = obj1.name;
+                const calcDiff = obj1.calcDiff;
+                const value = state.val;
+                await CalcMinMax(key, value, toReset, calcDiff);
+            }
+        }
+    }
+    catch (e) {
+        adapter.log.error("exception in OnStateChange [" + e + "]");
+    }
+}
 function findObjectByKey(array, key, value) {
 
     //adapter.log.debug("+++ " + JSON.stringify(array));
@@ -389,98 +271,100 @@ function CheckReset() {
 
 //#######################################
 // main to check whether new value to be set
-function CalcMinMax(name, value, toReset) {
+async function CalcMinMax(name, value, toReset, calcDiff) {
+    let obj;
+
     let key = name + ".TodayMin";
     adapter.log.debug(" == " + key);
-    adapter.getState(key, function (err, obj) {
-        if (err) {
-            adapter.log.error(err);
+    obj = await adapter.getStateAsync(key);
+    adapter.log.debug(" === " + JSON.stringify(obj));
+    let TodayMin = obj != null ? obj.val : 0;
+    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewDay || value < obj.val) {
+        adapter.log.info(" ==== set new value for today min " + value);
+        TodayMin = value;
+        await adapter.setStateAsync(key, { ack: true, val: value });
+        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(true) });
+    }
 
-        } else {
-            adapter.log.debug(" === " + JSON.stringify(obj));
-            if (obj === null || toReset.isNewDay || value < obj.val) {
-                adapter.log.info(" ==== set new value " + value);
-                adapter.setState(key, { ack: true, val: value });
-                adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
-            }
-        }
-        key = name + ".TodayMax";
-        adapter.log.debug(" == " + key);
-        adapter.getState(key, function (err, obj) {
-            if (err) {
-                adapter.log.error(err);
+    key = name + ".TodayMax";
+    adapter.log.debug(" == " + key);
+    obj = await adapter.getStateAsync(key);
+    adapter.log.debug(" === " + JSON.stringify(obj));
+    let TodayMax = obj != null ? obj.val : 0;
+    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewDay || value > obj.val) {
+        adapter.log.info(" ==== set new value  for today max " + value);
+        TodayMax = value;
+        await adapter.setStateAsync(key, { ack: true, val: value });
+        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(true) });
+    }
 
-            } else {
-                adapter.log.debug(" === " + JSON.stringify(obj));
-                if (obj === null || toReset.isNewDay || value > obj.val) {
-                    adapter.log.info(" ==== set new value " + value);
-                    adapter.setState(key, { ack: true, val: value });
-                    adapter.setState(key + "Time", { ack: true, val: timeConverter(true) });
-                }
-            }
-            key = name + ".MonthMin";
-            //adapter.log.debug(' === ' + key);
-            adapter.getState(key, function (err, obj) {
-                if (err) {
-                    adapter.log.error(err);
+    key = name + ".MonthMin";
+    adapter.log.debug(" === " + key);
+    obj = await adapter.getStateAsync(key);
+    adapter.log.debug(" === " + JSON.stringify(obj));
+    let MonthMin = obj != null ? obj.val : 0;
+    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewMonth || value < obj.val) {
+        adapter.log.info(" ==== set new value  for month min " + value);
+        MonthMin = value;
+        await adapter.setStateAsync(key, { ack: true, val: value });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
+    }
 
-                } else {
+    key = name + ".MonthMax";
+    adapter.log.debug(" === " + key);
+    obj = await adapter.getStateAsync(key);
+    adapter.log.debug(" === " + JSON.stringify(obj));
+    let MonthMax = obj != null ? obj.val : 0;
+    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewMonth || value > obj.val) {
+        adapter.log.info(" ==== set new value  for month max " + value);
+        MonthMax = value;
+        await adapter.setStateAsync(key, { ack: true, val: value });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
+    }
 
-                    if (obj === null || toReset.isNewMonth || value < obj.val ) {
+    key = name + ".YearMin";
+    adapter.log.debug(" === " + key);
+    obj = await adapter.getStateAsync(key);
+    adapter.log.debug(" === " + JSON.stringify(obj));
+    let YearMin = obj != null ? obj.val : 0;
+    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewYear || value < obj.val) {
+        adapter.log.info(" ==== set new value  for year min " + value);
+        YearMin = value;
+        await adapter.setStateAsync(key, { ack: true, val: value });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
+    }
 
-                        adapter.setState(key, { ack: true, val: value});
-                        adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
-                    }
-                }
-                key = name + ".MonthMax";
-                //adapter.log.debug(' === ' + key);
-                adapter.getState(key, function (err, obj) {
-                    if (err) {
-                        adapter.log.error(err);
+    key = name + ".YearMax";
+    adapter.log.debug(" === " + key);
+    obj = await adapter.getStateAsync(key);
+    adapter.log.debug(" === " + JSON.stringify(obj));
+    let YearMax = obj != null ? obj.val : 0;
+    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewYear || value > obj.val) {
+        adapter.log.info(" ==== set new value  for year max " + value);
+        YearMax = value;
+        await adapter.setStateAsync(key, { ack: true, val: value });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
+    }
 
-                    } else {
+    if (calcDiff) {
+        adapter.log.debug(" calculate difference ");
 
-                        if (obj === null || toReset.isNewMonth || value > obj.val ) {
+        const TodayDiff = TodayMax - TodayMin;
+        const MonthDiff = MonthMax - MonthMin;
+        const YearDiff = YearMax - YearMin;
 
-                            adapter.setState(key, { ack: true, val: value });
-                            adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
-                        }
-                    }
-                    key = name + ".YearMin";
-                    //adapter.log.debug(' === ' + key);
-                    adapter.getState(key, function (err, obj) {
-                        if (err) {
-                            adapter.log.error(err);
+        key = name + ".TodayDiff";
+        await adapter.setStateAsync(key, { ack: true, val: TodayDiff });
+        key = name + ".MonthDiff";
+        await adapter.setStateAsync(key, { ack: true, val: MonthDiff });
+        key = name + ".YearDiff";
+        await adapter.setStateAsync(key, { ack: true, val: YearDiff });
 
-                        } else {
+    }
 
-                            if (obj === null || toReset.isNewYear || value < obj.val ) {
 
-                                adapter.setState(key, { ack: true, val: value});
-                                adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
-                            }
-                        }
-                        key = name + ".YearMax";
-                        //adapter.log.debug(' === ' + key);
-                        adapter.getState(key, function (err, obj) {
-                            if (err) {
-                                adapter.log.error(err);
-
-                            } else {
-
-                                if (obj === null || toReset.isNewYear || value > obj.val ) {
-
-                                    adapter.setState(key, { ack: true, val: value });
-                                    adapter.setState(key + "Date", { ack: true, val: timeConverter(false) });
-                                }
-                            }
-                        });
-                    });
-                });
-            });
-        });
-    });
 }
+
 
 function timeConverter(timeonly) {
     const a = new Date();
@@ -602,6 +486,28 @@ function UpdateSubsriptions() {
                 common: { name: "date of year maximum value", type: "string" },
                 native: { location: adapter.config.location }
             });
+
+            if (myObjects[i].calcDiff) {
+                adapter.setObjectNotExists(myObjects[i].name + ".TodayDiff", {
+                    type: "state",
+                    role: "statistic",
+                    common: { name: "today diff value", type: "string" },
+                    native: { location: adapter.config.location }
+                });
+                adapter.setObjectNotExists(myObjects[i].name + ".MonthDiff", {
+                    type: "state",
+                    role: "statistic",
+                    common: { name: "month diff value", type: "string" },
+                    native: { location: adapter.config.location }
+                });
+                adapter.setObjectNotExists(myObjects[i].name + ".YearDiff", {
+                    type: "state",
+                    role: "statistic",
+                    common: { name: "year diff value", type: "string" },
+                    native: { location: adapter.config.location }
+                });
+            }
+
         }
 
 
@@ -695,14 +601,14 @@ function CronCreate() {
     //crons.daySave = new CronJob('0 * * * * *',
 
     crons.daySave = new CronJob("0 0 0 * * *",
-        () => ResetValues(),
+        () => async () => ResetValues(),
         () => adapter.log.debug("Reset values at midnight"), // This function is executed when the job stops
         true,
         timezone
     );
 }
 
-function ResetValues() {
+async function ResetValues() {
 
 
     adapter.log.info("check to reset?");
@@ -716,7 +622,7 @@ function ResetValues() {
       
             if (myObjects[i] !== null) {
 
-                getCurrentValue(i, toReset);
+                await getCurrentValue(i, toReset);
             }
         }
     }
@@ -727,28 +633,25 @@ function ResetValues() {
 }
 
 
-function getCurrentValue(idx,toReset) {
+async function getCurrentValue(idx, toReset) {
 
     adapter.log.debug("get value for " + myObjects[idx].id);
 
     const id = myObjects[idx].id;
     const name = myObjects[idx].name;
+    const calcDiff = myObjects[idx].calcDiff;
 
-    adapter.getForeignState(id, function (err, obj) {
-        if (err) {
-            adapter.log.error(err);
+    const obj = await adapter.getForeignStateAsync(id);
 
-        } else {
-            adapter.log.debug("+++ " + JSON.stringify(obj));
-            //{ "val": 93, "ack": true, "ts": 1545926525405, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545925016555 }
-            //{ "val": 3.9, "ack": true, "ts": 1545926525360, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545926375376 }
+    adapter.log.debug("+++ " + JSON.stringify(obj));
+    //{ "val": 93, "ack": true, "ts": 1545926525405, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545925016555 }
+    //{ "val": 3.9, "ack": true, "ts": 1545926525360, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545926375376 }
 
-            if (obj !== null) {
-                adapter.log.debug("reset for " + name + " to " + obj.val);
-                CalcMinMax(name, obj.val, toReset);
-            }
-        }
-    });
+    if (obj !== null) {
+        adapter.log.debug("reset for " + name + " to " + obj.val);
+        await CalcMinMax(name, obj.val, toReset, calcDiff);
+    }
+
 }
 
 
