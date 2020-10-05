@@ -98,7 +98,7 @@ async function HandleObjectChange(id, obj) {
 
     try {
 
-        adapter.log.debug("### before objects: " + JSON.stringify(myObjects) + " " + adapter.namespace);
+        //adapter.log.debug("### before objects: " + JSON.stringify(myObjects) + " " + adapter.namespace);
 
         let sObjectName = id;
 
@@ -155,7 +155,7 @@ async function HandleObjectChange(id, obj) {
                 }
             }
         }
-        adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
+        //adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
 
 
     }
@@ -190,8 +190,20 @@ async function HandleStateChange(id, state) {
 }
 function findObjectByKey(array, key, value) {
 
-    //adapter.log.debug("+++ " + JSON.stringify(array));
+    /*
+    adapter.log.debug("+++ search " + key + " " + value);
+    
+    if (typeof array !== "undefined") {
+        const result = array.filter(d => d[key] == value);
 
+        adapter.log.debug("found " + JSON.stringify(result));
+
+        return result;
+    }
+    return null;
+    */
+
+    
     if (typeof array !== "undefined") {
         for (let i = 0; i < array.length; i++) {
             if (array[i][key] === value) {
@@ -200,6 +212,7 @@ function findObjectByKey(array, key, value) {
         }
     }
     return null;
+    
 }
 
 
@@ -277,7 +290,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let TodayMin = obj != null ? obj.val : 0;
     if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewDay || value < obj.val) {
-        adapter.log.info(" ==== set new value for today min " + value);
+        adapter.log.info(" ==== set new value for " + key + " " + value);
         TodayMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
         await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(true) });
@@ -289,7 +302,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let TodayMax = obj != null ? obj.val : 0;
     if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewDay || value > obj.val) {
-        adapter.log.info(" ==== set new value  for today max " + value);
+        adapter.log.info(" ==== set new value for " + key + " " + value);
         TodayMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
         await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(true) });
@@ -301,7 +314,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let MonthMin = obj != null ? obj.val : 0;
     if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewMonth || value < obj.val) {
-        adapter.log.info(" ==== set new value  for month min " + value);
+        adapter.log.info(" ==== set new value for " + key + " " + value);
         MonthMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
         await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
@@ -313,7 +326,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let MonthMax = obj != null ? obj.val : 0;
     if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewMonth || value > obj.val) {
-        adapter.log.info(" ==== set new value  for month max " + value);
+        adapter.log.info(" ==== set new value for " + key + " " + value);
         MonthMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
         await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
@@ -325,7 +338,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let YearMin = obj != null ? obj.val : 0;
     if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewYear || value < obj.val) {
-        adapter.log.info(" ==== set new value  for year min " + value);
+        adapter.log.info(" ==== set new value for " + key + " " + value);
         YearMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
         await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
@@ -337,7 +350,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let YearMax = obj != null ? obj.val : 0;
     if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewYear || value > obj.val) {
-        adapter.log.info(" ==== set new value  for year max " + value);
+        adapter.log.info(" ==== set new value for " + key + " " + value);
         YearMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
         await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
