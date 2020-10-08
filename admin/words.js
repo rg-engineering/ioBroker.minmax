@@ -5,7 +5,7 @@ systemDictionary = {
     "E.g. Europe/Berlin. Leave it empty for default settings":
     {
         "en": "E.g. Europe/Berlin. Leave it empty for default settings",
-        "de": "Z.B. Europa / Berlin. Lassen Sie es für die Standardeinstellungen leer",
+        "de": "Z.B. Europe/Berlin. Lassen Sie es für die Standardeinstellungen leer",
         "ru": "Например. Европа / Берлин. Оставьте его пустым для настроек по умолчанию",
         "pt": "Por exemplo. Europa / Berlim. Deixe vazio para as configurações padrão",
         "nl": "Bijv. Europe / Berlin. Laat het leeg voor de standaardinstellingen",

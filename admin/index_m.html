@@ -1,24 +1,37 @@
 <html>
 
 <head>
-    <!-- these 4 files always have to be included -->
-    <link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
     <link rel="stylesheet" type="text/css" href="../../css/adapter.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/css/fancytree/ui.fancytree.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
 
     <script type="text/javascript" src="../../lib/js/jquery-3.2.1.min.js"></script>
     <script type="text/javascript" src="../../socket.io/socket.io.js"></script>
 
-    <!-- these files always have to be included -->
-    <script type="text/javascript" src="../../js/translate.js"></script>
     <script type="text/javascript" src="../../lib/js/materialize.js"></script>
+    <script type="text/javascript" src="../../lib/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="../../lib/js/jquery.fancytree-all.min.js"></script>
+
+    <script type="text/javascript" src="../../js/translate.js"></script>
+    <script type="text/javascript" src="../../lib/js/selectID.js"></script>
     <script type="text/javascript" src="../../js/adapter-settings.js"></script>
+
+
+    <!-- my own styles -->
+    <link rel="stylesheet" type="text/css" href="style.css" />
     <script type="text/javascript" src="words.js"></script>
 
     <script type="text/javascript">
 
-
+        function showHideSettings() {
+        }
 
         function setValue(id, value, onChange) {
+
+
+
+            console.log('##set values ' + id);
+
             var $value = $('#' + id + '.value');
 
             if ($value.attr('type') === 'checkbox') {
@@ -38,30 +51,35 @@
         function load(settings, onChange) {
             if (!settings) return;
 
-            console.log(' load for minmax ');
+            console.log('##load settings');
 
+            // example: select elements with id=key and class=value and insert value
             for (var key in settings) {
                 if (!settings.hasOwnProperty(key)) continue;
                 var $value = $('#' + key + '.value');
                 if ($value.attr('type') === 'checkbox') {
-                    $value.prop('checked', settings[key]).on('change', function () {
 
+                    $value.prop('checked', settings[key]).on('change', function () {
+                        showHideSettings();
                         onChange();
                     });
                 } else {
                     $value.val(settings[key]).on('change', function () {
-
+                        console.log('on change');
+                        showHideSettings();
                         onChange();
                     }).on('keyup', function () {
                         $(this).trigger('change');
                     });
                 }
             }
-
-
             // Signal to admin, that no changes yet
             onChange(false);
+
+            showHideSettings();
             M.updateTextFields();
+
+
 
         }
 
@@ -78,6 +96,9 @@
                     obj[$this.attr('id')] = $this.val();
                 }
             });
+
+
+
             callback(obj);
         }
 
@@ -97,14 +118,12 @@
     <div class="m adapter-container">
 
         <div class="row">
-            <div class="row">
-                <div class="input-field col s6">
-                    <input type="text" id="timezone" class="value" />
-                    <label for="timezone">Time zone</label>
-                    <span class="translate">E.g. Europe/Berlin. Leave it empty for default settings</span>
-                </div>
+            <div class="input-field col s6">
+                <input type="text" id="timezone" class="value" />
+                <label for="timezone" class="translate">timezone</label>
             </div>
         </div>
+
     </div>
 </body>
 
