@@ -75,6 +75,7 @@
   },
 
   "native": {
+    "timezone": "Europe/Berlin"
 
   }
 }
