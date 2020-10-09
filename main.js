@@ -23,10 +23,10 @@ const CronJob = require("cron").CronJob;
 
 let lastUpdate = new Date();
 let myObjects = [];
-const crons = {};
-
-
 let adapter;
+let SystemLanguage;
+let cronJobs = [];
+
 function startAdapter(options) {
     options = options || {};
     Object.assign(options, {
@@ -85,12 +85,25 @@ function startAdapter(options) {
 async function main() {
 
     ReadSetup();
+    SystemLanguage = await GetSystemLanguage();
     // subscribe to objects, so the settings in the object are arriving to the adapter
     adapter.subscribeForeignObjects("*");
     UpdateSubsriptions();
+    //IsSummerTime();
     CronCreate();
     getCronStat();
 
+}
+
+async function GetSystemLanguage() {
+    let language = "de";
+    const ret = await adapter.getForeignObjectAsync("system.config");
+
+    language = ret.common.language;
+
+    adapter.log.debug("got system language " + language);
+
+    return language;
 }
 
 //#######################################
@@ -293,7 +306,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         TodayMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(true) });
+        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(null,true) });
     }
 
     key = name + ".TodayMax";
@@ -305,7 +318,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         TodayMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(true) });
+        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(null,true) });
     }
 
     key = name + ".MonthMin";
@@ -317,7 +330,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         MonthMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null,false) });
     }
 
     key = name + ".MonthMax";
@@ -329,7 +342,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         MonthMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null,false) });
     }
 
     key = name + ".YearMin";
@@ -341,7 +354,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         YearMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null,false) });
     }
 
     key = name + ".YearMax";
@@ -353,7 +366,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         YearMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(false) });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null,false) });
     }
 
     if (calcDiff) {
@@ -376,6 +389,45 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
 }
 
 
+function timeConverter(time, timeonly=false) {
+
+    let a;
+    if (time != null) {
+        a = new Date(time);
+    }
+    else {
+        a = new Date();
+    }
+    let months;
+    if (SystemLanguage === "de") {
+        months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+    }
+    else {
+        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    }
+    const year = a.getFullYear();
+    const month = months[a.getMonth()];
+    let date = a.getDate();
+    date = date < 10 ? " " + date : date;
+    let hour = a.getHours();
+    hour = hour < 10 ? "0" + hour : hour;
+    let min = a.getMinutes();
+    min = min < 10 ? "0" + min : min;
+    let sec = a.getSeconds();
+    sec = sec < 10 ? "0" + sec : sec;
+
+    let sRet = "";
+    if (timeonly) {
+        sRet = hour + ":" + min + ":" + sec;
+    }
+    else {
+        sRet = date + " " + month + " " + year + " " + hour + ":" + min + ":" + sec;
+    }
+
+    return sRet;
+}
+
+/*
 function timeConverter(timeonly) {
     const a = new Date();
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -400,6 +452,8 @@ function timeConverter(timeonly) {
 
     return sRet;
 }
+*/
+
 
 //#######################################
 // create states and subscribe state
@@ -595,27 +649,26 @@ function ReadSetup() {
 
 //#######################################
 // reset at midnight
-function CronStop() {
-    for (const type in crons) {
-        if (crons.hasOwnProperty(type) && crons[type]) {
-            crons[type].stop();
-            crons[type] = null;
-        }
-    }
-}
+
 
 function CronCreate() {
     const timezone = adapter.config.timezone || "Europe/Berlin";
 
     // test every minute
     //crons.daySave = new CronJob('0 * * * * *',
+    const nextCron = cronJobs.length;
+    //details see https://www.npmjs.com/package/cron
+    const cronString = "0 0 0 * * *";
 
-    crons.daySave = new CronJob("0 0 0 * * *",
-        () => async () => ResetValues(),
-        () => adapter.log.debug("Reset values at midnight"), // This function is executed when the job stops
+    adapter.log.debug("start cron " + cronString + " " + timezone);
+
+    cronJobs[nextCron] = new CronJob(cronString,
+        () => ResetValues(),
+        () => adapter.log.debug("cron job stopped"), // This function is executed when the job stops
         true,
         timezone
     );
+
 }
 
 async function ResetValues() {
@@ -639,7 +692,7 @@ async function ResetValues() {
     catch (e) {
         adapter.log.error("exception in ResetValues [" + e + "]");
     }
-
+    getCronStat();
 }
 
 
@@ -666,12 +719,46 @@ async function getCurrentValue(idx, toReset) {
 
 
 function getCronStat() {
-    for (const type in crons) {
-        if (crons.hasOwnProperty(type)) {
-            adapter.log.debug("[INFO] " +  "      status = " + crons[type].running + " next event: " + timeConverter(crons[type].nextDates()));
+    let n = 0;
+    let length = 0;
+    try {
+        if (typeof cronJobs !== undefined && cronJobs != null) {
+
+            length = cronJobs.length;
+            //adapter.log.debug("cron jobs");
+            for (n = 0; n < length; n++) {
+                if (typeof cronJobs[n] !== undefined && cronJobs[n] != null) {
+                    adapter.log.debug("cron status = " + cronJobs[n].running + " next event: " + timeConverter(cronJobs[n].nextDates(),false));
+                }
+            }
+
+            if (length > 500) {
+                adapter.log.warn("more then 500 cron jobs existing for this adapter, this might be a configuration error! (" + length + ")");
+            }
+            else {
+                adapter.log.info(length + " cron job(s) created");
+            }
         }
     }
+    catch (e) {
+        adapter.log.error("exception in getCronStat [" + e + "] : " + n + " of " + length);
+    }
 }
+
+function CronStop() {
+    if (cronJobs.length > 0) {
+        adapter.log.debug("delete " + cronJobs.length + " cron jobs");
+        //cancel all cron jobs...
+        const start = cronJobs.length - 1;
+        for (let n = start; n >= 0; n--) {
+            //adapter.log.debug("stop cron job " + n);
+            cronJobs[n].stop();
+        }
+        cronJobs = [];
+    }
+}
+
+
 
 
 // If started as allInOne/compact mode => return function to create instance
