@@ -19,6 +19,8 @@ Copyright(C)[2018][René Glaß]
 const utils = require("@iobroker/adapter-core");
 const CronJob = require("cron").CronJob;
 
+
+
 //const adapter = utils.Adapter('minmax');
 
 let lastUpdate = new Date();
@@ -89,7 +91,7 @@ async function main() {
     // subscribe to objects, so the settings in the object are arriving to the adapter
     adapter.subscribeForeignObjects("*");
     UpdateSubsriptions();
-    //IsSummerTime();
+    
     CronCreate();
     getCronStat();
 
