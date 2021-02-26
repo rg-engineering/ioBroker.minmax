@@ -632,17 +632,17 @@ function ReadSetup() {
     adapter.log.info("reading " + cacheFile);
 
     try {
-        if (fs.statSync(cacheFile).isFile()) {
-            const fileContent = fs.readFileSync(cacheFile);
-            const tempData = JSON.parse(fileContent, function (key, value) {
-                
-                return value;
-            });
-            if (tempData.myObjects) myObjects = tempData.myObjects;
-           
-            adapter.log.debug("### after file read objects: " + JSON.stringify(myObjects));
-            fs.unlinkSync(cacheFile);
-        }
+        //if (fs.statSync(cacheFile).isFile()) {
+        const fileContent = fs.readFileSync(cacheFile);
+        const tempData = JSON.parse(fileContent, function (key, value) {
+
+            return value;
+        });
+        if (tempData.myObjects) myObjects = tempData.myObjects;
+
+        adapter.log.debug("### after file read objects: " + JSON.stringify(myObjects));
+        //fs.unlinkSync(cacheFile);
+        //}
     }
     catch (err) {
         adapter.log.warn("No stored data from last exit found " + err);
