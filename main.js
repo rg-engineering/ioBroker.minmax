@@ -49,6 +49,7 @@ function startAdapter(options) {
             try {
                 adapter && adapter.log && adapter.log.info && adapter.log.info("cleaned everything up...");
                 CronStop();
+                SaveSetup();
                 callback();
             } catch (e) {
                 callback();
@@ -644,7 +645,7 @@ function ReadSetup() {
         }
     }
     catch (err) {
-        adapter.log.warn("No stored data from last exit found");
+        adapter.log.warn("No stored data from last exit found " + err);
     }
 
 }

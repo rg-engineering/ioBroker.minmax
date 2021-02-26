@@ -1,9 +1,9 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "news": {
-      "1.1.1": {
+      "1.1.2": {
         "en": "some bug fixes",
         "de": "einige Bugfixes",
         "ru": "некоторые исправления ошибок",
@@ -71,7 +71,9 @@
         "email": "info@rg-engineering.eu"
       }
 
-    ]
+    ],
+    "connectionType": "local",
+    "dataSource": "push"
   },
 
   "native": {
