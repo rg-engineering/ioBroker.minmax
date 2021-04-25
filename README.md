@@ -22,6 +22,8 @@ The value is reset at the beginning of the period and changed to the current tim
 When the adapter is running, simply enable logging for the required data point in the object view. Optionally, you can assign a specific name.
 
 ## Changelog
+### 1.2.0 (2021-04-28)
+* (René) admin 5 prepared
 
 ### 1.1.3 (2021-03-21)
 * (René) dependencies updated

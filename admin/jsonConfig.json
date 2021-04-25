@@ -1,0 +1,14 @@
+{
+  "type": "panel",
+  "i18n": true,
+  "items": {
+    "timezone": {
+      "newLine": true,
+      "type": "text",
+      "label": "timezone",
+      "sm": 12,
+      "md": 4
+    }
+  }
+}
+  

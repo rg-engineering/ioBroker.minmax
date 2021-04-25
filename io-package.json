@@ -1,93 +1,104 @@
 {
-  "common": {
-    "name": "minmax",
-    "version": "1.1.3",
-    "news": {
-      "1.1.3": {
-        "en": "dependencies updated",
-        "de": "Abhängigkeiten aktualisiert",
-        "ru": "зависимости обновлены",
-        "pt": "dependências atualizadas",
-        "nl": "afhankelijkheden bijgewerkt",
-        "fr": "dépendances mises à jour",
-        "it": "dipendenze aggiornate",
-        "es": "dependencias actualizadas",
-        "pl": "zaktualizowane zależności",
-        "zh-cn": "依赖关系已更新"
-      },
-      "1.1.2": {
-        "en": "some bug fixes",
-        "de": "einige Bugfixes",
-        "ru": "некоторые исправления ошибок",
-        "pt": "algumas correções de bugs",
-        "nl": "enkele bugfixes",
-        "fr": "quelques corrections de bugs",
-        "it": "alcune correzioni di bug",
-        "es": "algunas correcciones de errores",
-        "pl": "niektóre poprawki błędów",
-        "zh-cn": "一些错误修复"
-      }
+    "common": {
+        "name": "minmax",
+        "version": "1.2.0",
+        "news": {
+            "1.2.0": {
+                "en": "Admin 5 prepared",
+                "de": "Admin 5 vorbereitet",
+                "ru": "Админ 5 подготовлен",
+                "pt": "Admin 5 preparado",
+                "nl": "Admin 5 voorbereid",
+                "fr": "Admin 5 préparé",
+                "it": "Admin 5 preparato",
+                "es": "Admin 5 preparado",
+                "pl": "Admin 5 przygotowany",
+                "zh-cn": "管理员5已准备"
+            },
+            "1.1.3": {
+                "en": "dependencies updated",
+                "de": "Abhängigkeiten aktualisiert",
+                "ru": "зависимости обновлены",
+                "pt": "dependências atualizadas",
+                "nl": "afhankelijkheden bijgewerkt",
+                "fr": "dépendances mises à jour",
+                "it": "dipendenze aggiornate",
+                "es": "dependencias actualizadas",
+                "pl": "zaktualizowane zależności",
+                "zh-cn": "依赖关系已更新"
+            },
+            "1.1.2": {
+                "en": "some bug fixes",
+                "de": "einige Bugfixes",
+                "ru": "некоторые исправления ошибок",
+                "pt": "algumas correções de bugs",
+                "nl": "enkele bugfixes",
+                "fr": "quelques corrections de bugs",
+                "it": "alcune correzioni di bug",
+                "es": "algunas correcciones de errores",
+                "pl": "niektóre poprawki błędów",
+                "zh-cn": "一些错误修复"
+            }
+        },
+        "title": "minmax",
+        "titleLang": {
+            "en": "minimum and maximum",
+            "de": "Minimum und Maximum",
+            "ru": "минимум и максимум",
+            "pt": "mínimo e máximo",
+            "nl": "minimum en maximum",
+            "fr": "minimum et maximum",
+            "it": "minimo e massimo",
+            "es": "mínimo y máximo",
+            "pl": "minimum i maksimum",
+            "zh-cn": "最小和最大"
+        },
+        "desc": {
+            "en": "calculates minumum, maximum and difference for states",
+            "de": "berechnet Minimum, Maximum und Differenz für Zustände",
+            "ru": "вычисляет минимум, максимум и разницу для состояний",
+            "pt": "calcula mínimo, máximo e diferença para estados",
+            "nl": "berekent minimum, maximum en verschil voor staten",
+            "fr": "calcule le minimum, le maximum et la différence pour les états",
+            "it": "calcola minimo, massimo e differenza per gli stati",
+            "es": "calcula mínimo, máximo y diferencia para estados",
+            "pl": "oblicza minumum, maksimum i różnicę dla stanów",
+            "zh-cn": "计算状态的最小值，最大值和差异"
+        },
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "icon": "minmax.png",
+        "enabled": false,
+        "preserveSettings": "custom",
+        "extIcon": "https://raw.githubusercontent.com/rg-engineering/ioBroker.minmax/master/admin/minmax.png",
+        "keywords": [
+            "minimum",
+            "maximum"
+        ],
+        "readme": "https://github.com/rg-engineering/ioBroker.minmax/blob/master/README.md",
+        "loglevel": "info",
+        "type": "logic",
+        "license": "MIT",
+        "materialize": true,
+        "plugins": {
+            "sentry": {
+                "dsn": "https://559ae8a3322a4b23b8ebfefb01474ecb@o390433.ingest.sentry.io/5453286"
+            }
+        },
+        "compact": true,
+        "supportCustoms": true,
+        "authors": [
+            {
+                "name": "René",
+                "email": "info@rg-engineering.eu"
+            }
+        ],
+        "connectionType": "local",
+        "dataSource": "push",
+        "jsonCustom": true,
+        "jsonConfig": true
     },
-    "title": "minmax",
-    "titleLang": {
-      "en": "minimum and maximum",
-      "de": "Minimum und Maximum",
-      "ru": "минимум и максимум",
-      "pt": "mínimo e máximo",
-      "nl": "minimum en maximum",
-      "fr": "minimum et maximum",
-      "it": "minimo e massimo",
-      "es": "mínimo y máximo",
-      "pl": "minimum i maksimum",
-      "zh-cn": "最小和最大"
-    },
-    "desc": {
-      "en": "calculates minumum, maximum and difference for states",
-      "de": "berechnet Minimum, Maximum und Differenz für Zustände",
-      "ru": "вычисляет минимум, максимум и разницу для состояний",
-      "pt": "calcula mínimo, máximo e diferença para estados",
-      "nl": "berekent minimum, maximum en verschil voor staten",
-      "fr": "calcule le minimum, le maximum et la différence pour les états",
-      "it": "calcola minimo, massimo e differenza per gli stati",
-      "es": "calcula mínimo, máximo y diferencia para estados",
-      "pl": "oblicza minumum, maksimum i różnicę dla stanów",
-      "zh-cn": "计算状态的最小值，最大值和差异"
-    },
-    "platform": "Javascript/Node.js",
-    "mode": "daemon",
-    "icon": "minmax.png",
-    "enabled": false,
-    "preserveSettings": "custom",
-    "extIcon": "https://raw.githubusercontent.com/rg-engineering/ioBroker.minmax/master/admin/minmax.png",
-    "keywords": [
-      "minimum",
-      "maximum"
-    ],
-    "readme": "https://github.com/rg-engineering/ioBroker.minmax/blob/master/README.md",
-    "loglevel": "info",
-    "type": "logic",
-    "license": "MIT",
-    "materialize": true,
-    "plugins": {
-      "sentry": {
-        "dsn": "https://559ae8a3322a4b23b8ebfefb01474ecb@o390433.ingest.sentry.io/5453286"
-      }
-    },
-    "compact": true,
-    "supportCustoms": true,
-    "authors": [
-      {
-        "name": "René",
-        "email": "info@rg-engineering.eu"
-      }
-
-    ],
-    "connectionType": "local",
-    "dataSource": "push"
-  },
-
-  "native": {
-    "timezone": "Europe/Berlin"
-
-  }
+    "native": {
+        "timezone": "Europe/Berlin"
+    }
 }

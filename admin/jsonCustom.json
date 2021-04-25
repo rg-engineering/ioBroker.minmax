@@ -1,0 +1,27 @@
+{
+  "type": "panel",
+  "i18n": true,
+  "items": {
+    "enabled": {
+      "newLine": true,
+      "type": "checkbox",
+      "label": "enabled",
+      "sm": 12,
+      "md": 4
+    },
+    "logName": {
+      "newLine": false,
+      "type": "text",
+      "label": "Name of statistics log",
+      "sm": 12,
+      "md": 4
+    },
+    "calcDiff": {
+      "newLine": false,
+      "type": "checkbox",
+      "label": "calcDiff",
+      "sm": 12,
+      "md": 4
+    }
+  }
+}
