@@ -2,13 +2,6 @@
   "type": "panel",
   "i18n": true,
   "items": {
-    "enabled": {
-      "newLine": true,
-      "type": "checkbox",
-      "label": "enabled",
-      "sm": 12,
-      "md": 4
-    },
     "logName": {
       "newLine": false,
       "type": "text",

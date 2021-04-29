@@ -1,3 +1,6 @@
 {
-    "E.g. Europe/Berlin. Leave it empty for default settings": "Par exemple. Europe / Berlin. Laisser vide pour les paramètres par défaut"
+    "E.g. Europe/Berlin. Leave it empty for default settings": "Par exemple. Europe / Berlin. Laisser vide pour les paramètres par défaut",
+    "Name of statistics log": "Nom du journal des statistiques",
+    "calcDiff": "calculer la différence",
+    "timezone": "fuseau horaire"
 }

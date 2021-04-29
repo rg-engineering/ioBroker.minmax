@@ -123,6 +123,7 @@ async function HandleObjectChange(id, obj) {
         //obj could be null or removed..
         if (obj && obj.common && obj.common.custom && obj.common.custom[adapter.namespace]) {
 
+            adapter.log.debug("### " + JSON.stringify(obj.common.custom[adapter.namespace]));
 
             bEnabled = obj.common.custom[adapter.namespace].enabled;
             bCalcDiff = obj.common.custom[adapter.namespace].calcDiff;

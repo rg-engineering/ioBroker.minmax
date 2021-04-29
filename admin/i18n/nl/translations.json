@@ -1,3 +1,6 @@
 {
-    "E.g. Europe/Berlin. Leave it empty for default settings": "Bijv. Europe / Berlin. Laat het leeg voor de standaardinstellingen"
+    "E.g. Europe/Berlin. Leave it empty for default settings": "Bijv. Europe / Berlin. Laat het leeg voor de standaardinstellingen",
+    "Name of statistics log": "Naam van het statistieklogboek",
+    "calcDiff": "bereken het verschil",
+    "timezone": "tijdzone"
 }

@@ -1,3 +1,6 @@
 {
-    "E.g. Europe/Berlin. Leave it empty for default settings": "例如。"
+    "E.g. Europe/Berlin. Leave it empty for default settings": "例如。",
+    "Name of statistics log": "统计日志名称",
+    "calcDiff": "计算差异",
+    "timezone": "时区"
 }
