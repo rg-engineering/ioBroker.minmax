@@ -2,13 +2,10 @@
 # ioBroker.minmax
 
 ![Number of Installations](http://iobroker.live/badges/minmax-installed.svg) ![Number of Installations](http://iobroker.live/badges/minmax-stable.svg)
-
+[![Downloads](https://img.shields.io/npm/dm/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
 [![NPM version](http://img.shields.io/npm/v/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
 
-[![Downloads](https://img.shields.io/npm/dm/iobroker.minmax.svg)](https://www.npmjs.com/package/iobroker.minmax)
-
 [![Known Vulnerabilities](https://snyk.io/test/github/rg-engineering/ioBroker.minmax/badge.svg)](https://snyk.io/test/github/rg-engineering/ioBroker.minmax)
-
 ![GitHub Actions](https://github.com/rg-engineering/ioBroker.minmax/workflows/Test%20and%20Release/badge.svg)
 
 [![NPM](https://nodei.co/npm/iobroker.minmax.png?downloads=true)](https://nodei.co/npm/iobroker.minmax/)
