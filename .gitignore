@@ -6,8 +6,7 @@ admin/i18n/flat.txt
 admin/i18n/*/flat.txt
 lib/i18n/flat.txt
 lib/i18n/*/flat.txt
-/statistics.njsproj
 /todo.txt
-/minmax.njsproj
+/*.njsproj
 /.project
 /.settings/
