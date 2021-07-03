@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "minmax",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "news": {
+            "1.2.1": {
+                "en": "remove warnings regarding wrong datatype with js-controller 3.3",
+                "de": "Entfernen Sie Warnungen bezüglich des falschen Datentyps mit js-controller 3.3",
+                "ru": "убрать предупреждения о неправильном типе данных с помощью js-controller 3.3",
+                "pt": "remover avisos sobre o tipo de dados errado com js-controlador 3.3",
+                "nl": "verwijder waarschuwingen met betrekking tot verkeerd datatype met js-controller 3.3",
+                "fr": "supprimer les avertissements concernant le mauvais type de données avec js-controller 3.3",
+                "it": "rimuovere gli avvisi relativi al tipo di dati errato con js-controller 3.3",
+                "es": "eliminar las advertencias sobre el tipo de datos incorrecto con js-controller 3.3",
+                "pl": "usuń ostrzeżenia dotyczące złego typu danych za pomocą js-controller 3.3",
+                "zh-cn": "使用 js-controller 3.3 删除有关错误数据类型的警告"
+            },
             "1.2.0": {
                 "en": "Admin 5 prepared",
                 "de": "Admin 5 vorbereitet",

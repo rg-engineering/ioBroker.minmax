@@ -475,7 +475,32 @@ function UpdateSubsriptions() {
             //subscribe to be informed
             adapter.subscribeForeignStates(myObjects[i].id);
 
-            //add states to do 
+            value = await adapter.GetStateAsync(myObjects[i].id);
+            //add states 
+
+            AddObject(myObjects[i].name, "channel", "min and max", typeof value);
+            AddObject(myObjects[i].name + ".TodayMin", "state", "todays minimum value", typeof value);
+            AddObject(myObjects[i].name + ".TodayMinTime", "state", "todays minimum value", "string");
+            AddObject(myObjects[i].name + ".TodayMax", "state", "todays maximum value", typeof value);
+            AddObject(myObjects[i].name + ".TodayMaxTime", "state", "todays maximum value", "string");
+
+            AddObject(myObjects[i].name + ".MonthMin", "state", "month minimum value", typeof value);
+            AddObject(myObjects[i].name + ".MonthMinTime", "state", "month minimum value", "string");
+            AddObject(myObjects[i].name + ".MonthMax", "state", "month maximum value", typeof value);
+            AddObject(myObjects[i].name + ".MonthMaxTime", "state", "month maximum value", "string");
+
+            AddObject(myObjects[i].name + ".YearMin", "state", "year minimum value", typeof value);
+            AddObject(myObjects[i].name + ".YearMinTime", "state", "year minimum value", "string");
+            AddObject(myObjects[i].name + ".YearMax", "state", "year maximum value", typeof value);
+            AddObject(myObjects[i].name + ".YearMaxTime", "state", "year maximum value", "string");
+
+            if (myObjects[i].calcDiff) {
+                AddObject(myObjects[i].name + ".TodayDiff", "state", "today diff value", typeof value);
+                AddObject(myObjects[i].name + ".MonthDiff", "state", "month diff value", typeof value);
+                AddObject(myObjects[i].name + ".YearDiff", "state", "year diff value", typeof value);
+            }
+
+            /*
             adapter.setObjectNotExists(myObjects[i].name, {
                 type: "channel",
                 role: "statistic",
@@ -574,8 +599,9 @@ function UpdateSubsriptions() {
                     common: { name: "year diff value", type: "string" },
                     native: { location: adapter.config.location }
                 });
+                
             }
-
+            */
         }
 
 
@@ -584,6 +610,54 @@ function UpdateSubsriptions() {
         adapter.log.debug("nothing to subsribe");
     }
 
+}
+
+
+async function AddObject(key, type, name, datatyp) {
+
+    adapter.log.debug("addObject " + key);
+
+    await adapter.setObjectNotExistsAsync(key, {
+        type: type,
+        common: {
+            name: name,
+            type: datatyp,
+            role: "value",
+            unit: "",
+            read: true,
+            write: false
+        },
+        native: {
+            location: key
+        }
+    });
+
+    const obj = await adapter.getObjectAsync(key);
+
+    if (obj != null) {
+        //adapter.log.debug(" got Object " + JSON.stringify(obj));
+        if (obj.common.role != "value"
+            || obj.common.type != datatype
+            || obj.common.name != name
+            || obj.type != type ) {
+            //adapter.log.debug(" !!! need to extend for " + key);
+            await adapter.extendObject(key, {
+                type: type,
+                common: {
+                    name: name,
+                    type: datatyp,
+                    role: "value",
+                    unit: "",
+                    read: true,
+                    write: false
+                },
+                native: {
+                    location: key
+                }
+            });
+        }
+
+    }
 }
 
 
