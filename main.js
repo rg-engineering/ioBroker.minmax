@@ -91,7 +91,7 @@ async function main() {
     SystemLanguage = await GetSystemLanguage();
     // subscribe to objects, so the settings in the object are arriving to the adapter
     adapter.subscribeForeignObjects("*");
-    UpdateSubsriptions();
+    await UpdateSubsriptions();
     
     CronCreate();
     getCronStat();
@@ -461,7 +461,7 @@ function timeConverter(timeonly) {
 
 //#######################################
 // create states and subscribe state
-function UpdateSubsriptions() {
+async function UpdateSubsriptions() {
 
     //unsubscribe all
     adapter.unsubscribeForeignStates("*");
