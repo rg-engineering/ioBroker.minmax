@@ -27,7 +27,7 @@ When the adapter is running, simply enable logging for the required data point i
 
 ## Changelog
 
-### 1.2.1 (2021-07-03)
+### 1.2.2 (2021-07-04)
 * (René) bug fix: remove warnings regarding datatype with js-controller 3.3
 
 ### 1.2.0 (2021-04-28)

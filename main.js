@@ -471,7 +471,7 @@ async function UpdateSubsriptions() {
     if (typeof myObjects !== "undefined" && myObjects.length > 0) {
 
         for (let i = 0; i < myObjects.length; i++) {
-            adapter.log.debug("subsribe " + myObjects[i].name);
+            adapter.log.info("subsribe " + myObjects[i].name);
             //subscribe to be informed
             adapter.subscribeForeignStates(myObjects[i].id);
 

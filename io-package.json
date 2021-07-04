@@ -1,9 +1,9 @@
 {
     "common": {
         "name": "minmax",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "news": {
-            "1.2.1": {
+            "1.2.2": {
                 "en": "remove warnings regarding wrong datatype with js-controller 3.3",
                 "de": "Entfernen Sie Warnungen bezüglich des falschen Datentyps mit js-controller 3.3",
                 "ru": "убрать предупреждения о неправильном типе данных с помощью js-controller 3.3",
