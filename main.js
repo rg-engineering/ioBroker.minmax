@@ -639,7 +639,7 @@ async function AddObject(key, type, name, datatyp) {
     if (obj != null) {
         //adapter.log.debug(" got Object " + JSON.stringify(obj));
         if (obj.common.role != "value"
-            || obj.common.type != datatype
+            || obj.common.type != datatyp
             || obj.common.name != name
             || obj.type != type ) {
             //adapter.log.debug(" !!! need to extend for " + key);
