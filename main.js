@@ -475,7 +475,7 @@ async function UpdateSubsriptions() {
             //subscribe to be informed
             adapter.subscribeForeignStates(myObjects[i].id);
 
-            value = await adapter.getForeignStateAsync(myObjects[i].id);
+            const value = await adapter.getForeignStateAsync(myObjects[i].id);
             const type = typeof value.val;
             //add states 
 
