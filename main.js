@@ -479,26 +479,26 @@ async function UpdateSubsriptions() {
             const type = typeof value.val;
             //add states 
 
-            AddObject(myObjects[i].name, "channel", "min and max", typeof type);
-            AddObject(myObjects[i].name + ".TodayMin", "state", "todays minimum value", typeof type);
+            AddObject(myObjects[i].name, "channel", "min and max",  type);
+            AddObject(myObjects[i].name + ".TodayMin", "state", "todays minimum value",  type);
             AddObject(myObjects[i].name + ".TodayMinTime", "state", "todays minimum value", "string");
-            AddObject(myObjects[i].name + ".TodayMax", "state", "todays maximum value", typeof type);
+            AddObject(myObjects[i].name + ".TodayMax", "state", "todays maximum value",  type);
             AddObject(myObjects[i].name + ".TodayMaxTime", "state", "todays maximum value", "string");
 
-            AddObject(myObjects[i].name + ".MonthMin", "state", "month minimum value", typeof type);
+            AddObject(myObjects[i].name + ".MonthMin", "state", "month minimum value",  type);
             AddObject(myObjects[i].name + ".MonthMinTime", "state", "month minimum value", "string");
-            AddObject(myObjects[i].name + ".MonthMax", "state", "month maximum value", typeof type);
+            AddObject(myObjects[i].name + ".MonthMax", "state", "month maximum value",  type);
             AddObject(myObjects[i].name + ".MonthMaxTime", "state", "month maximum value", "string");
 
-            AddObject(myObjects[i].name + ".YearMin", "state", "year minimum value", typeof type);
+            AddObject(myObjects[i].name + ".YearMin", "state", "year minimum value",  type);
             AddObject(myObjects[i].name + ".YearMinTime", "state", "year minimum value", "string");
-            AddObject(myObjects[i].name + ".YearMax", "state", "year maximum value", typeof type);
+            AddObject(myObjects[i].name + ".YearMax", "state", "year maximum value",  type);
             AddObject(myObjects[i].name + ".YearMaxTime", "state", "year maximum value", "string");
 
             if (myObjects[i].calcDiff) {
-                AddObject(myObjects[i].name + ".TodayDiff", "state", "today diff value", typeof type);
-                AddObject(myObjects[i].name + ".MonthDiff", "state", "month diff value", typeof type);
-                AddObject(myObjects[i].name + ".YearDiff", "state", "year diff value", typeof type);
+                AddObject(myObjects[i].name + ".TodayDiff", "state", "today diff value",  type);
+                AddObject(myObjects[i].name + ".MonthDiff", "state", "month diff value",  type);
+                AddObject(myObjects[i].name + ".YearDiff", "state", "year diff value",  type);
             }
 
             /*
@@ -616,7 +616,7 @@ async function UpdateSubsriptions() {
 
 async function AddObject(key, type, name, datatyp) {
 
-    adapter.log.debug("addObject " + key);
+    adapter.log.debug("addObject " + key + " " + type + " " + name + " " + datatyp);
 
     await adapter.setObjectNotExistsAsync(key, {
         type: type,
