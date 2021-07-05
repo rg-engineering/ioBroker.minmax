@@ -642,7 +642,7 @@ async function AddObject(key, type, name, datatyp) {
             || obj.common.type != datatyp
             || obj.common.name != name
             || obj.type != type ) {
-            //adapter.log.debug(" !!! need to extend for " + key);
+            adapter.log.debug(" !!! need to extend for " + key);
             await adapter.extendObject(key, {
                 type: type,
                 common: {
