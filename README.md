@@ -27,6 +27,9 @@ When the adapter is running, simply enable logging for the required data point i
 
 ## Changelog
 
+### 1.2.4 (2021-09-24)
+* (René) bug fix: create Datapoints for year / month date
+
 ### 1.2.3 (2021-07-04)
 * (René) bug fix: remove warnings regarding datatype with js-controller 3.3
 

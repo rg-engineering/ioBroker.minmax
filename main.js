@@ -486,14 +486,14 @@ async function UpdateSubsriptions() {
             AddObject(myObjects[i].name + ".TodayMaxTime", "state", "todays maximum value", "string");
 
             AddObject(myObjects[i].name + ".MonthMin", "state", "month minimum value",  type);
-            AddObject(myObjects[i].name + ".MonthMinTime", "state", "month minimum value", "string");
+            AddObject(myObjects[i].name + ".MonthMinDate", "state", "month minimum value", "string");
             AddObject(myObjects[i].name + ".MonthMax", "state", "month maximum value",  type);
-            AddObject(myObjects[i].name + ".MonthMaxTime", "state", "month maximum value", "string");
+            AddObject(myObjects[i].name + ".MonthMaxDate", "state", "month maximum value", "string");
 
             AddObject(myObjects[i].name + ".YearMin", "state", "year minimum value",  type);
-            AddObject(myObjects[i].name + ".YearMinTime", "state", "year minimum value", "string");
+            AddObject(myObjects[i].name + ".YearMinDate", "state", "year minimum value", "string");
             AddObject(myObjects[i].name + ".YearMax", "state", "year maximum value",  type);
-            AddObject(myObjects[i].name + ".YearMaxTime", "state", "year maximum value", "string");
+            AddObject(myObjects[i].name + ".YearMaxDate", "state", "year maximum value", "string");
 
             if (myObjects[i].calcDiff) {
                 AddObject(myObjects[i].name + ".TodayDiff", "state", "today diff value",  type);
