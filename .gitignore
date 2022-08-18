@@ -10,3 +10,5 @@ lib/i18n/*/flat.txt
 /*.njsproj
 /.project
 /.settings/
+/iobroker.2020-10-31.log
+*.orig

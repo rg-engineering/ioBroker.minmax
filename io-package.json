@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "minmax",
-        "version": "1.2.4",
+        "version": "1.2.5",
         "news": {
+            "1.2.5": {
+                "en": "update of dependencies",
+                "de": "Aktualisierung von Abhängigkeiten",
+                "ru": "обновление зависимостей",
+                "pt": "atualização de dependências",
+                "nl": "update van afhankelijkheden",
+                "fr": "mise à jour des dépendances",
+                "it": "aggiornamento delle dipendenze",
+                "es": "actualización de dependencias",
+                "pl": "aktualizacja zależności",
+                "zh-cn": "更新依赖"
+            },
             "1.2.4": {
                 "en": "bug fix",
                 "de": "Fehlerbehebung",
@@ -120,7 +132,10 @@
         "connectionType": "local",
         "dataSource": "push",
         "jsonCustom": true,
-        "jsonConfig": true
+        "jsonConfig": true,
+        "adminUI": {
+            "config": "materialize"
+        }
     },
     "native": {
         "timezone": "Europe/Berlin"
