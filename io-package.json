@@ -13,7 +13,8 @@
                 "it": "aggiornamento delle dipendenze",
                 "es": "actualización de dependencias",
                 "pl": "aktualizacja zależności",
-                "zh-cn": "更新依赖"
+                "zh-cn": "更新依赖",
+                "uk": "оновлення залежностей"
             },
             "1.2.4": {
                 "en": "bug fix",
@@ -25,7 +26,8 @@
                 "it": "risoluzione del problema",
                 "es": "arreglo del fallo",
                 "pl": "naprawa błędów",
-                "zh-cn": "错误修复"
+                "zh-cn": "错误修复",
+                "uk": "виправлення помилок"
             },
             "1.2.3": {
                 "en": "remove warnings regarding wrong datatype with js-controller 3.3",
@@ -37,7 +39,8 @@
                 "it": "rimuovere gli avvisi relativi al tipo di dati errato con js-controller 3.3",
                 "es": "eliminar las advertencias sobre el tipo de datos incorrecto con js-controller 3.3",
                 "pl": "usuń ostrzeżenia dotyczące złego typu danych za pomocą js-controller 3.3",
-                "zh-cn": "使用 js-controller 3.3 删除有关错误数据类型的警告"
+                "zh-cn": "使用 js-controller 3.3 删除有关错误数据类型的警告",
+                "uk": "видалення попереджень щодо неправильного типу даних за допомогою js-контролера 3.3"
             },
             "1.2.0": {
                 "en": "Admin 5 prepared",
@@ -49,7 +52,8 @@
                 "it": "Admin 5 preparato",
                 "es": "Admin 5 preparado",
                 "pl": "Admin 5 przygotowany",
-                "zh-cn": "管理员5已准备"
+                "zh-cn": "管理员5已准备",
+                "uk": "Адмін 5 готовий"
             },
             "1.1.3": {
                 "en": "dependencies updated",
@@ -61,7 +65,8 @@
                 "it": "dipendenze aggiornate",
                 "es": "dependencias actualizadas",
                 "pl": "zaktualizowane zależności",
-                "zh-cn": "依赖关系已更新"
+                "zh-cn": "依赖关系已更新",
+                "uk": "залежності оновлено"
             },
             "1.1.2": {
                 "en": "some bug fixes",
@@ -73,7 +78,8 @@
                 "it": "alcune correzioni di bug",
                 "es": "algunas correcciones de errores",
                 "pl": "niektóre poprawki błędów",
-                "zh-cn": "一些错误修复"
+                "zh-cn": "一些错误修复",
+                "uk": "деякі виправлення помилок"
             }
         },
         "title": "minmax",
@@ -87,7 +93,8 @@
             "it": "minimo e massimo",
             "es": "mínimo y máximo",
             "pl": "minimum i maksimum",
-            "zh-cn": "最小和最大"
+            "zh-cn": "最小和最大",
+            "uk": "мінімум і максимум"
         },
         "desc": {
             "en": "calculates minumum, maximum and difference for states",
@@ -99,7 +106,8 @@
             "it": "calcola minimo, massimo e differenza per gli stati",
             "es": "calcula mínimo, máximo y diferencia para estados",
             "pl": "oblicza minumum, maksimum i różnicę dla stanów",
-            "zh-cn": "计算状态的最小值，最大值和差异"
+            "zh-cn": "计算状态的最小值，最大值和差异",
+            "uk": "обчислює мінімум, максимум і різницю для станів"
         },
         "platform": "Javascript/Node.js",
         "mode": "daemon",
