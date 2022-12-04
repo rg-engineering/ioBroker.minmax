@@ -27,6 +27,9 @@ When the adapter is running, simply enable logging for the required data point i
 
 ## Changelog
 
+### 1.2.6 (in progress)
+* (René) update dependencies
+
 ### 1.2.5 (2022-08-18)
 * (René) update dependencies
 
