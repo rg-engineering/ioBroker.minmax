@@ -221,7 +221,7 @@ function findObjectByKey(array, key, value) {
     */
 
     
-    if (typeof array !== "undefined") {
+    if (array !== undefined) {
         for (let i = 0; i < array.length; i++) {
             if (array[i][key] === value) {
                 return array[i];
@@ -238,7 +238,7 @@ function RemoveObjectByKey(array, key, value) {
     //adapter.log.debug("+++ " + JSON.stringify(array));
     let retVal = false;
 
-    if (typeof array !== "undefined") {
+    if (array !== undefined) {
         for (let i = 0; i < array.length; i++) {
             if (array[i][key] === value) {
 
@@ -306,7 +306,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let TodayMin = obj != null ? obj.val : 0;
-    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewDay || value < obj.val) {
+    if ( obj === undefined || obj === null  || toReset.isNewDay || value < obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         TodayMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
@@ -318,7 +318,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let TodayMax = obj != null ? obj.val : 0;
-    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewDay || value > obj.val) {
+    if (obj === undefined || obj === null  || toReset.isNewDay || value > obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         TodayMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
@@ -330,7 +330,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let MonthMin = obj != null ? obj.val : 0;
-    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewMonth || value < obj.val) {
+    if ( obj === undefined || obj === null  || toReset.isNewMonth || value < obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         MonthMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
@@ -342,7 +342,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let MonthMax = obj != null ? obj.val : 0;
-    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewMonth || value > obj.val) {
+    if ( obj === undefined || obj === null  || toReset.isNewMonth || value > obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         MonthMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
@@ -354,7 +354,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let YearMin = obj != null ? obj.val : 0;
-    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewYear || value < obj.val) {
+    if ( obj === undefined || obj === null  || toReset.isNewYear || value < obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         YearMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
@@ -366,7 +366,7 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let YearMax = obj != null ? obj.val : 0;
-    if (typeof obj == undefined || obj === null || obj === undefined || toReset.isNewYear || value > obj.val) {
+    if ( obj === undefined || obj === null  || toReset.isNewYear || value > obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         YearMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
@@ -468,7 +468,7 @@ async function UpdateSubsriptions() {
 
     adapter.log.debug("!!!! UpdateSubsriptions ");
 
-    if (typeof myObjects !== "undefined" && myObjects.length > 0) {
+    if (myObjects !== undefined && myObjects.length > 0) {
 
         for (let i = 0; i < myObjects.length; i++) {
             adapter.log.info("subsribe " + myObjects[i].name);
@@ -802,12 +802,12 @@ function getCronStat() {
     let n = 0;
     let length = 0;
     try {
-        if (typeof cronJobs !== undefined && cronJobs != null) {
+        if ( cronJobs !== undefined && cronJobs != null) {
 
             length = cronJobs.length;
             //adapter.log.debug("cron jobs");
             for (n = 0; n < length; n++) {
-                if (typeof cronJobs[n] !== undefined && cronJobs[n] != null) {
+                if ( cronJobs[n] !== undefined && cronJobs[n] != null) {
                     adapter.log.debug("cron status = " + cronJobs[n].running + " next event: " + timeConverter(cronJobs[n].nextDates(),false));
                 }
             }
