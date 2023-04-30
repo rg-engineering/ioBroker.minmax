@@ -64,9 +64,9 @@
             }
         ],
         "plugins": {
-            "sentry": {
-                "dsn": "https://559ae8a3322a4b23b8ebfefb01474ecb@o390433.ingest.sentry.io/5453286"
-            }
+          "sentry": {
+            "dsn": "https://559ae8a3322a4b23b8ebfefb01474ecb@o390433.ingest.sentry.io/5453286"
+          }
         },
         "compact": true,
         "supportCustoms": true,

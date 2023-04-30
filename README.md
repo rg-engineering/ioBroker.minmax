@@ -16,7 +16,7 @@
 
 **If you like it, please consider a donation:**
                                                                           
-[![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YBAZTEBT9SYC2&source=url) 
+[![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=34ESBMJ932QZC) 
 
 ## Description
 This adapter logs the minimum and maximum values of a given data point for today, the current month, and the current year.
