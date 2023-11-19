@@ -1,4 +1,4 @@
-﻿![Logo](admin/minmax.png)
+![Logo](admin/minmax.png)
 # ioBroker.minmax
 
 ![Number of Installations](http://iobroker.live/badges/minmax-installed.svg) ![Number of Installations](http://iobroker.live/badges/minmax-stable.svg)
@@ -30,8 +30,7 @@ When the adapter is running, simply enable logging for the required data point i
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
-
-### **WORK IN PROGRESS**
+### 1.2.8 (2023-11-19)
 * (René) update dependencies
 
 ### 1.2.7 (2023-04-07)
@@ -89,7 +88,7 @@ When the adapter is running, simply enable logging for the required data point i
 * (René) bug fix: today minimum not recorded
 
 ### 0.0.2 (2018-12-21)
-* (René) initial release 
+* (René) initial release
 
 ## License
 
@@ -114,5 +113,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-
