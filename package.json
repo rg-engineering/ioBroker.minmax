@@ -16,8 +16,11 @@
     "type": "git",
     "url": "git+https://github.com/rg-engineering/ioBroker.minmax.git"
   },
+  "engines": {
+    "node": ">= 16"
+  },
   "dependencies": {
-    "@iobroker/adapter-core": "2.6.8",
+    "@iobroker/adapter-core": "3.0.3",
     "cron": "2.3.0"
   },
   "devDependencies": {

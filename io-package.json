@@ -1,89 +1,92 @@
 {
-    "common": {
-        "name": "minmax",
-        "version": "1.2.7",
-        "news": {
-            "1.2.7": {
-                "en": "update of dependencies",
-                "de": "Aktualisierung von Abhängigkeiten",
-                "ru": "обновление зависимостей",
-                "pt": "atualização de dependências",
-                "nl": "update van afhankelijkheden",
-                "fr": "mise à jour des dépendances",
-                "it": "aggiornamento delle dipendenze",
-                "es": "actualización de dependencias",
-                "pl": "aktualizacja zależności",
-                "zh-cn": "更新依赖",
-                "uk": "оновлення залежностей"
-            }
-        },
-        "titleLang": {
-            "en": "minimum and maximum",
-            "de": "Minimum und Maximum",
-            "ru": "минимум и максимум",
-            "pt": "mínimo e máximo",
-            "nl": "minimum en maximum",
-            "fr": "minimum et maximum",
-            "it": "minimo e massimo",
-            "es": "mínimo y máximo",
-            "pl": "minimum i maksimum",
-            "zh-cn": "最小和最大",
-            "uk": "мінімум і максимум"
-        },
-        "desc": {
-            "en": "calculates minumum, maximum and difference for states",
-            "de": "berechnet Minimum, Maximum und Differenz für Zustände",
-            "ru": "вычисляет минимум, максимум и разницу для состояний",
-            "pt": "calcula mínimo, máximo e diferença para estados",
-            "nl": "berekent minimum, maximum en verschil voor staten",
-            "fr": "calcule le minimum, le maximum et la différence pour les états",
-            "it": "calcola minimo, massimo e differenza per gli stati",
-            "es": "calcula mínimo, máximo y diferencia para estados",
-            "pl": "oblicza minumum, maksimum i różnicę dla stanów",
-            "zh-cn": "计算状态的最小值，最大值和差异",
-            "uk": "обчислює мінімум, максимум і різницю для станів"
-        },
-        "platform": "Javascript/Node.js",
-        "mode": "daemon",
-        "icon": "minmax.png",
-        "enabled": false,
-        "preserveSettings": "custom",
-        "extIcon": "https://raw.githubusercontent.com/rg-engineering/ioBroker.minmax/master/admin/minmax.png",
-        "keywords": [
-            "minimum",
-            "maximum"
-        ],
-        "readme": "https://github.com/rg-engineering/ioBroker.minmax/blob/master/README.md",
-        "loglevel": "info",
-        "type": "logic",
-        "license": "MIT",
-        "materialize": true,
-        "dependencies": [
-            {
-                "js-controller": ">=2.0.0"
-            }
-        ],
-        "plugins": {
-          "sentry": {
-            "dsn": "https://559ae8a3322a4b23b8ebfefb01474ecb@o390433.ingest.sentry.io/5453286"
-          }
-        },
-        "compact": true,
-        "supportCustoms": true,
-        "authors": [
-            {
-                "name": "René",
-                "email": "info@rg-engineering.eu"
-            }
-        ],
-        "connectionType": "local",
-        "dataSource": "push",
-        "jsonCustom": true,
-        "jsonConfig": true,
-        "adminUI": {
-            "config": "materialize"
-        }
+  "common": {
+    "name": "minmax",
+    "version": "1.2.7",
+    "news": {
+      "1.2.7": {
+        "en": "update of dependencies",
+        "de": "Aktualisierung von Abhängigkeiten",
+        "ru": "обновление зависимостей",
+        "pt": "atualização de dependências",
+        "nl": "update van afhankelijkheden",
+        "fr": "mise à jour des dépendances",
+        "it": "aggiornamento delle dipendenze",
+        "es": "actualización de dependencias",
+        "pl": "aktualizacja zależności",
+        "zh-cn": "更新依赖",
+        "uk": "оновлення залежностей"
+      }
     },
+    "titleLang": {
+      "en": "minimum and maximum",
+      "de": "Minimum und Maximum",
+      "ru": "минимум и максимум",
+      "pt": "mínimo e máximo",
+      "nl": "minimum en maximum",
+      "fr": "minimum et maximum",
+      "it": "minimo e massimo",
+      "es": "mínimo y máximo",
+      "pl": "minimum i maksimum",
+      "zh-cn": "最小和最大",
+      "uk": "мінімум і максимум"
+    },
+    "desc": {
+      "en": "calculates minumum, maximum and difference for states",
+      "de": "berechnet Minimum, Maximum und Differenz für Zustände",
+      "ru": "вычисляет минимум, максимум и разницу для состояний",
+      "pt": "calcula mínimo, máximo e diferença para estados",
+      "nl": "berekent minimum, maximum en verschil voor staten",
+      "fr": "calcule le minimum, le maximum et la différence pour les états",
+      "it": "calcola minimo, massimo e differenza per gli stati",
+      "es": "calcula mínimo, máximo y diferencia para estados",
+      "pl": "oblicza minumum, maksimum i różnicę dla stanów",
+      "zh-cn": "计算状态的最小值，最大值和差异",
+      "uk": "обчислює мінімум, максимум і різницю для станів"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "icon": "minmax.png",
+    "enabled": false,
+    "preserveSettings": "custom",
+    "extIcon": "https://raw.githubusercontent.com/rg-engineering/ioBroker.minmax/master/admin/minmax.png",
+    "keywords": [
+      "minimum",
+      "maximum"
+    ],
+    "readme": "https://github.com/rg-engineering/ioBroker.minmax/blob/master/README.md",
+    "loglevel": "info",
+    "type": "logic",
+    "license": "MIT",
+    "materialize": true,
+    "dependencies": [
+      {
+        "js-controller": ">=2.0.0"
+      }
+    ],
+    "adminUI": {
+      "config": "materialize"
+    },
+    "plugins": {
+      "sentry": {
+        "dsn": "https://559ae8a3322a4b23b8ebfefb01474ecb@o390433.ingest.sentry.io/5453286"
+      }
+    },
+    "compact": true,
+    "supportCustoms": true,
+    "authors": [
+      {
+        "name": "René",
+        "email": "info@rg-engineering.eu"
+      }
+    ],
+    "connectionType": "local",
+    "dataSource": "push",
+    "jsonCustom": true,
+    "jsonConfig": true,
+    "adminUI": {
+      "config": "materialize"
+    }
+  },
     "native": {
         "timezone": "Europe/Berlin"
     }

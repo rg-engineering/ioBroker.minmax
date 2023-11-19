@@ -31,6 +31,9 @@ When the adapter is running, simply enable logging for the required data point i
   ### **WORK IN PROGRESS**
 -->
 
+### **WORK IN PROGRESS**
+* (René) update dependencies
+
 ### 1.2.7 (2023-04-07)
 * (René) update dependencies
 
