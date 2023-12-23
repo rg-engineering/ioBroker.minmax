@@ -10,7 +10,15 @@
 
 [![NPM](https://nodei.co/npm/iobroker.minmax.png?downloads=true)](https://nodei.co/npm/iobroker.minmax/)
 
+![node-lts](https://img.shields.io/node/v-lts/iobroker.minmax?style=flat-square)
+![Libraries.io dependency status for latest release](https://img.shields.io/librariesio/release/npm/iobroker.minmax?label=npm%20dependencies&style=flat-square)
 
+
+![GitHub](https://img.shields.io/github/license/rg-engineering/ioBroker.minmax?style=flat-square)
+![GitHub repo size](https://img.shields.io/github/repo-size/rg-engineering/ioBroker.minmax?logo=github&style=flat-square)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/rg-engineering/ioBroker.minmax?logo=github&style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/rg-engineering/ioBroker.minmax?logo=github&style=flat-square)
+![GitHub issues](https://img.shields.io/github/issues/rg-engineering/ioBroker.minmax?logo=github&style=flat-square)
 
 
 
