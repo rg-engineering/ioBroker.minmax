@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.2.8",
+    "version": "1.2.9",
     "news": {
+      "1.2.9": {
+        "en": "(René) update dependencies",
+        "de": "(René) aktualisieren Abhängigkeiten",
+        "ru": "(René) обновление зависимостей",
+        "pt": "(René) atualizar dependências",
+        "nl": "(René) update afhankelijkheden",
+        "fr": "(René) mettre à jour les dépendances",
+        "it": "(René) aggiornamento dipendenze",
+        "es": "(René) dependencias de actualización",
+        "pl": "(René) uaktualnianie zależności",
+        "uk": "(René) оновлення залежностей",
+        "zh-cn": "(René) 更新依赖关系"
+      },
       "1.2.8": {
         "en": "update of dependencies",
         "de": "Aktualisierung von Abhängigkeiten",
@@ -82,12 +95,9 @@
     "connectionType": "local",
     "dataSource": "push",
     "jsonCustom": true,
-    "jsonConfig": true,
-    "adminUI": {
-      "config": "materialize"
-    }
+    "jsonConfig": true
   },
-    "native": {
-        "timezone": "Europe/Berlin"
-    }
+  "native": {
+    "timezone": "Europe/Berlin"
+  }
 }
