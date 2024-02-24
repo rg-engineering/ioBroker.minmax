@@ -19,6 +19,7 @@ Copyright(C)[2018][René Glaß]
 const utils = require("@iobroker/adapter-core");
 const CronJob = require("cron").CronJob;
 
+const timeConverter = require("./lib/support_tools.js").timeConverter;
 
 
 //const adapter = utils.Adapter('minmax');
@@ -94,7 +95,7 @@ async function main() {
     await UpdateSubsriptions();
     
     CronCreate();
-    getCronStat();
+    CronStatus();
 
 }
 
@@ -798,17 +799,17 @@ async function getCurrentValue(idx, toReset) {
 }
 
 
-function getCronStat() {
+function CronStatus() {
     let n = 0;
     let length = 0;
     try {
-        if ( cronJobs !== undefined && cronJobs != null) {
+        if (cronJobs !== undefined && cronJobs != null) {
 
             length = cronJobs.length;
             //adapter.log.debug("cron jobs");
             for (n = 0; n < length; n++) {
-                if ( cronJobs[n] !== undefined && cronJobs[n] != null) {
-                    adapter.log.debug("cron status = " + cronJobs[n].running + " next event: " + timeConverter(cronJobs[n].nextDates(),false));
+                if (cronJobs[n] !== undefined && cronJobs[n] != null) {
+                    adapter.log.debug("cron status = " + cronJobs[n].running + " next event: " + timeConverter("DE", cronJobs[n].nextDate()));
                 }
             }
 
