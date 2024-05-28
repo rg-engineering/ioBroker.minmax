@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.2.9",
+    "version": "1.2.10",
     "news": {
+      "1.2.10": {
+        "en": "(René) change of dependencies\n(René) new testing\n(René) nodejs >= 18, js-controller >= 5",
+        "de": "(René) Veränderung der Abhängigkeiten\n(René) neue Tests\n(René) nodejs >= 18, js-controller >= 5",
+        "ru": "(René) изменение зависимостей\n(René) новое тестирование\n(René) nodejs >= 18, js-контроллер >= 5",
+        "pt": "(René) mudança de dependências\n(René) novos testes\n(René) nodejs >= 18, js-controller >= 5",
+        "nl": "(René) verandering van afhankelijkheden\n(René) nieuwe tests\nVoor de toepassing van deze onderverdeling wordt verstaan onder: 5",
+        "fr": "(René) changement de dépendances\n(René) nouveaux essais\n(René) nodejs >= 18, js-controller >= 5",
+        "it": "(René) cambiamento delle dipendenze\n(René) nuovi test\n(René) nodejs >= 18, js-controller >= 5",
+        "es": "(René) cambio de dependencia\n(René) nuevas pruebas\n(René) nodejs >= 18, js-controller 5",
+        "pl": "(René) zmiana zależności\n(René) nowe badania\n(René) nodejs > = 18, js- controller > = 5",
+        "uk": "(Рене) зміна залежностей\n(René) новий тест\n(René) nodejs >= 18, js-controller >= 5 хв",
+        "zh-cn": "(René) 属地变化\n(雷内)新的测试\n(René) 节点 18,js -控制器 页:1"
+      },
       "1.2.9": {
         "en": "(René) update dependencies",
         "de": "(René) aktualisieren Abhängigkeiten",
