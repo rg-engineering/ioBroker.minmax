@@ -69,11 +69,15 @@
     "readme": "https://github.com/rg-engineering/ioBroker.minmax/blob/master/README.md",
     "loglevel": "info",
     "type": "logic",
-    "license": "MIT",
+    "tier": 2,
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
     "materialize": true,
     "dependencies": [
       {
-        "js-controller": ">=2.0.0"
+        "js-controller": ">=5.0.0"
       }
     ],
     "adminUI": {
