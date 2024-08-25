@@ -89,11 +89,12 @@
     },
     "dependencies": [
       {
-        "js-controller": ">=5.0.0"
+        "js-controller": ">=5.0.19"
       }
     ],
     "adminUI": {
-      "config": "materialize"
+      "config": "json",
+      "tab": "materialize"
     },
     "plugins": {
       "sentry": {
@@ -110,7 +111,7 @@
     ],
     "connectionType": "local",
     "dataSource": "push",
-    "jsonCustom": true,
+
   },
   "native": {
     "timezone": "Europe/Berlin"
