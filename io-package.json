@@ -87,7 +87,6 @@
       "license": "MIT",
       "type": "free"
     },
-    "materialize": true,
     "dependencies": [
       {
         "js-controller": ">=5.0.0"
@@ -112,7 +111,6 @@
     "connectionType": "local",
     "dataSource": "push",
     "jsonCustom": true,
-    "jsonConfig": true
   },
   "native": {
     "timezone": "Europe/Berlin"
