@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.2.10",
+    "version": "1.2.11",
     "news": {
+      "1.2.11": {
+        "en": "update dependencies",
+        "de": "aktualisierung der abhängigkeiten",
+        "ru": "обновление зависимостей",
+        "pt": "dependências",
+        "nl": "afhankelijkheden bijwerken",
+        "fr": "mettre à jour les dépendances",
+        "it": "aggiornamento dipendenze",
+        "es": "dependencias de actualización",
+        "pl": "aktualizacji zależności",
+        "uk": "оновлення залежності",
+        "zh-cn": "更新依赖关系"
+      },
       "1.2.10": {
         "en": "(René) change of dependencies\n(René) new testing\n(René) nodejs >= 18, js-controller >= 5",
         "de": "(René) Veränderung der Abhängigkeiten\n(René) neue Tests\n(René) nodejs >= 18, js-controller >= 5",
@@ -111,7 +124,6 @@
     ],
     "connectionType": "local",
     "dataSource": "push"
-
   },
   "native": {
     "timezone": "Europe/Berlin"
