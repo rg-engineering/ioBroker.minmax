@@ -6,8 +6,11 @@
       "newLine": true,
       "type": "text",
       "label": "timezone",
+      "xs": 12,
       "sm": 12,
-      "md": 4
+      "md": 4,
+      "lg": 4,
+      "xl": 4
     }
   }
 }
