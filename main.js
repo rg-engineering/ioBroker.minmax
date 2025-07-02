@@ -1,4 +1,4 @@
-﻿
+﻿/* eslint-disable prefer-template */
 /*
  * min max adapter für iobroker
  *
@@ -27,7 +27,7 @@ const timeConverter = require("./lib/support_tools.js").timeConverter;
 let lastUpdate = new Date();
 let myObjects = [];
 let adapter;
-let SystemLanguage;
+//let SystemLanguage;
 let cronJobs = [];
 
 function startAdapter(options) {
@@ -38,8 +38,7 @@ function startAdapter(options) {
             try {
                 //adapter.log.debug("start");
                 main();
-            }
-            catch (e) {
+            } catch (e) {
                 adapter.log.error("exception catch after ready [" + e + "]");
             }
         },
@@ -53,6 +52,7 @@ function startAdapter(options) {
                 SaveSetup();
                 callback();
             } catch (e) {
+                adapter.log.error("exception catch after unload [" + e + "]");
                 callback();
             }
         },
@@ -89,7 +89,7 @@ function startAdapter(options) {
 async function main() {
 
     ReadSetup();
-    SystemLanguage = await GetSystemLanguage();
+    //SystemLanguage = await GetSystemLanguage();
     // subscribe to objects, so the settings in the object are arriving to the adapter
     adapter.subscribeForeignObjects("*");
     await UpdateSubsriptions();
@@ -99,6 +99,7 @@ async function main() {
 
 }
 
+/*
 async function GetSystemLanguage() {
     let language = "de";
     const ret = await adapter.getForeignObjectAsync("system.config");
@@ -109,6 +110,7 @@ async function GetSystemLanguage() {
 
     return language;
 }
+*/
 
 //#######################################
 async function HandleObjectChange(id, obj) {
@@ -152,8 +154,7 @@ async function HandleObjectChange(id, obj) {
             });
             UpdateSubsriptions();
             SaveSetup();
-        }
-        else {
+        } else {
 
             //if changed
             if (bEnabled) {
@@ -161,9 +162,8 @@ async function HandleObjectChange(id, obj) {
 
                 obj1.name = sObjectName;
                 obj1.calcDiff = bCalcDiff;
-            }
-            //if disabled, remove it from list
-            else {
+            } else {
+                //if disabled, remove it from list
                 adapter.log.debug("remove from object list " + id);
 
                 //only when really in List
@@ -176,8 +176,7 @@ async function HandleObjectChange(id, obj) {
         //adapter.log.debug("### after objects: " + JSON.stringify(myObjects));
 
 
-    }
-    catch (e) {
+    } catch (e) {
         adapter.log.error("exception in OnObjectChange [" + e + "]");
     }
 }
@@ -201,8 +200,7 @@ async function HandleStateChange(id, state) {
                 await CalcMinMax(key, value, toReset, calcDiff);
             }
         }
-    }
-    catch (e) {
+    } catch (e) {
         adapter.log.error("exception in OnStateChange [" + e + "]");
     }
 }
@@ -541,8 +539,7 @@ async function UpdateSubsriptions() {
         }
 
 
-    }
-    else {
+    } else {
         adapter.log.debug("nothing to subsribe");
     }
 
@@ -631,8 +628,7 @@ function SaveSetup() {
         fs.writeFileSync(cacheFile, JSON.stringify(fileData));
 
         adapter.log.debug("config stored in " + cachePath);
-    }
-    catch (e) {
+    } catch (e) {
         adapter.log.error("exception in SaveSetup [" + e + "]");
     }
 
@@ -650,13 +646,14 @@ function ReadSetup() {
 
             return value;
         });
-        if (tempData.myObjects) myObjects = tempData.myObjects;
+        if (tempData.myObjects) {
+myObjects = tempData.myObjects;
+}
 
         adapter.log.debug("### after file read objects: " + JSON.stringify(myObjects));
         //fs.unlinkSync(cacheFile);
         //}
-    }
-    catch (err) {
+    } catch (err) {
         adapter.log.warn("No stored data from last exit found " + err);
     }
 
@@ -703,11 +700,10 @@ async function ResetValues() {
                 await getCurrentValue(i, toReset);
             }
         }
-    }
-    catch (e) {
+    } catch (e) {
         adapter.log.error("exception in ResetValues [" + e + "]");
     }
-    getCronStat();
+    CronStatus();
 }
 
 
@@ -749,13 +745,11 @@ function CronStatus() {
 
             if (length > 500) {
                 adapter.log.warn("more then 500 cron jobs existing for this adapter, this might be a configuration error! (" + length + ")");
-            }
-            else {
+            } else {
                 adapter.log.info(length + " cron job(s) created");
             }
         }
-    }
-    catch (e) {
+    } catch (e) {
         adapter.log.error("exception in getCronStat [" + e + "] : " + n + " of " + length);
     }
 }
