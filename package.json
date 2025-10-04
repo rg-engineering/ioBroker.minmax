@@ -1,6 +1,6 @@
 {
   "name": "iobroker.minmax",
-  "version": "1.2.12",
+  "version": "1.2.13",
   "description": "ioBroker min max Adapter",
   "author": {
     "name": "René G.",

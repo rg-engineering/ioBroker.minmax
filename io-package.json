@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.2.12",
+    "version": "1.2.13",
     "news": {
+      "1.2.13": {
+        "en": "new testing\nchanges requested by adapter checker",
+        "de": "neue tests\nänderungen, die von adapter checker angefordert werden",
+        "ru": "новые испытания\nизменения, запрошенные adapter checker",
+        "pt": "novos testes\nalterações solicitadas pelo verificador de adaptadores",
+        "nl": "nieuwe tests\nwijzigingen gevraagd door adaptercontrole",
+        "fr": "nouveaux essais\nmodifications demandées par l'adaptateur checker",
+        "it": "nuovi test\nmodifiche richieste da adattatore checker",
+        "es": "nuevas pruebas\ncambios solicitados por el adaptador",
+        "pl": "nowe badania\nzmiany wymagane przez sprawdzacz adaptera",
+        "uk": "новий тест\nзміни, які вимагаються перевіркою адаптера",
+        "zh-cn": "新测试\n适配器检查器要求的更改"
+      },
       "1.2.12": {
         "en": "changes requested by adapter checker\ndependencies updated",
         "de": "änderungen, die von adapter checker angefordert werden\naktualisierte abhängigkeiten",
