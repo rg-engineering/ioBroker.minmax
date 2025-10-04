@@ -12,3 +12,4 @@ lib/i18n/*/flat.txt
 /.settings/
 /iobroker.2020-10-31.log
 *.orig
+/.vscode/extensions.json

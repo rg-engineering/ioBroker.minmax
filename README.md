@@ -41,7 +41,7 @@ When the adapter is running, simply enable logging for the required data point i
 
 ### **WORK IN PROGRESS**
 * (René) new testing
-
+* (René) changes requested by adapter checker
 
 ### 1.2.12 (2025-02-28)
 * (René) changes requested by adapter checker
