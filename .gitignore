@@ -1,4 +1,4 @@
-.git
+﻿.git
 .idea
 node_modules
 nbproject
@@ -13,3 +13,4 @@ lib/i18n/*/flat.txt
 /iobroker.2020-10-31.log
 *.orig
 /.vscode/extensions.json
+.commitinfo

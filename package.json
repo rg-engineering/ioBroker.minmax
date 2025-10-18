@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "iobroker.minmax",
   "version": "1.2.13",
   "description": "ioBroker min max Adapter",
@@ -31,9 +31,7 @@
     "@alcalzone/release-script-plugin-manual-review": "^3.7.0",
     "@iobroker/adapter-dev": "^1.5.0",
     "@iobroker/eslint-config": "^2.2.0",
-    "@iobroker/testing": "^5.1.1",
-    "chai": "^6.2.0",
-    "mocha": "^11.7.4"
+    "@iobroker/testing": "^5.1.1"
   },
   "main": "main.js",
   "scripts": {
