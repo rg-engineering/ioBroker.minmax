@@ -38,6 +38,10 @@ When the adapter is running, simply enable logging for the required data point i
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+* (René) test release
+
 ### 1.2.14 (2025-10-21)
 * (René) changes requested by adapter checker
 
