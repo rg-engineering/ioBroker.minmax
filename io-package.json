@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.2.14",
+    "version": "1.2.15",
     "news": {
+      "1.2.15": {
+        "en": "test release",
+        "de": "prüfbericht",
+        "ru": "испытательный выпуск",
+        "pt": "libertação de teste",
+        "nl": "loslaten van de test",
+        "fr": "libération d'essai",
+        "it": "rilascio del test",
+        "es": "prueba de liberación",
+        "pl": "uwalnianie testowe",
+        "uk": "тестовий реліз",
+        "zh-cn": "测试发布"
+      },
       "1.2.14": {
         "en": "changes requested by adapter checker",
         "de": "änderungen, die von adapter checker angefordert werden",
@@ -80,19 +93,6 @@
         "pl": "(René) uaktualnianie zależności",
         "uk": "(René) оновлення залежностей",
         "zh-cn": "(René) 更新依赖关系"
-      },
-      "1.2.8": {
-        "en": "update of dependencies",
-        "de": "Aktualisierung von Abhängigkeiten",
-        "ru": "обновление зависимостей",
-        "pt": "atualização de dependências",
-        "nl": "update van afhankelijkheden",
-        "fr": "mise à jour des dépendances",
-        "it": "aggiornamento delle dipendenze",
-        "es": "actualización de dependencias",
-        "pl": "aktualizacja zależności",
-        "zh-cn": "更新依赖",
-        "uk": "оновлення залежностей"
       }
     },
     "titleLang": {
