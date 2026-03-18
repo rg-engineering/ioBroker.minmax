@@ -35,6 +35,7 @@ jobs:
 
   # Runs adapter tests on all supported node versions and OSes
   adapter-tests:
+    needs: [check-and-lint]
     if: contains(github.event.head_commit.message, '[skip ci]') == false
 
     runs-on: ${{ matrix.os }}
@@ -85,18 +86,6 @@ jobs:
         # To enable create a API-Token in Sentry (User settings, API keys)
         # Enter this token as a GitHub secret (with name SENTRY_AUTH_TOKEN) in the repository options
         # Then uncomment and customize the following block:
-      #- name: Notify Sentry.io about the release
-      #  run: |  
-      #     npm i -g @sentry/cli
-      #     export SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
-      #     export SENTRY_URL=https://sentry.io
-      #     export SENTRY_ORG=rg-engineering
-      #     export SENTRY_PROJECT=iobroker_minmax
-      #     export SENTRY_VERSION=iobroker.minmax@${{ steps.extract_release.outputs.VERSION }}
-      #     sentry-cli releases new $SENTRY_VERSION
-      #     sentry-cli releases set-commits $SENTRY_VERSION --auto
-      #     sentry-cli releases finalize $SENTRY_VERSION
-
           sentry: true
           sentry-token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           sentry-org: "rg-engineering"
@@ -107,4 +96,23 @@ jobs:
           # If your sentry project is linked to a GitHub repository, you can enable the following option
           sentry-github-integration: true
 
-           
+      #- name: Notify Sentry.io about the release
+      #  run: |  
+      #     npm i -g @sentry/cli
+      #     export SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+      #     export SENTRY_URL=https://sentry.io
+      #     export SENTRY_ORG=rg-engineering
+      #     export SENTRY_PROJECT=iobroker_amtronwallbox
+      #     export SENTRY_VERSION=iobroker.amtronwallbox@${{ steps.extract_release.outputs.VERSION }}
+      #     sentry-cli releases new $SENTRY_VERSION
+      #     sentry-cli releases set-commits $SENTRY_VERSION --auto
+      #     sentry-cli releases finalize $SENTRY_VERSION
+
+
+
+
+
+
+
+
+

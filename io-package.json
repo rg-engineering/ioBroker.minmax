@@ -146,11 +146,12 @@
     ],
     "globalDependencies": [
       {
-        "admin": ">=7.6.17"
+        "admin": ">=7.6.20"
       }
     ],
     "adminUI": {
       "config": "json",
+      "custom": "json",
       "tab": "materialize"
     },
     "plugins": {
