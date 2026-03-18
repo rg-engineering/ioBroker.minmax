@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "minmax",
-    "version": "1.2.15",
+    "version": "1.2.16",
     "news": {
+      "1.2.16": {
+        "en": "changes requested by adapter checker and dependencies updated",
+        "de": "änderungen, die von adapter checker und abhängigkeiten angefordert werden",
+        "ru": "изменения, запрошенные adapter checker и обновленные зависимости",
+        "pt": "alterações solicitadas pelo verificador de adaptadores e dependências atualizadas",
+        "nl": "wijzigingen gevraagd door adaptercontroler en afhankelijkheden bijgewerkt",
+        "fr": "les modifications demandées par l'adaptateur checker et les dépendances mises à jour",
+        "it": "modifiche richieste da adattatore checker e dipendenze aggiornate",
+        "es": "actualización de los cambios solicitados por el adaptador y las dependencias",
+        "pl": "zmiany wymagane przez sprawdzacz adaptera i uaktualnione zależności",
+        "uk": "зміни, які вимагаються перевіркою адаптера і залежностей, оновлено",
+        "zh-cn": "适配器检查器和依赖性要求的更改更新"
+      },
       "1.2.15": {
         "en": "test release",
         "de": "prüfbericht",
@@ -80,19 +93,6 @@
         "pl": "(René) zmiana zależności\n(René) nowe badania\n(René) nodejs > = 18, js- controller > = 5",
         "uk": "(Рене) зміна залежностей\n(René) новий тест\n(René) nodejs >= 18, js-controller >= 5 хв",
         "zh-cn": "(René) 属地变化\n(雷内)新的测试\n(René) 节点 18,js -控制器 页:1"
-      },
-      "1.2.9": {
-        "en": "(René) update dependencies",
-        "de": "(René) aktualisieren Abhängigkeiten",
-        "ru": "(René) обновление зависимостей",
-        "pt": "(René) atualizar dependências",
-        "nl": "(René) update afhankelijkheden",
-        "fr": "(René) mettre à jour les dépendances",
-        "it": "(René) aggiornamento dipendenze",
-        "es": "(René) dependencias de actualización",
-        "pl": "(René) uaktualnianie zależności",
-        "uk": "(René) оновлення залежностей",
-        "zh-cn": "(René) 更新依赖关系"
       }
     },
     "titleLang": {
