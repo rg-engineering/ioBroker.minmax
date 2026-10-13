@@ -18,7 +18,7 @@ declare global {
 	namespace ioBroker {
 		interface AdapterConfig {
 
-			name: string
+			timezone: string
 
 		}
 	}
