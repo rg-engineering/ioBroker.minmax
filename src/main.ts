@@ -1,0 +1,139 @@
+/* eslint-disable prefer-template */
+/*
+ * Created with @iobroker/create-adapter v2.6.5
+ */
+
+
+
+//https://www.iobroker.net/#en/documentation/dev/adapterdev.md
+
+import * as utils from "@iobroker/adapter-core";
+
+
+export class Minmax extends utils.Adapter {
+
+	private parseInterval: ReturnType<typeof this.setInterval> | null = null;
+	private updateInterval: ReturnType<typeof this.setInterval> | null = null;
+	private updateTimeout: ReturnType<typeof this.setTimeout> | null = null;
+		
+	public constructor(options: Partial<utils.AdapterOptions> = {}) {
+		super({
+			...options,
+			name: "minmax",
+		});
+		this.on("ready", this.onReady.bind(this));
+		this.on("stateChange", this.onStateChange.bind(this));
+		this.on("objectChange", this.onObjectChange.bind(this));
+		this.on("message", this.onMessage.bind(this));
+		this.on("unload", this.onUnload.bind(this));
+	}
+
+	/**
+	 * Is called when databases are connected and adapter received configuration.
+	 */
+	private async onReady(): Promise<void> {
+		// Initialize your adapter here
+
+		// The adapters config (in the instance object everything under the attribute "native") is accessible via
+		// this.config:
+		this.log.debug("config : " + JSON.stringify(this.config));
+
+		//this.log.debug("API key : " + JSON.stringify(this.config.ApiKey));
+
+		
+		
+
+		
+
+		
+	}
+
+
+	
+
+	
+	/**
+	 * Is called when adapter shuts down - callback has to be called under any circumstances!
+	 */
+	private onUnload(callback: () => void): void {
+		try {
+			// Here you must clear all timeouts or intervals that may still be active
+			// clearTimeout(timeout1);
+			// clearTimeout(timeout2);
+			// ...
+			
+
+			
+			
+
+			callback();
+		} catch (e) {
+            this.log.error("exception in onUnload " + String(e));
+			callback();
+		}
+	}
+
+	// If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
+	// You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
+	// /**
+	//  * Is called if a subscribed object changes
+	//  */
+	private onObjectChange(id: string, obj: ioBroker.Object | null | undefined): void {
+	 	if (obj) {
+	 		// The object was changed
+			  this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
+			  
+
+
+
+	 	} else {
+	 		// The object was deleted
+	 		this.log.info(`object ${id} deleted`);
+	 	}
+	}
+
+	/**
+	 * Is called if a subscribed state changes
+	 */
+
+	private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
+		if (state) {
+			// The state was changed
+			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+	
+			
+	
+		} else {
+			// The state was deleted
+			this.log.info(`state ${id} deleted`);
+		}
+	}
+	
+
+	// If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
+	// /**
+	//  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
+	//  * Using this method requires "common.messagebox" property to be set to true in io-package.json
+	//  */
+	private onMessage(obj: ioBroker.Message): void {
+		if (typeof obj === "object" && obj.command) {
+			 
+				this.log.warn("got unknown message: " + obj.command + " / " + obj.message + " from " + obj.from);
+			
+		} else {
+			this.log.warn("got invalid message object " + JSON.stringify(obj));
+		}
+	}
+
+
+	
+
+}
+
+if (require.main !== module) {
+	// Export the constructor in compact mode
+	module.exports = (options: Partial<utils.AdapterOptions> | undefined) => new Minmax(options);
+} else {
+	// otherwise start the instance directly
+	(() => new Minmax())();
+}
