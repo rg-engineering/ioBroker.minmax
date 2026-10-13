@@ -38,6 +38,10 @@ When the adapter is running, simply enable logging for the required data point i
   Placeholder for the next version (at the beginning of the line):
   ### **WORK IN PROGRESS**
 -->
+
+### **WORK IN PROGRESS**
+* (René) redesign based on typescript
+
 ### 1.2.16 (2026-03-18)
 * (René) changes requested by adapter checker and dependencies updated
 
