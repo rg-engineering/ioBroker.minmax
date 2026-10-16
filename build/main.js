@@ -64,6 +64,8 @@ class Minmax extends utils.Adapter {
         // this.config:
         this.log.debug("config : " + JSON.stringify(this.config));
         //this.log.debug("API key : " + JSON.stringify(this.config.ApiKey));
+        // subscribe to objects, so the settings in the object are arriving to the adapter
+        this.subscribeForeignObjects("*");
     }
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!

@@ -40,8 +40,8 @@ export class Minmax extends utils.Adapter {
 
 		//this.log.debug("API key : " + JSON.stringify(this.config.ApiKey));
 
-		
-		
+		// subscribe to objects, so the settings in the object are arriving to the adapter
+		this.subscribeForeignObjects("*");
 
 		
 
