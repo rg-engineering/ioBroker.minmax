@@ -36,14 +36,16 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Minmax = void 0;
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 const utils = __importStar(require("@iobroker/adapter-core"));
+const minmaxvalue_1 = __importDefault(require("./lib/minmaxvalue"));
 class Minmax extends utils.Adapter {
-    parseInterval = null;
-    updateInterval = null;
-    updateTimeout = null;
+    minmaxvalues = [];
     constructor(options = {}) {
         super({
             ...options,
@@ -88,15 +90,90 @@ class Minmax extends utils.Adapter {
     // /**
     //  * Is called if a subscribed object changes
     //  */
-    onObjectChange(id, obj) {
+    async onObjectChange(id, obj) {
         if (obj) {
             // The object was changed
             this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
+            /*
+            {
+                "type": "state",
+                "common": {
+                    "name": "Temperature_Max",
+                    "role": "value.temperature.max.forecast.0",
+                    "type": "number",
+                    "unit": "�C",
+                    "read": true,
+                    "write": false,
+                    "desc": "Maximum temperature",
+                    "custom": {
+                        "minmax.0": {
+                            "enabled": true,
+                            "logName": "MinMaxTemp"
+                        }
+                    }
+                },
+                "native": {
+                    "id": "location_1.ForecastDaily.Day_1.Temperature_Max"
+                },
+                "_id": "daswetter.0.location_1.ForecastDaily.Day_1.Temperature_Max",
+                "acl": {
+                    "object": 1636,
+                    "state": 1636,
+                    "owner": "system.user.admin",
+                    "ownerGroup": "system.group.administrator"
+                },
+                "from": "system.adapter.admin.0",
+                "user": "system.user.admin",
+                "ts": 1792170762861
+            }
+            */
+            await this.handleObject(obj);
         }
         else {
             // The object was deleted
             this.log.info(`object ${id} deleted`);
         }
+    }
+    // Hilfsmethoden zum Hinzuf�gen/Aktualisieren/Entfernen von Eintr�gen in this.minmaxvalues
+    // Anpassungen m�glich (Typen, zus�tzliche Felder), hier bewusst generisch gehalten.
+    async handleObject(obj) {
+        // Objektpfad pr�fen (ioBroker-Objekte haben meist common.custom)
+        const custom = obj?.common?.custom?.['minmax.0'];
+        if (custom === undefined) {
+            // Kein minmax.0-Eintrag vorhanden -> nichts tun
+            return;
+        }
+        const enabled = !!custom.enabled;
+        const id = obj._id || obj.native.id;
+        if (!id) {
+            return;
+        }
+        const idx = this.minmaxvalues.findIndex((v) => v.id === id);
+        if (enabled) {
+            if (idx === -1) {
+                // Neu anlegen
+                const newMinmaxValue = this.createMinMaxValueFromObject(obj);
+                await newMinmaxValue.Start();
+                this.minmaxvalues.push(newMinmaxValue);
+            }
+        }
+        else {
+            if (idx !== -1) {
+                // Entfernen, wenn deaktiviert
+                this.minmaxvalues.splice(idx, 1);
+                this.log.info(`instance deleted`);
+            }
+        }
+    }
+    createMinMaxValueFromObject(obj) {
+        // Erstelle minmaxvalue aus dem Objekt. Felder anpassen wie ben�tigt.
+        const config = {
+            oid: obj._id || obj.native.id,
+            name: obj.common?.custom?.['minmax.0']?.logName || '',
+            calcdif: obj.common?.custom?.['minmax.0']?.calcdif || false,
+        };
+        const newMinmaxValue = new minmaxvalue_1.default(this, this.minmaxvalues.length, config);
+        return newMinmaxValue;
     }
     /**
      * Is called if a subscribed state changes
@@ -105,6 +182,11 @@ class Minmax extends utils.Adapter {
         if (state) {
             // The state was changed
             this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+            for (const minmaxValue of this.minmaxvalues) {
+                if (minmaxValue.oid === id) {
+                    await minmaxValue.onStateChange(state);
+                }
+            }
         }
         else {
             // The state was deleted

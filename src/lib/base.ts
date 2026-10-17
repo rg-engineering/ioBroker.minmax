@@ -7,7 +7,7 @@ export default class Base {
     id: number;
     name: string;
 
-    constructor(adapter:Minmax,id:number, name: string) {
+    constructor(adapter: Minmax, id: number, name: string) {
         this.adapter = adapter;
         this.id = id;
         this.name = name;
@@ -97,4 +97,47 @@ export default class Base {
             await this.adapter.setState(key, { ack: true, val: value });
         }
     }
+
+
+    timeConverter(SystemLanguage: string, time: Date | null, timeonly = false):string {
+
+        let a;
+
+        if (time != null) {
+            a = new Date(time);
+        } else {
+            a = new Date();
+        }
+        let months;
+
+        if (SystemLanguage === "de") {
+            months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+        } else if (SystemLanguage === "en") {
+            months = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+        } else {
+            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        }
+
+        const year = a.getFullYear();
+        const month = months[a.getMonth()];
+        const date = a.getDate();
+        const sdate = date < 10 ? " " + date.toString() : date.toString();
+        const hour = a.getHours();
+        const shour = hour < 10 ? "0" + hour.toString() : hour.toString();
+        const min = a.getMinutes();
+        const smin = min < 10 ? "0" + min.toString() : min.toString();
+        const sec = a.getSeconds();
+        const ssec = sec < 10 ? "0" + sec.toString() : sec.toString();
+
+        let sRet = "";
+        if (timeonly) {
+            sRet = shour + ":" + smin + ":" + ssec;
+        } else {
+            sRet = sdate + " " + month + " " + year.toString() + " " + shour + ":" + smin + ":" + ssec;
+        }
+
+        return sRet;
+    }
+
+    
 }

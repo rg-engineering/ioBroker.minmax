@@ -8,13 +8,12 @@
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 
 import * as utils from "@iobroker/adapter-core";
-
+import minmaxvalue from "./lib/minmaxvalue";
+import type { MinmaxConfig } from './lib/adapter-config';
 
 export class Minmax extends utils.Adapter {
 
-	private parseInterval: ReturnType<typeof this.setInterval> | null = null;
-	private updateInterval: ReturnType<typeof this.setInterval> | null = null;
-	private updateTimeout: ReturnType<typeof this.setTimeout> | null = null;
+	private minmaxvalues: minmaxvalue[] =[];
 		
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
@@ -78,19 +77,107 @@ export class Minmax extends utils.Adapter {
 	// /**
 	//  * Is called if a subscribed object changes
 	//  */
-	private onObjectChange(id: string, obj: ioBroker.Object | null | undefined): void {
+	private async onObjectChange(id: string, obj: ioBroker.Object | null | undefined): Promise<void> {
 	 	if (obj) {
 	 		// The object was changed
 			  this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
+
+			  /*
+			  {
+				  "type": "state",
+				  "common": {
+					  "name": "Temperature_Max",
+					  "role": "value.temperature.max.forecast.0",
+					  "type": "number",
+					  "unit": "°C",
+					  "read": true,
+					  "write": false,
+					  "desc": "Maximum temperature",
+					  "custom": {
+						  "minmax.0": {
+							  "enabled": true,
+							  "logName": "MinMaxTemp"
+						  }
+					  }
+				  },
+				  "native": {
+					  "id": "location_1.ForecastDaily.Day_1.Temperature_Max"
+				  },
+				  "_id": "daswetter.0.location_1.ForecastDaily.Day_1.Temperature_Max",
+				  "acl": {
+					  "object": 1636,
+					  "state": 1636,
+					  "owner": "system.user.admin",
+					  "ownerGroup": "system.group.administrator"
+				  },
+				  "from": "system.adapter.admin.0",
+				  "user": "system.user.admin",
+				  "ts": 1792170762861
+			  }
+			  */
+
+              await this.handleObject(obj);
+
 			  
-
-
 
 	 	} else {
 	 		// The object was deleted
 	 		this.log.info(`object ${id} deleted`);
 	 	}
 	}
+
+
+	// Hilfsmethoden zum Hinzufügen/Aktualisieren/Entfernen von Einträgen in this.minmaxvalues
+	// Anpassungen möglich (Typen, zusätzliche Felder), hier bewusst generisch gehalten.
+
+	private async handleObject(obj: ioBroker.Object): Promise<void> {
+		// Objektpfad prüfen (ioBroker-Objekte haben meist common.custom)
+		const custom = obj?.common?.custom?.['minmax.0'];
+		if (custom === undefined) {
+			// Kein minmax.0-Eintrag vorhanden -> nichts tun
+			return;
+		}
+
+		const enabled = !!custom.enabled;
+		const id = obj._id || obj.native.id;
+		if (!id) {
+			return;
+		}
+		const idx = this.minmaxvalues.findIndex((v: any) => v.id === id);
+
+		if (enabled) {
+			if (idx === -1) {
+				// Neu anlegen
+				const newMinmaxValue = this.createMinMaxValueFromObject(obj);
+                await newMinmaxValue.Start();
+				this.minmaxvalues.push(newMinmaxValue);
+			} 
+		} else {
+			if (idx !== -1) {
+				// Entfernen, wenn deaktiviert
+				this.minmaxvalues.splice(idx, 1);
+				this.log.info(`instance deleted`);
+			}
+		}
+	}
+
+	private createMinMaxValueFromObject(obj: ioBroker.Object): minmaxvalue{
+		// Erstelle minmaxvalue aus dem Objekt. Felder anpassen wie benötigt.
+
+		const config: MinmaxConfig = {
+			oid: obj._id || obj.native.id,
+			name: obj.common?.custom?.['minmax.0']?.logName || '',
+			calcdif: obj.common?.custom?.['minmax.0']?.calcdif || false,
+		}
+
+		const newMinmaxValue = new minmaxvalue(this, this.minmaxvalues.length, config)
+
+		return newMinmaxValue;
+	}
+
+	
+
+
 
 	/**
 	 * Is called if a subscribed state changes
@@ -100,7 +187,13 @@ export class Minmax extends utils.Adapter {
 		if (state) {
 			// The state was changed
 			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-	
+
+			for (const minmaxValue of this.minmaxvalues) {
+				if (minmaxValue.oid === id) {
+					await minmaxValue.onStateChange(state);
+				}
+			}
+
 			
 	
 		} else {
@@ -137,3 +230,4 @@ if (require.main !== module) {
 	// otherwise start the instance directly
 	(() => new Minmax())();
 }
+
