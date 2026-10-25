@@ -8,15 +8,14 @@
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 
 import * as utils from "@iobroker/adapter-core";
-import minmaxvalue from "./lib/minmaxvalue";
+
 import type { MinmaxConfig } from './lib/adapter-config';
 
-import ConfigStore from './lib/configstore';
+
 
 export class Minmax extends utils.Adapter {
 
-	private minmaxvalues: minmaxvalue[] = [];
-	private configStore: ConfigStore | null = null;
+	
 		
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
@@ -38,29 +37,16 @@ export class Minmax extends utils.Adapter {
 		await Promise.resolve();
 
 		// Initialize your adapter here
-		this.configStore = new ConfigStore(this);
-
-		if (this.configStore) {
-
-			this.minmaxvalues = this.configStore.ReadOldSetup();
-			if (this.minmaxvalues.length > 0) {
-				this.configStore.ReadOldSetup();
-				this.configStore.SaveSetup(this.minmaxvalues);
-			} else {
-				this.minmaxvalues = this.configStore.ReadSetup();
-			}
-		} else {
-			this.log.error("configStore is not initialized");
-		}
+		
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
 		this.log.debug("config : " + JSON.stringify(this.config));
 
-		//this.log.debug("API key : " + JSON.stringify(this.config.ApiKey));
+		
 
-		// subscribe to objects, so the settings in the object are arriving to the adapter
-		this.subscribeForeignObjects("*");
+		
+		
 
 		
 
@@ -98,7 +84,9 @@ export class Minmax extends utils.Adapter {
 	//  * Is called if a subscribed object changes
 	//  */
 	private async onObjectChange(id: string, obj: ioBroker.Object | null | undefined): Promise<void> {
-	 	if (obj) {
+
+		await Promise.resolve();
+		if (obj) {
 	 		// The object was changed
 			  this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
 
@@ -136,8 +124,7 @@ export class Minmax extends utils.Adapter {
 			  }
 			  */
 
-			  await this.handleObject(obj);
-			  this.configStore.SaveSetup(this.minmaxvalues);
+			 
 
 			  
 
@@ -148,54 +135,6 @@ export class Minmax extends utils.Adapter {
 	}
 
 
-	// Hilfsmethoden zum Hinzufügen/Aktualisieren/Entfernen von Einträgen in this.minmaxvalues
-	// Anpassungen möglich (Typen, zusätzliche Felder), hier bewusst generisch gehalten.
-
-	private async handleObject(obj: ioBroker.Object): Promise<void> {
-		// Objektpfad prüfen (ioBroker-Objekte haben meist common.custom)
-		const custom = obj?.common?.custom?.['minmax.0'];
-		if (custom === undefined) {
-			// Kein minmax.0-Eintrag vorhanden -> nichts tun
-			return;
-		}
-
-		const enabled = !!custom.enabled;
-		const id = obj._id || obj.native.id;
-		if (!id) {
-			return;
-		}
-		const idx = this.minmaxvalues.findIndex((v: any) => v.id === id);
-
-		if (enabled) {
-			if (idx === -1) {
-				// Neu anlegen
-				const newMinmaxValue = this.createMinMaxValueFromObject(obj);
-                await newMinmaxValue.Start();
-				this.minmaxvalues.push(newMinmaxValue);
-			} 
-		} else {
-			if (idx !== -1) {
-				// Entfernen, wenn deaktiviert
-				this.minmaxvalues.splice(idx, 1);
-				this.log.info(`instance deleted`);
-			}
-		}
-	}
-
-	private createMinMaxValueFromObject(obj: ioBroker.Object): minmaxvalue{
-		// Erstelle minmaxvalue aus dem Objekt. Felder anpassen wie benötigt.
-
-		const config: MinmaxConfig = {
-			oid: obj._id || obj.native.id,
-			name: obj.common?.custom?.['minmax.0']?.logName || '',
-			calcdif: obj.common?.custom?.['minmax.0']?.calcdif || false,
-		}
-
-		const newMinmaxValue = new minmaxvalue(this, this.minmaxvalues.length, config)
-
-		return newMinmaxValue;
-	}
-
 	
 
 
@@ -205,15 +144,13 @@ export class Minmax extends utils.Adapter {
 	 */
 
 	private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
+
+		await Promise.resolve();
 		if (state) {
 			// The state was changed
 			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 
-			for (const minmaxValue of this.minmaxvalues) {
-				if (minmaxValue.oid === id) {
-					await minmaxValue.onStateChange(state);
-				}
-			}
+			
 
 			
 	

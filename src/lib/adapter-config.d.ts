@@ -1,7 +1,7 @@
 // This file extends the AdapterConfig type from "@types/iobroker"
 
 
-//Interface zu meteored
+//Interface
 export interface MinmaxConfig {
 	name: string; 
 	oid: string; 
