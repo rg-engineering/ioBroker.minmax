@@ -11,9 +11,12 @@ import * as utils from "@iobroker/adapter-core";
 import minmaxvalue from "./lib/minmaxvalue";
 import type { MinmaxConfig } from './lib/adapter-config';
 
+import ConfigStore from './lib/configstore';
+
 export class Minmax extends utils.Adapter {
 
-	private minmaxvalues: minmaxvalue[] =[];
+	private minmaxvalues: minmaxvalue[] = [];
+	private configStore: ConfigStore | null = null;
 		
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
@@ -31,7 +34,24 @@ export class Minmax extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	private async onReady(): Promise<void> {
+
+		await Promise.resolve();
+
 		// Initialize your adapter here
+		this.configStore = new ConfigStore(this);
+
+		if (this.configStore) {
+
+			this.minmaxvalues = this.configStore.ReadOldSetup();
+			if (this.minmaxvalues.length > 0) {
+				this.configStore.ReadOldSetup();
+				this.configStore.SaveSetup(this.minmaxvalues);
+			} else {
+				this.minmaxvalues = this.configStore.ReadSetup();
+			}
+		} else {
+			this.log.error("configStore is not initialized");
+		}
 
 		// The adapters config (in the instance object everything under the attribute "native") is accessible via
 		// this.config:
@@ -116,7 +136,8 @@ export class Minmax extends utils.Adapter {
 			  }
 			  */
 
-              await this.handleObject(obj);
+			  await this.handleObject(obj);
+			  this.configStore.SaveSetup(this.minmaxvalues);
 
 			  
 

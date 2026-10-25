@@ -18,6 +18,12 @@ export default class ConfigStore {
         this.cacheFile = this.cachePath + "minmax.json";
     }
 
+
+    SaveSetup(config: MinmaxConfig[]): void {
+
+
+    }
+
     SaveOldSetup(): void {
 
         //to do: Rechte richtig?
