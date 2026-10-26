@@ -8,11 +8,11 @@
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 
 import * as utils from "@iobroker/adapter-core";
+import MinmaxController from "./lib/minmax-controller";
 
 export class Minmax extends utils.Adapter {
+	private minmaxController: MinmaxController | undefined;
 
-	
-		
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
 			...options,
@@ -29,24 +29,12 @@ export class Minmax extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	private async onReady(): Promise<void> {
+		this.log.debug(`Starting with timezone ${this.config.timezone || "Europe/Berlin"}`);
+		this.minmaxController = new MinmaxController(this);
+		this.subscribeForeignObjects("*");
 
-		await Promise.resolve();
-
-		// Initialize your adapter here
-		
-
-		// The adapters config (in the instance object everything under the attribute "native") is accessible via
-		// this.config:
-		this.log.debug("config : " + JSON.stringify(this.config));
-
-		
-
-		
-		
-
-		
-
-		
+		const objects = await this.getForeignObjectsAsync("*", "state");
+		await this.minmaxController.initialize(objects);
 	}
 
 
@@ -57,21 +45,16 @@ export class Minmax extends utils.Adapter {
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
 	 */
 	private onUnload(callback: () => void): void {
-		try {
-			// Here you must clear all timeouts or intervals that may still be active
-			// clearTimeout(timeout1);
-			// clearTimeout(timeout2);
-			// ...
-			
-
-			
-			
-
-			callback();
-		} catch (e) {
-            this.log.error("exception in onUnload " + String(e));
-			callback();
-		}
+		void (async () => {
+			try {
+				await this.minmaxController?.stop();
+				this.unsubscribeForeignObjects("*");
+			} catch (error) {
+				this.log.error(`Failed to stop minmax controller: ${String(error)}`);
+			} finally {
+				callback();
+			}
+		})();
 	}
 
 	// If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
@@ -80,11 +63,10 @@ export class Minmax extends utils.Adapter {
 	//  * Is called if a subscribed object changes
 	//  */
 	private async onObjectChange(id: string, obj: ioBroker.Object | null | undefined): Promise<void> {
-
-		await Promise.resolve();
+		await this.minmaxController?.handleObjectChange(id, obj);
 		if (obj) {
 	 		// The object was changed
-			  this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
+			  this.log.debug(`object ${id} changed`);
 
 			  /*
 			  {
@@ -140,19 +122,10 @@ export class Minmax extends utils.Adapter {
 	 */
 
 	private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
-
-		await Promise.resolve();
-		if (state) {
-			// The state was changed
-			this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-
-			
-
-			
-	
-		} else {
-			// The state was deleted
-			this.log.info(`state ${id} deleted`);
+		try {
+			await this.minmaxController?.handleStateChange(id, state);
+		} catch (error) {
+			this.log.error(`Failed to process state change for ${id}: ${String(error)}`);
 		}
 	}
 	

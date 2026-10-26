@@ -26,6 +26,12 @@ export interface MinMaxStatistics {
     year: PeriodStatistics | null;
 }
 
+export interface CalculatedMinMaxStatistics {
+    day: PeriodStatistics;
+    month: PeriodStatistics;
+    year: PeriodStatistics;
+}
+
 export interface PeriodResetFlags {
     day: boolean;
     month: boolean;
@@ -39,6 +45,6 @@ export interface MinMaxDifferences {
 }
 
 export interface MinMaxCalculationResult {
-    statistics: MinMaxStatistics;
+    statistics: CalculatedMinMaxStatistics;
     differences?: MinMaxDifferences;
 }

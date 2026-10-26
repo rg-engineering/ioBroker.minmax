@@ -36,11 +36,16 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Minmax = void 0;
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 const utils = __importStar(require("@iobroker/adapter-core"));
+const minmax_controller_1 = __importDefault(require("./lib/minmax-controller"));
 class Minmax extends utils.Adapter {
+    minmaxController;
     constructor(options = {}) {
         super({
             ...options,
@@ -56,27 +61,28 @@ class Minmax extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     async onReady() {
-        await Promise.resolve();
-        // Initialize your adapter here
-        // The adapters config (in the instance object everything under the attribute "native") is accessible via
-        // this.config:
-        this.log.debug("config : " + JSON.stringify(this.config));
+        this.log.debug(`Starting with timezone ${this.config.timezone || "Europe/Berlin"}`);
+        this.minmaxController = new minmax_controller_1.default(this);
+        this.subscribeForeignObjects("*");
+        const objects = await this.getForeignObjectsAsync("*", "state");
+        await this.minmaxController.initialize(objects);
     }
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!
      */
     onUnload(callback) {
-        try {
-            // Here you must clear all timeouts or intervals that may still be active
-            // clearTimeout(timeout1);
-            // clearTimeout(timeout2);
-            // ...
-            callback();
-        }
-        catch (e) {
-            this.log.error("exception in onUnload " + String(e));
-            callback();
-        }
+        void (async () => {
+            try {
+                await this.minmaxController?.stop();
+                this.unsubscribeForeignObjects("*");
+            }
+            catch (error) {
+                this.log.error(`Failed to stop minmax controller: ${String(error)}`);
+            }
+            finally {
+                callback();
+            }
+        })();
     }
     // If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
     // You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
@@ -84,10 +90,10 @@ class Minmax extends utils.Adapter {
     //  * Is called if a subscribed object changes
     //  */
     async onObjectChange(id, obj) {
-        await Promise.resolve();
+        await this.minmaxController?.handleObjectChange(id, obj);
         if (obj) {
             // The object was changed
-            this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
+            this.log.debug(`object ${id} changed`);
             /*
             {
                 "type": "state",
@@ -131,14 +137,11 @@ class Minmax extends utils.Adapter {
      * Is called if a subscribed state changes
      */
     async onStateChange(id, state) {
-        await Promise.resolve();
-        if (state) {
-            // The state was changed
-            this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+        try {
+            await this.minmaxController?.handleStateChange(id, state);
         }
-        else {
-            // The state was deleted
-            this.log.info(`state ${id} deleted`);
+        catch (error) {
+            this.log.error(`Failed to process state change for ${id}: ${String(error)}`);
         }
     }
     // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.

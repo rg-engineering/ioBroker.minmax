@@ -1,4 +1,5 @@
 import type {
+    CalculatedMinMaxStatistics,
     Extremum,
     MinMaxCalculationResult,
     MinMaxStatistics,
@@ -29,7 +30,7 @@ export class MinMaxCalculator {
         const day = this.updatePeriod(current.day, value, timestamp, resetPeriods.day);
         const month = this.updatePeriod(current.month, value, timestamp, resetPeriods.month);
         const year = this.updatePeriod(current.year, value, timestamp, resetPeriods.year);
-        const statistics: MinMaxStatistics = { day, month, year };
+        const statistics: CalculatedMinMaxStatistics = { day, month, year };
 
         if (!calculateDifferences) {
             return { statistics };

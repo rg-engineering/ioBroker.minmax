@@ -64,7 +64,7 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - `test/unit.js` enthält sieben Unit-Tests zu Initialisierung, negativen Werten, Extremwertänderungen, Periodenresets, Differenzen, Gleichständen und ungültigen Eingaben.
 - Verifikation: `npm run build-backend`, `npm run test:unit` (7 Tests bestanden) und `npm run lint` erfolgreich. `npm ci` wurde benötigt, da im vorherigen `node_modules` deklarierte Pakete fehlten.
 
-## Phase 3: Adapterintegration und Konfigurationslebenszyklus
+## Phase 3: Adapterintegration und Konfigurationslebenszyklus (abgeschlossen; Kalenderperioden folgen in Phase 4)
 
 **Ziel:** Fachlogik in den ioBroker-Lifecycle integrieren und Custom-Konfiguration korrekt verwalten.
 
@@ -81,7 +81,17 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 
 - Jede Adapterinstanz arbeitet ausschließlich mit ihrem eigenen Custom-Namespace.
 - Konfigurationsänderungen verändern Abonnements und Tracker nachvollziehbar und ohne doppelte aktive Namen.
-- Deaktivierte Ausgabedaten bleiben erhalten; bei Reaktivierung wird die bestehende Statistik korrekt fortgesetzt.
+- Deaktivierte Ausgabedaten bleiben erhalten; bei Reaktivierung im selben Zeitraum wird die vorhandene Statistik fortgesetzt.
+
+**Ergebnis:**
+
+- `src/main.ts` initialisiert den Controller beim Start, lädt State-Objekte und Custom-Konfigurationen und leitet Objekt-/Zustandsänderungen sowie das Entladen weiter.
+- `src/lib/minmax-controller.ts` liest ausschließlich `common.custom[this.namespace]`, validiert den Quellobjekttyp, verwaltet Tracker pro Quell-OID, lehnt doppelte `logName`s ab und serialisiert Objektänderungen.
+- `src/lib/minmax-tracker.ts` erstellt Ausgabedatenpunkte, lädt bestehende Min-/Max-Werte, abonniert den Quell-State, liest beim Start und bei Konfigurationsänderungen den aktuellen bestätigten Wert und ignoriert unbestätigte oder nichtnumerische Laufzeitwerte.
+- `src/lib/minmax-state-store.ts` verwaltet kompatible Ausgabe-IDs, Rollen, Typen und Zeit-/Datumsformate. Deaktivierung beendet die Überwachung, löscht aber keine Statistikwerte. `logName`-Änderungen übertragen die Adapter-State-Werte auf die neuen IDs; beim Ausschalten von `calcDiff` werden die Differenzobjekte entfernt.
+- Controller-Tests ergänzen die Calculator-Tests: Instanz-Namespace, doppelte Namen, Umbenennung, Deaktivierung, nichtnumerischer Objekttyp sowie ignorierte Laufzeitwerte.
+- Verifikation: `npm run build-backend`, `npm run test:unit` (13 Tests bestanden) und `npm run lint` erfolgreich.
+- Reaktivierung über einen verpassten Tag-/Monats-/Jahreswechsel und Cron-Ausführung sind bewusst Phase 4; Phase 3 setzt vorhandene Werte fort, wenn sie zum weiterhin aktuellen Zeitraum gehören.
 
 ## Phase 4: Kalenderwechsel, Zeitzone und Wiederaufnahme
 

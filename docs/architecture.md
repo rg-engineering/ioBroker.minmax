@@ -80,12 +80,11 @@ src/
 Die Dateiaufteilung ist ein Architekturvorschlag und kann bei der Umsetzung angepasst werden, solange Verantwortlichkeiten und Verhalten erhalten bleiben.
 
 - **Adapterklasse (`main.ts`):** Verantwortlich für ioBroker-Lifecycle und Ereignisse (`ready`, `objectChange`, `stateChange`, `unload`). Liest beim Start aktivierte Objektkonfigurationen unter dem instanzspezifischen Namespace und koordiniert Initialisierung sowie Abonnements.
-- **`ConfigValidator`:** Prüft die Custom-Konfiguration, den numerischen Typ des Quellobjekts und die Eindeutigkeit des `logName` innerhalb der Instanz.
-- **`MinMaxController`:** Verwaltet die aktiven Tracker nach Quell-OID, verarbeitet Aktivierung, Deaktivierung und Konfigurationsänderungen und verteilt Messwerte sowie Grenzereignisse.
-- **`MinMaxTracker`:** Kapselt die Konfiguration eines überwachten Datenpunkts und delegiert fachliche Messwertberechnungen an `MinMaxCalculator`.
+- **`MinMaxController` (`src/lib/minmax-controller.ts`):** Liest die instanzspezifische Custom-Konfiguration, prüft den numerischen Typ des Quellobjekts und die Eindeutigkeit des `logName` innerhalb der Instanz. Er verwaltet aktive Tracker nach Quell-OID und verarbeitet Aktivierung, Deaktivierung sowie Konfigurationsänderungen.
+- **`MinMaxTracker` (`src/lib/minmax-tracker.ts`):** Kapselt Konfiguration, Abonnement und State-Lebenszyklus eines überwachten Datenpunkts und delegiert fachliche Messwertberechnungen an `MinMaxCalculator`.
 - **`MinMaxCalculator` (`src/lib/minmax-calculator.ts`):** Berechnet Tages-, Monats- und Jahresextrema aus einer numerischen Messung und expliziten Periodenwechsel-Flags. Die Klasse ist unabhängig von ioBroker-I/O und liefert optional Differenzen. Sie akzeptiert nur endliche Zahlen und einen gültigen Messzeitpunkt; ungültige Eingaben werden explizit abgewiesen.
 - **`BoundaryScheduler`:** Plant Cron-Ereignisse anhand der konfigurierten Zeitzone und benachrichtigt den Controller bei Kalenderwechseln. Beim Entladen des Adapters werden Cron-Jobs beendet. Falls das bisherige Cron-Verhalten nicht verfügbar oder nicht wiederverwendbar ist, kann die Grenzenerkennung neu implementiert werden.
-- **`MinMaxStateStore`:** Kapselt das Anlegen, Aktualisieren, Übertragen und Löschen der vom Adapter verwalteten ioBroker-Ausgabeobjekte und -zustände. Hier wird die Kompatibilität mit den bestehenden IDs und Datentypen sichergestellt.
+- **`MinMaxStateStore` (`src/lib/minmax-state-store.ts`):** Kapselt das Anlegen, Aktualisieren, Übertragen und Löschen der vom Adapter verwalteten ioBroker-Ausgabeobjekte und -zustände. Hier wird die Kompatibilität mit den bestehenden IDs, Rollen, Datentypen und Zeit-/Datumsformaten sichergestellt.
 - **`base.ts`:** Kann für allgemeine Adapter-Hilfsfunktionen weiterverwendet werden. Die Fachlogik soll jedoch nicht unnötig an eine Adapter-Basisklasse oder direkt an ioBroker-API-Aufrufe gekoppelt werden.
 - **Typen (`types.ts`):** Definieren insbesondere die Custom-Konfiguration und die Tracker-/Periodeninformationen explizit. Für die Differenzoption ist die Schreibweise `calcDiff` konsistent zu verwenden.
 
