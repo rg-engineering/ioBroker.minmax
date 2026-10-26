@@ -8,10 +8,13 @@
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 
 import * as utils from "@iobroker/adapter-core";
+import BoundaryScheduler from "./lib/boundary-scheduler";
+import { describeError } from "./lib/error-utils";
 import MinmaxController from "./lib/minmax-controller";
 
 export class Minmax extends utils.Adapter {
 	private minmaxController: MinmaxController | undefined;
+	private boundaryScheduler: BoundaryScheduler | undefined;
 
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
@@ -29,12 +32,28 @@ export class Minmax extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	private async onReady(): Promise<void> {
-		this.log.debug(`Starting with timezone ${this.config.timezone || "Europe/Berlin"}`);
-		this.minmaxController = new MinmaxController(this);
+		const timeZone = this.config.timezone || "Europe/Berlin";
+		try {
+			new Intl.DateTimeFormat("en", { timeZone }).format(new Date());
+		} catch (error) {
+			this.log.error(`Invalid timezone configuration "${timeZone}": ${describeError(error)}`);
+			throw error;
+		}
+
+		this.log.debug(`Starting with timezone ${timeZone}`);
+		const controller = new MinmaxController(this);
+		this.minmaxController = controller;
+		const scheduler = new BoundaryScheduler(
+			timeZone,
+			(resetPeriods) => controller.handleBoundary(resetPeriods),
+			(error) => this.log.error(`Calendar boundary job failed: ${describeError(error)}`),
+		);
+		this.boundaryScheduler = scheduler;
 		this.subscribeForeignObjects("*");
 
 		const objects = await this.getForeignObjectsAsync("*", "state");
-		await this.minmaxController.initialize(objects);
+		await controller.initialize(objects);
+		await scheduler.start();
 	}
 
 
@@ -47,10 +66,11 @@ export class Minmax extends utils.Adapter {
 	private onUnload(callback: () => void): void {
 		void (async () => {
 			try {
+				await this.boundaryScheduler?.stop();
 				await this.minmaxController?.stop();
 				this.unsubscribeForeignObjects("*");
 			} catch (error) {
-				this.log.error(`Failed to stop minmax controller: ${String(error)}`);
+				this.log.error(`Failed to stop minmax controller: ${describeError(error)}`);
 			} finally {
 				callback();
 			}
@@ -125,7 +145,7 @@ export class Minmax extends utils.Adapter {
 		try {
 			await this.minmaxController?.handleStateChange(id, state);
 		} catch (error) {
-			this.log.error(`Failed to process state change for ${id}: ${String(error)}`);
+			this.log.error(`Failed to process state change for ${id}: ${describeError(error)}`);
 		}
 	}
 	

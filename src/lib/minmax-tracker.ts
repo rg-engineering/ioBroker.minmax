@@ -1,12 +1,15 @@
 import type { Minmax } from "../main";
+import { describeError } from "./error-utils";
 import { isNumericValue, MinMaxCalculator } from "./minmax-calculator";
 import type MinmaxStateStore from "./minmax-state-store";
-import type { MinMaxStatistics, MinmaxTrackerConfig } from "./types";
+import { getStalePeriodResetFlags } from "./timezone-utils";
+import type { MinMaxStatistics, MinmaxTrackerConfig, PeriodResetFlags } from "./types";
 
 export default class MinmaxTracker {
     private readonly calculator = new MinMaxCalculator();
     private statistics: MinMaxStatistics = { day: null, month: null, year: null };
     private config: MinmaxTrackerConfig;
+    private pendingCalculation: Promise<void> = Promise.resolve();
 
     public constructor(
         private readonly adapter: Minmax,
@@ -38,7 +41,7 @@ export default class MinmaxTracker {
 
         const current = await this.adapter.getForeignStateAsync(this.config.sourceId);
         if (current?.ack) {
-            await this.processValue(current.val);
+            await this.enqueueValue(current.val);
         }
     }
 
@@ -63,19 +66,41 @@ export default class MinmaxTracker {
         if (!state?.ack || !isNumericValue(state.val)) {
             return;
         }
-        await this.processValue(state.val);
+        await this.enqueueValue(state.val);
     }
 
-    private async processValue(value: unknown): Promise<void> {
+    public async onBoundary(resetPeriods: PeriodResetFlags): Promise<void> {
+        const current = await this.adapter.getForeignStateAsync(this.config.sourceId);
+        if (current?.ack && isNumericValue(current.val)) {
+            await this.enqueueValue(current.val, resetPeriods);
+        }
+    }
+
+    private enqueueValue(value: unknown, requestedResets?: PeriodResetFlags): Promise<void> {
+        const calculation = this.pendingCalculation.then(() => this.processValue(value, requestedResets));
+        this.pendingCalculation = calculation.catch((error: unknown) => {
+            this.adapter.log.error(`Failed to update min/max for ${this.config.sourceId}: ${describeError(error)}`);
+        });
+        return calculation;
+    }
+
+    private async processValue(value: unknown, requestedResets?: PeriodResetFlags): Promise<void> {
         if (!isNumericValue(value)) {
             return;
         }
 
+        const observedAt = new Date();
+        const stalePeriods = getStalePeriodResetFlags(this.statistics, observedAt, this.adapter.config.timezone || "Europe/Berlin");
+        const resetPeriods: PeriodResetFlags = {
+            day: stalePeriods.day || requestedResets?.day === true,
+            month: stalePeriods.month || requestedResets?.month === true,
+            year: stalePeriods.year || requestedResets?.year === true,
+        };
         const result = this.calculator.calculate(
             this.statistics,
             value,
-            new Date(),
-            { day: false, month: false, year: false },
+            observedAt,
+            resetPeriods,
             this.config.calcDiff,
         );
         await this.stateStore.saveCalculation(this.config.logName, this.statistics, result);

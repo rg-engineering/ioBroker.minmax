@@ -1,4 +1,5 @@
 import type { Minmax } from "../main";
+import { formatDateTimeInZone, formatTimeInZone } from "./timezone-utils";
 import type { Extremum, MinMaxCalculationResult, MinMaxStatistics, PeriodStatistics } from "./types";
 
 interface StoredState {
@@ -24,7 +25,10 @@ const statisticFields = [
 const differenceFields = ["TodayDiff", "MonthDiff", "YearDiff"] as const;
 
 export default class MinmaxStateStore {
-    public constructor(private readonly adapter: Minmax) {}
+    public constructor(
+        private readonly adapter: Minmax,
+        private readonly timeZone: string,
+    ) {}
 
     public async ensureObjects(logName: string, includeDifferences: boolean): Promise<void> {
         await this.adapter.setObjectNotExistsAsync(logName, {
@@ -169,36 +173,22 @@ export default class MinmaxStateStore {
         if (!previous || previous.minimum !== current.minimum) {
             writes.push(this.adapter.setStateAsync(`${logName}.${periodName}Min`, { val: current.minimum.value, ack: true }));
             writes.push(this.adapter.setStateAsync(`${logName}.${periodName}Min${periodName === "Today" ? "Time" : "Date"}`, {
-                val: periodName === "Today" ? this.formatTime(current.minimum.timestamp) : this.formatTimestamp(current.minimum.timestamp),
+                val: periodName === "Today"
+                    ? formatTimeInZone(current.minimum.timestamp, this.timeZone)
+                    : formatDateTimeInZone(current.minimum.timestamp, this.timeZone),
                 ack: true,
             }));
         }
         if (!previous || previous.maximum !== current.maximum) {
             writes.push(this.adapter.setStateAsync(`${logName}.${periodName}Max`, { val: current.maximum.value, ack: true }));
             writes.push(this.adapter.setStateAsync(`${logName}.${periodName}Max${periodName === "Today" ? "Time" : "Date"}`, {
-                val: periodName === "Today" ? this.formatTime(current.maximum.timestamp) : this.formatTimestamp(current.maximum.timestamp),
+                val: periodName === "Today"
+                    ? formatTimeInZone(current.maximum.timestamp, this.timeZone)
+                    : formatDateTimeInZone(current.maximum.timestamp, this.timeZone),
                 ack: true,
             }));
         }
         await Promise.all(writes);
     }
 
-    private formatTime(timestamp: number): string {
-        const date = new Date(timestamp);
-        const hours = date.getHours().toString().padStart(2, "0");
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        const seconds = date.getSeconds().toString().padStart(2, "0");
-        return `${hours}:${minutes}:${seconds}`;
     }
-
-    private formatTimestamp(timestamp: number): string {
-        const date = new Date(timestamp);
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const dayNumber = date.getDate();
-        const day = dayNumber < 10 ? ` ${dayNumber}` : dayNumber.toString();
-        const hours = date.getHours().toString().padStart(2, "0");
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        const seconds = date.getSeconds().toString().padStart(2, "0");
-        return `${day} ${months[date.getMonth()]} ${date.getFullYear()} ${hours}:${minutes}:${seconds}`;
-    }
-}

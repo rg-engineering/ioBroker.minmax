@@ -1,6 +1,6 @@
 # Architektur- und Verhaltensentwurf für den TypeScript-Umbau
 
-Dieses Dokument hält die fachlichen Anforderungen und den Architekturentwurf für das Redesign des ioBroker-Adapters `minmax` fest. Es dient als Referenz für die spätere Implementierung. Die hier beschriebenen Entscheidungen sind Anforderungen; die konkrete Umsetzung ist noch nicht begonnen.
+Dieses Dokument hält die fachlichen Anforderungen und den Architekturentwurf für das Redesign des ioBroker-Adapters `minmax` fest. Es dient als Referenz für die Implementierung und dokumentiert bereits umgesetzte Phasen. Die noch ausstehenden Umsetzungsschritte stehen im [`Implementierungsplan`](implementation-plan.md).
 
 ## Ziel des Adapters
 
@@ -110,6 +110,15 @@ Vor der Implementierung müssen die tatsächlich produktiv verwendeten Objekttyp
 - Die ausgelieferte alte `main.js` enthält Cron-Funktionen. `CronCreate` startet einen täglichen Cronjob um Mitternacht in `adapter.config.timezone` (Standard `Europe/Berlin`). `ResetValues` liest für alle in `myObjects` gespeicherten Datenpunkte den aktuellen Quellzustand und berechnet die Statistiken neu. `CronStop` stoppt alle Jobs beim Entladen. Die Cron-Grenze folgt der Adapter-Zeitzone; die bestehende `CheckReset`-Berechnung verwendet dagegen die lokale Zeitzone des Hostprozesses. Der neue Scheduler muss beide Seiten konsistent auf die Adapter-Zeitzone ausrichten.
 - Die alte Konfigurationsdatei heißt `minmax.json` und liegt unter dem aus `__dirname` gebildeten Pfad `../../iobroker-data/minmax/minmax.json`. Das JSON-Format ist `{ "myObjects": [...] }`; Einträge enthalten `id`, `name`, `enabled` und `calcDiff`. `ReadSetup` lädt die Liste beim Start und protokolliert einen fehlenden oder unlesbaren Stand als Warnung. `SaveSetup` schreibt die Liste bei Änderungen und beim Entladen synchron in die Datei. Die Datei wird von der ausgelieferten Version nicht gelöscht.
 Eine echte Altdatei liegt nicht im Quellrepository, da sie erst zur Laufzeit im ioBroker-Datenverzeichnis entsteht. Die Migration muss Einträge validieren, passende Quellobjekte laden und vorhandene instanzspezifische Custom-Einstellungen beachten. Nicht eindeutig zuordenbare Einträge werden verworfen, mit einer klaren Warnung im Adapterlog gemeldet und führen nicht dazu, dass die Migration manuelle Bearbeitung der Legacy-Datei verlangt. Nach Abschluss des Migrationsversuchs wird die alte Datei entfernt. Das Log fordert den Benutzer auf, die in Admin sichtbaren aktivierten Datenpunkte und deren Einstellungen sorgfältig zu überprüfen.
+
+## Ergebnis Phase 4: Kalenderwechsel, Zeitzone und Wiederaufnahme
+
+- `src/lib/timezone-utils.ts` ermittelt Tages-, Monats- und Jahresperioden ausschließlich anhand der konfigurierten IANA-Zeitzone. Auch Ausgabezeit und -datum werden in dieser Zone formatiert.
+- `src/lib/boundary-scheduler.ts` führt täglich um Mitternacht in der Adapter-Zeitzone einen Cronjob aus. Der Scheduler erfasst den Kalenderstand bei Adapterbereitschaft und gleicht ihn nach der Tracker-Initialisierung ab, damit ein während des Starts verpasster Wechsel nicht bis zum nächsten Mitternachtstermin offenbleibt. Er leitet Tages-, Monats- und Jahres-Resetflags an den Controller weiter, verhindert überlappende Läufe und wartet beim Stoppen auf einen laufenden Grenzlauf.
+- `MinmaxController.handleBoundary` aktualisiert alle aktiven Tracker; jeder Tracker liest den aktuellen bestätigten Quellwert erneut ein. Tages-/Monats-/Jahresgrenzen setzen jeweils nur die betroffenen Perioden zurück.
+- Beim Start und bei Reaktivierung erkennen gespeicherte Extrem-State-Zeitstempel (`ts`) veraltete Perioden. Diese Perioden werden mit dem aktuellen Quellwert neu initialisiert; zusätzliche Perioden-Metadaten oder eine JSON-Datei sind nicht notwendig.
+- Eine ungültige konfigurierte Zeitzone wird ausdrücklich geloggt und verhindert den Adapterstart, statt unbemerkt auf eine falsche Zeitzone zurückzufallen.
+- Verifikation: Build und 18 Unit-Tests bestanden. Tests decken Adapter-Zeitzonen, Jahres-/Monatsgrenzen, DST-Kalendertag, Grenzrefresh und Wiederaufnahme nach veralteten Perioden ab.
 
 ## Noch offene Umsetzungsentscheidungen
 

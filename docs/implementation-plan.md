@@ -93,7 +93,7 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - Verifikation: `npm run build-backend`, `npm run test:unit` (13 Tests bestanden) und `npm run lint` erfolgreich.
 - Reaktivierung über einen verpassten Tag-/Monats-/Jahreswechsel und Cron-Ausführung sind bewusst Phase 4; Phase 3 setzt vorhandene Werte fort, wenn sie zum weiterhin aktuellen Zeitraum gehören.
 
-## Phase 4: Kalenderwechsel, Zeitzone und Wiederaufnahme
+## Phase 4: Kalenderwechsel, Zeitzone und Wiederaufnahme (abgeschlossen)
 
 **Ziel:** Kalenderperioden zuverlässig anhand der konfigurierten Zeitzone verwalten.
 
@@ -110,6 +110,14 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - Tages-, Monats- und Jahreswechsel sind unter der konfigurierten Adapter-Zeitzone korrekt.
 - Ein Kalenderwechsel initialisiert neue Werte auch ohne Zustandsänderung.
 - Neustart und Reaktivierung nach verpassten Grenzen führen nicht zu Statistiken aus einer abgelaufenen Periode.
+
+**Ergebnis:**
+
+- `src/lib/timezone-utils.ts` bestimmt Kalenderperioden und formatiert Ausgabezeitpunkte in der Adapter-Zeitzone. Eine ungültige Zone wird beim Start explizit gemeldet und stoppt die Initialisierung.
+- `src/lib/boundary-scheduler.ts` führt täglich um Mitternacht in der konfigurierten Zone einen Cronjob aus. Der bei Adapterbereitschaft erfasste Kalenderstand wird nach der Tracker-Initialisierung abgeglichen, damit ein während des Starts verpasster Wechsel sofort verarbeitet wird. Tages-, Monats- und Jahresgrenzen werden an den Controller gemeldet; überlappende Tick-Verarbeitung wird verhindert und ein laufender Grenzlauf wird beim Stoppen abgewartet.
+- Der Controller liest für jeden aktiven Tracker den aktuellen Quellzustand ein. Vorhandene Extrem-State-`ts`-Zeitstempel identifizieren abgelaufene Perioden beim Start oder bei Reaktivierung, ohne zusätzliche JSON-Metadaten.
+- Tests decken verschiedene IANA-Zeitzonen, den Jahreswechsel, den DST-Kalendertag, Grenzrefresh und die Wiederaufnahme mit veralteten Daten ab.
+- Verifikation: `npm run build-backend`, `npm run test:unit` (18 Tests bestanden) und `npm run lint` erfolgreich.
 
 ## Phase 5: Migration und Abschlussprüfung
 

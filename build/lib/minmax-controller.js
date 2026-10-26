@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const minmax_state_store_1 = __importDefault(require("./minmax-state-store"));
 const minmax_tracker_1 = __importDefault(require("./minmax-tracker"));
+const error_utils_1 = require("./error-utils");
 function isRecord(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -15,7 +16,7 @@ class MinmaxController {
     pendingObjectChanges = Promise.resolve();
     constructor(adapter) {
         this.adapter = adapter;
-        this.stateStore = new minmax_state_store_1.default(adapter);
+        this.stateStore = new minmax_state_store_1.default(adapter, adapter.config.timezone || "Europe/Berlin");
     }
     async initialize(objects) {
         for (const id of Object.keys(objects).sort()) {
@@ -26,7 +27,7 @@ class MinmaxController {
         this.pendingObjectChanges = this.pendingObjectChanges
             .then(() => this.applyObjectChange(id, obj))
             .catch((error) => {
-            this.adapter.log.error(`Failed to process object change for ${id}: ${String(error)}`);
+            this.adapter.log.error(`Failed to process object change for ${id}: ${(0, error_utils_1.describeError)(error)}`);
         });
         return this.pendingObjectChanges;
     }
@@ -34,6 +35,17 @@ class MinmaxController {
         const tracker = this.trackers.get(id);
         if (tracker) {
             await tracker.onStateChange(state);
+        }
+    }
+    async handleBoundary(resetPeriods) {
+        await this.pendingObjectChanges;
+        for (const tracker of this.trackers.values()) {
+            try {
+                await tracker.onBoundary(resetPeriods);
+            }
+            catch (error) {
+                this.adapter.log.error(`Failed to refresh ${tracker.sourceId} at calendar boundary: ${(0, error_utils_1.describeError)(error)}`);
+            }
         }
     }
     async stop() {

@@ -43,9 +43,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Minmax = void 0;
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 const utils = __importStar(require("@iobroker/adapter-core"));
+const boundary_scheduler_1 = __importDefault(require("./lib/boundary-scheduler"));
+const error_utils_1 = require("./lib/error-utils");
 const minmax_controller_1 = __importDefault(require("./lib/minmax-controller"));
 class Minmax extends utils.Adapter {
     minmaxController;
+    boundaryScheduler;
     constructor(options = {}) {
         super({
             ...options,
@@ -61,11 +64,23 @@ class Minmax extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     async onReady() {
-        this.log.debug(`Starting with timezone ${this.config.timezone || "Europe/Berlin"}`);
-        this.minmaxController = new minmax_controller_1.default(this);
+        const timeZone = this.config.timezone || "Europe/Berlin";
+        try {
+            new Intl.DateTimeFormat("en", { timeZone }).format(new Date());
+        }
+        catch (error) {
+            this.log.error(`Invalid timezone configuration "${timeZone}": ${(0, error_utils_1.describeError)(error)}`);
+            throw error;
+        }
+        this.log.debug(`Starting with timezone ${timeZone}`);
+        const controller = new minmax_controller_1.default(this);
+        this.minmaxController = controller;
+        const scheduler = new boundary_scheduler_1.default(timeZone, (resetPeriods) => controller.handleBoundary(resetPeriods), (error) => this.log.error(`Calendar boundary job failed: ${(0, error_utils_1.describeError)(error)}`));
+        this.boundaryScheduler = scheduler;
         this.subscribeForeignObjects("*");
         const objects = await this.getForeignObjectsAsync("*", "state");
-        await this.minmaxController.initialize(objects);
+        await controller.initialize(objects);
+        await scheduler.start();
     }
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!
@@ -73,11 +88,12 @@ class Minmax extends utils.Adapter {
     onUnload(callback) {
         void (async () => {
             try {
+                await this.boundaryScheduler?.stop();
                 await this.minmaxController?.stop();
                 this.unsubscribeForeignObjects("*");
             }
             catch (error) {
-                this.log.error(`Failed to stop minmax controller: ${String(error)}`);
+                this.log.error(`Failed to stop minmax controller: ${(0, error_utils_1.describeError)(error)}`);
             }
             finally {
                 callback();
@@ -141,7 +157,7 @@ class Minmax extends utils.Adapter {
             await this.minmaxController?.handleStateChange(id, state);
         }
         catch (error) {
-            this.log.error(`Failed to process state change for ${id}: ${String(error)}`);
+            this.log.error(`Failed to process state change for ${id}: ${(0, error_utils_1.describeError)(error)}`);
         }
     }
     // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.

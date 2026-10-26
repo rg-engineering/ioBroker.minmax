@@ -1,12 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const error_utils_1 = require("./error-utils");
 const minmax_calculator_1 = require("./minmax-calculator");
+const timezone_utils_1 = require("./timezone-utils");
 class MinmaxTracker {
     adapter;
     stateStore;
     calculator = new minmax_calculator_1.MinMaxCalculator();
     statistics = { day: null, month: null, year: null };
     config;
+    pendingCalculation = Promise.resolve();
     constructor(adapter, stateStore, config) {
         this.adapter = adapter;
         this.stateStore = stateStore;
@@ -30,7 +33,7 @@ class MinmaxTracker {
         this.adapter.subscribeForeignStates(this.config.sourceId);
         const current = await this.adapter.getForeignStateAsync(this.config.sourceId);
         if (current?.ack) {
-            await this.processValue(current.val);
+            await this.enqueueValue(current.val);
         }
     }
     async reconfigure(config) {
@@ -52,13 +55,33 @@ class MinmaxTracker {
         if (!state?.ack || !(0, minmax_calculator_1.isNumericValue)(state.val)) {
             return;
         }
-        await this.processValue(state.val);
+        await this.enqueueValue(state.val);
     }
-    async processValue(value) {
+    async onBoundary(resetPeriods) {
+        const current = await this.adapter.getForeignStateAsync(this.config.sourceId);
+        if (current?.ack && (0, minmax_calculator_1.isNumericValue)(current.val)) {
+            await this.enqueueValue(current.val, resetPeriods);
+        }
+    }
+    enqueueValue(value, requestedResets) {
+        const calculation = this.pendingCalculation.then(() => this.processValue(value, requestedResets));
+        this.pendingCalculation = calculation.catch((error) => {
+            this.adapter.log.error(`Failed to update min/max for ${this.config.sourceId}: ${(0, error_utils_1.describeError)(error)}`);
+        });
+        return calculation;
+    }
+    async processValue(value, requestedResets) {
         if (!(0, minmax_calculator_1.isNumericValue)(value)) {
             return;
         }
-        const result = this.calculator.calculate(this.statistics, value, new Date(), { day: false, month: false, year: false }, this.config.calcDiff);
+        const observedAt = new Date();
+        const stalePeriods = (0, timezone_utils_1.getStalePeriodResetFlags)(this.statistics, observedAt, this.adapter.config.timezone || "Europe/Berlin");
+        const resetPeriods = {
+            day: stalePeriods.day || requestedResets?.day === true,
+            month: stalePeriods.month || requestedResets?.month === true,
+            year: stalePeriods.year || requestedResets?.year === true,
+        };
+        const result = this.calculator.calculate(this.statistics, value, observedAt, resetPeriods, this.config.calcDiff);
         await this.stateStore.saveCalculation(this.config.logName, this.statistics, result);
         this.statistics = result.statistics;
     }

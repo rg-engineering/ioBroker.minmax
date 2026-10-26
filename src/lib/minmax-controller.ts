@@ -1,7 +1,8 @@
 import type { Minmax } from "../main";
 import MinmaxStateStore from "./minmax-state-store";
 import MinmaxTracker from "./minmax-tracker";
-import type { MinmaxCustomConfig, MinmaxTrackerConfig } from "./types";
+import type { MinmaxCustomConfig, MinmaxTrackerConfig, PeriodResetFlags } from "./types";
+import { describeError } from "./error-utils";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -13,7 +14,7 @@ export default class MinmaxController {
     private pendingObjectChanges: Promise<void> = Promise.resolve();
 
     public constructor(private readonly adapter: Minmax) {
-        this.stateStore = new MinmaxStateStore(adapter);
+        this.stateStore = new MinmaxStateStore(adapter, adapter.config.timezone || "Europe/Berlin");
     }
 
     public async initialize(objects: Record<string, ioBroker.StateObject>): Promise<void> {
@@ -26,7 +27,7 @@ export default class MinmaxController {
         this.pendingObjectChanges = this.pendingObjectChanges
             .then(() => this.applyObjectChange(id, obj))
             .catch((error: unknown) => {
-                this.adapter.log.error(`Failed to process object change for ${id}: ${String(error)}`);
+                this.adapter.log.error(`Failed to process object change for ${id}: ${describeError(error)}`);
             });
         return this.pendingObjectChanges;
     }
@@ -35,6 +36,17 @@ export default class MinmaxController {
         const tracker = this.trackers.get(id);
         if (tracker) {
             await tracker.onStateChange(state);
+        }
+    }
+
+    public async handleBoundary(resetPeriods: PeriodResetFlags): Promise<void> {
+        await this.pendingObjectChanges;
+        for (const tracker of this.trackers.values()) {
+            try {
+                await tracker.onBoundary(resetPeriods);
+            } catch (error) {
+                this.adapter.log.error(`Failed to refresh ${tracker.sourceId} at calendar boundary: ${describeError(error)}`);
+            }
         }
     }
 

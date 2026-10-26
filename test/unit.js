@@ -3,6 +3,7 @@ const { expect } = require("chai");
 const { tests } = require("@iobroker/testing");
 const { isNumericValue, MinMaxCalculator } = require("../build/lib/minmax-calculator");
 const MinmaxController = require("../build/lib/minmax-controller").default;
+const { getCalendarKeys, getPeriodResetFlags } = require("../build/lib/timezone-utils");
 
 function createMockAdapter(namespace, sourceStates = {}) {
     const states = new Map();
@@ -11,6 +12,8 @@ function createMockAdapter(namespace, sourceStates = {}) {
     const errors = [];
     return {
         namespace,
+        config: { timezone: "Europe/Berlin" },
+        sourceStates,
         states,
         objects,
         subscriptions,
@@ -149,6 +152,41 @@ tests.unit(path.join(__dirname, ".."), {
             });
         });
 
+        describe("Timezone utilities", () => {
+            it("calculates calendar periods in the configured timezone", () => {
+                const instant = new Date("2026-01-01T00:30:00.000Z");
+
+                expect(getCalendarKeys(instant, "Europe/Berlin")).to.deep.equal({
+                    day: "2026-01-01",
+                    month: "2026-01",
+                    year: "2026",
+                });
+                expect(getCalendarKeys(instant, "America/Los_Angeles")).to.deep.equal({
+                    day: "2025-12-31",
+                    month: "2025-12",
+                    year: "2025",
+                });
+            });
+
+            it("detects month and year changes as period resets", () => {
+                const previous = getCalendarKeys(new Date("2026-12-31T22:59:00.000Z"), "Europe/Berlin");
+                const current = getCalendarKeys(new Date("2026-12-31T23:00:00.000Z"), "Europe/Berlin");
+
+                expect(previous).to.deep.equal({ day: "2026-12-31", month: "2026-12", year: "2026" });
+                expect(current).to.deep.equal({ day: "2027-01-01", month: "2027-01", year: "2027" });
+                expect(getPeriodResetFlags(previous, current)).to.deep.equal({ day: true, month: true, year: true });
+            });
+
+            it("keeps the local calendar day continuous through the DST spring transition", () => {
+                const beforeTransition = getCalendarKeys(new Date("2026-03-29T00:59:00.000Z"), "Europe/Berlin");
+                const afterTransition = getCalendarKeys(new Date("2026-03-29T01:01:00.000Z"), "Europe/Berlin");
+
+                expect(beforeTransition.day).to.equal("2026-03-29");
+                expect(afterTransition.day).to.equal("2026-03-29");
+                expect(beforeTransition.month).to.equal(afterTransition.month);
+            });
+        });
+
         describe("MinmaxController", () => {
             it("loads and subscribes only configurations for this adapter instance", async () => {
                 const namespace = "minmax.1";
@@ -257,6 +295,52 @@ tests.unit(path.join(__dirname, ".."), {
                 expect(adapter.subscriptions.size).to.equal(0);
                 expect(adapter.errors[0]).to.contain("wrong configuration");
                 expect(adapter.errors[0]).to.contain("sensor.label");
+            });
+
+            it("refreshes active values at calendar boundaries", async () => {
+                const namespace = "minmax.0";
+                const adapter = createMockAdapter(namespace, { "sensor.temperature": { val: 20, ack: true } });
+                const controller = new MinmaxController(adapter);
+                await controller.initialize({
+                    "sensor.temperature": sourceObject("sensor.temperature", namespace, {
+                        enabled: true,
+                        logName: "Temperature",
+                        calcDiff: true,
+                    }),
+                });
+
+                adapter.sourceStates["sensor.temperature"] = { val: 25, ack: true };
+                await controller.handleBoundary({ day: true, month: false, year: false });
+
+                expect(adapter.states.get("Temperature.TodayMin").val).to.equal(25);
+                expect(adapter.states.get("Temperature.TodayMax").val).to.equal(25);
+                expect(adapter.states.get("Temperature.MonthMin").val).to.equal(20);
+                expect(adapter.states.get("Temperature.MonthMax").val).to.equal(25);
+                expect(adapter.states.get("Temperature.TodayDiff").val).to.equal(0);
+            });
+
+            it("reinitializes stale statistics after a missed period while resuming", async () => {
+                const namespace = "minmax.0";
+                const adapter = createMockAdapter(namespace, { "sensor.temperature": { val: 8, ack: true } });
+                const staleTimestamp = Date.now() - 400 * 24 * 60 * 60 * 1000;
+                for (const period of ["Today", "Month", "Year"]) {
+                    adapter.states.set(`Temperature.${period}Min`, { val: -10, ts: staleTimestamp, ack: true });
+                    adapter.states.set(`Temperature.${period}Max`, { val: 40, ts: staleTimestamp, ack: true });
+                }
+                const controller = new MinmaxController(adapter);
+                await controller.initialize({
+                    "sensor.temperature": sourceObject("sensor.temperature", namespace, {
+                        enabled: true,
+                        logName: "Temperature",
+                        calcDiff: true,
+                    }),
+                });
+
+                for (const period of ["Today", "Month", "Year"]) {
+                    expect(adapter.states.get(`Temperature.${period}Min`).val).to.equal(8);
+                    expect(adapter.states.get(`Temperature.${period}Max`).val).to.equal(8);
+                    expect(adapter.states.get(`Temperature.${period}Diff`).val).to.equal(0);
+                }
             });
 
             it("ignores non-numeric and unacknowledged runtime state changes", async () => {
