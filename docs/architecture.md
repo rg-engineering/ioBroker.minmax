@@ -52,13 +52,14 @@ Wird ein Datenpunkt deaktiviert, endet dessen weitere Überwachung und Min-/Max-
 
 Bei einer späteren Reaktivierung werden die vorhandenen Werte weiterverwendet und mit dem aktuellen Messwert fortgesetzt. Da während der Deaktivierung Kalendergrenzen verpasst worden sein können, muss der Adapter feststellen, ob die gespeicherten Statistiken noch zum aktuellen Tag, Monat und Jahr gehören. Abgelaufene Perioden werden beim Wiederaktivieren neu initialisiert.
 
-Die dafür nötigen Periodenkennungen (zum Beispiel Tag, Monat und Jahr der zuletzt initialisierten Werte) müssen dauerhaft gespeichert werden. Der konkrete Speicherort und das Vorgehen für bestehende Installationen ohne solche Metadaten sind noch festzulegen. Solche internen Metadaten sollen möglichst nicht als zusätzliche sichtbare Statistik-Datenpunkte erscheinen.
+Zu jedem Extremwert gibt es bereits einen zugehörigen Zeit- oder Datums-Datenpunkt. Diese Angaben sollen für die Wiederherstellung vorhandener Statistiken ausgewertet werden. Sie bezeichnen jedoch den Zeitpunkt, an dem das jeweilige Extrem auftrat, und nicht unbedingt den Beginn des Zeitraums. Außerdem enthalten die Tagesfelder (`TodayMinTime`, `TodayMaxTime`) nur die Uhrzeit, kein Datum. Daher ist vor der Implementierung zu prüfen, ob diese Datenpunkte allein eine zuverlässige Erkennung abgelaufener Zeiträume erlauben. Falls nicht, werden zusätzliche Periodenkennungen benötigt; diese sollen dann in einer adapterlokalen JSON-Datei im ioBroker-Datenverzeichnis gespeichert werden. Ein weiterer sichtbarer Statistik-Datenpunkt soll dafür nicht angelegt werden.
 
 ## Änderungen an der Konfiguration
 
 - **`logName` geändert:** Die aktuellen Adapter-Ausgabewerte und -objekte sollen möglichst auf die IDs des neuen Namens übertragen werden. Anschließend können die alten Adapter-Ausgabeobjekte entfernt werden. Externe History-Daten, die unter den alten IDs gespeichert wurden, lassen sich dabei möglicherweise nicht übertragen und verbleiben dann dort.
 - **`calcDiff` ausgeschaltet:** Die Differenzberechnung wird beendet und die zugehörigen Differenz-Datenpunkte (`TodayDiff`, `MonthDiff`, `YearDiff`) werden entfernt.
 - **Datenpunkt deaktiviert:** Im Unterschied zum Abschalten von `calcDiff` bleiben die vorhandenen Min-/Max-Ausgabeobjekte und deren Werte erhalten.
+- **Migration der alten Konfigurationsdatei:** Die bisherige JSON-Konfiguration wird einmalig in das neue Konfigurationsmodell übernommen. Erst nachdem die Migration erfolgreich abgeschlossen und die migrierten Einstellungen dauerhaft übernommen wurden, wird die alte Datei gelöscht. Bei einem Fehler darf sie nicht gelöscht werden, damit kein Konfigurationsverlust entsteht.
 
 ## Vorgeschlagene Komponenten
 
@@ -81,7 +82,7 @@ Die Dateiaufteilung ist ein Architekturvorschlag und kann bei der Umsetzung ange
 - **`ConfigValidator`:** Prüft die Custom-Konfiguration, den numerischen Typ des Quellobjekts und die Eindeutigkeit des `logName` innerhalb der Instanz.
 - **`MinMaxController`:** Verwaltet die aktiven Tracker nach Quell-OID, verarbeitet Aktivierung, Deaktivierung und Konfigurationsänderungen und verteilt Messwerte sowie Grenzereignisse.
 - **`MinMaxTracker`:** Kapselt die fachliche Logik und Konfiguration eines überwachten Datenpunkts. Die Min-/Max- und Differenzberechnung soll möglichst unabhängig von ioBroker-I/O testbar sein.
-- **`BoundaryScheduler`:** Plant Cron-Ereignisse anhand der konfigurierten Zeitzone und benachrichtigt den Controller bei Kalenderwechseln. Beim Entladen des Adapters werden Cron-Jobs beendet.
+- **`BoundaryScheduler`:** Plant Cron-Ereignisse anhand der konfigurierten Zeitzone und benachrichtigt den Controller bei Kalenderwechseln. Beim Entladen des Adapters werden Cron-Jobs beendet. Falls das bisherige Cron-Verhalten nicht verfügbar oder nicht wiederverwendbar ist, kann die Grenzenerkennung neu implementiert werden.
 - **`MinMaxStateStore`:** Kapselt das Anlegen, Aktualisieren, Übertragen und Löschen der vom Adapter verwalteten ioBroker-Ausgabeobjekte und -zustände. Hier wird die Kompatibilität mit den bestehenden IDs und Datentypen sichergestellt.
 - **`base.ts`:** Kann für allgemeine Adapter-Hilfsfunktionen weiterverwendet werden. Die Fachlogik soll jedoch nicht unnötig an eine Adapter-Basisklasse oder direkt an ioBroker-API-Aufrufe gekoppelt werden.
 - **Typen (`types.ts`):** Definieren insbesondere die Custom-Konfiguration und die Tracker-/Periodeninformationen explizit. Für die Differenzoption ist die Schreibweise `calcDiff` konsistent zu verwenden.
@@ -99,8 +100,6 @@ Vor der Implementierung müssen die tatsächlich produktiv verwendeten Objekttyp
 
 ## Noch offene Umsetzungsentscheidungen
 
-1. **Alte JSON-Konfiguration:** Einmalige Migration, nur noch ignorieren oder nach erfolgreicher Migration entfernen?
-2. **Ablage der Periodenkennungen:** Adapterlokale JSON-Datei im ioBroker-Datenverzeichnis oder interne ioBroker-Zustände? Die Ablage muss installations- und instanzsicher sein und darf nicht vom aktuellen Arbeitsverzeichnis abhängen.
-3. **Initialisierung bei Bestandsinstallationen:** Wie werden Periodenkennungen erstmals bestimmt, wenn bereits Min-/Max-Ausgabewerte vorhanden sind, aber noch keine Metadaten?
-4. **Cron-Bibliothek und Altverhalten:** `cron` ist als Abhängigkeit vorhanden. In der sichtbaren alten `main.js` werden `CronCreate`, `CronStatus` und `CronStop` aufgerufen, sind dort jedoch nicht definiert. Das tatsächliche bisherige Cron-Verhalten ist vor der Umsetzung zu prüfen.
-5. **Fehlerprotokollierung:** Der genaue Zeitpunkt und die Häufigkeit des `wrong configuration`-Logs bei einem nichtnumerischen Objekttyp sind beim Implementieren konsistent festzulegen; Laufzeitwerte, die nicht numerisch sind, bleiben ohne Berechnung.
+1. **Periodenerkennung bei Bestandsdaten:** Vor der Implementierung ist anhand der vorhandenen Zeit-/Datums-Datenpunkte zu prüfen, ob die Periodenzugehörigkeit zuverlässig erkannt werden kann. Insbesondere enthalten die Tagesfelder nur eine Uhrzeit und Extremzeitpunkte kennzeichnen nicht zwingend den letzten Periodenwechsel. Falls die vorhandenen Daten nicht ausreichen, werden Periodenkennungen in einer adapterlokalen JSON-Datei im ioBroker-Datenverzeichnis gespeichert.
+2. **Cron-Bibliothek und Altverhalten:** `cron` ist als Abhängigkeit vorhanden. In der sichtbaren alten `main.js` werden `CronCreate`, `CronStatus` und `CronStop` aufgerufen, sind dort jedoch nicht definiert. Das tatsächliche bisherige Cron-Verhalten ist vor der Umsetzung zu prüfen; falls nötig, wird die Cron-Funktion neu implementiert.
+3. **Fehlerprotokollierung:** Der genaue Zeitpunkt und die Häufigkeit des `wrong configuration`-Logs bei einem nichtnumerischen Objekttyp sind beim Implementieren konsistent festzulegen; Laufzeitwerte, die nicht numerisch sind, bleiben ohne Berechnung.
