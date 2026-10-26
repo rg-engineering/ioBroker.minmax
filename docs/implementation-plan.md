@@ -10,7 +10,7 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - Die alte Implementierung `main.js` im Projektstamm und die vorhandenen Installationsdaten dienen dazu, bestehendes Verhalten, Datenpunktkompatibilität und Migrationsbedarf zu ermitteln.
 - Die Arbeit erfolgt phasenweise. Vor der fachlichen Implementierung wird Phase 1 abgeschlossen, damit Migrations- und Kompatibilitätsrisiken bekannt sind.
 
-## Phase 1: Bestand und Kompatibilität klären
+## Phase 1: Bestand und Kompatibilität klären (abgeschlossen)
 
 **Ziel:** Eine verlässliche Bestandsaufnahme für Datenmigration, Ausgabe-Kompatibilität und Implementierungsumfang erstellen.
 
@@ -26,9 +26,9 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 **Abnahmekriterien:**
 
 - Der aktuelle Quellstand und alle relevanten Konfigurationsflächen sind identifiziert.
-- Ort, Format und Migrationsweg der alten JSON-Konfiguration sind anhand der ausgelieferten `main.js` beschrieben; fehlende Informationen sind ausdrücklich benannt.
+- Ort und Format der alten JSON-Konfiguration sowie ihre fehlende Instanzzuordnung sind anhand der ausgelieferten `main.js` beschrieben; der Migrationsweg überschreibt keine sichtbaren Custom-Einstellungen und weist nicht eindeutig zuordenbare Fälle aus.
 - Der Kompatibilitätsumfang der vom Adapter erzeugten Datenpunkte ist dokumentiert.
-- Es ist begründet entschieden, ob Periodenmetadaten zusätzlich gespeichert werden müssen oder ob vorhandene Datums-/Zeitwerte ausreichen.
+- Für die Periodenerkennung ist festgelegt, zuerst die State-Zeitstempel (`ts`) auszuwerten; eine separate JSON-Datei wird nur ergänzt, falls sich diese Zeitstempel in der Implementierung als nicht zuverlässig erweisen.
 - Es sind keine Implementierungsdateien verändert.
 
 **Ergebnisse der Bestandsaufnahme (2026-10-26):**
@@ -36,7 +36,7 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - `package.json` zeigt auf `build/main.js`; für die Neuentwicklung ist `src` maßgeblich. `src/main.ts` enthält derzeit nur das Adapter-Grundgerüst. `build` ist kein gültiger Verhaltensstand.
 - Zeitzone ist in `admin/jsonConfig.json5`, `io-package.json` und dem global augmentierten `ioBroker.AdapterConfig` vorgesehen.
 - `admin/jsonCustom.json` enthält `logName` und `calcDiff`; Instanzkonfiguration muss über `common.custom[this.namespace]` laufen.
-- Die wiederhergestellte ausgelieferte `main.js` enthält `ReadSetup`, `SaveSetup` und die Cron-Funktionen. Die Legacy-Konfiguration liegt unter `path.normalize(__dirname + "/../../" + "iobroker-data/minmax/") + "minmax.json"` im JSON-Format `{ "myObjects": [...] }`; Einträge halten `id`, `name`, `enabled` und `calcDiff`. Die Datei wird beim Start gelesen, bei Objektänderungen und beim Entladen geschrieben und von der Altversion nicht gelöscht. Da sie ein Laufzeitdatum ist, befindet sie sich nicht im Repository; die neue Implementierung kann sie beim Adapterstart am hergeleiteten ioBroker-Datenpfad migrieren. Bei einer Migration haben bestehende sichtbare Werte in `common.custom[this.namespace]` Vorrang; Legacy-Werte ergänzen nur fehlende Einstellungen.
+- Die wiederhergestellte ausgelieferte `main.js` enthält `ReadSetup`, `SaveSetup` und die Cron-Funktionen. Die Legacy-Konfiguration liegt unter `path.normalize(__dirname + "/../../" + "iobroker-data/minmax/") + "minmax.json"` im JSON-Format `{ "myObjects": [...] }`; Einträge halten `id`, `name`, `enabled` und `calcDiff`. Die Datei wird beim Start gelesen, bei Objektänderungen und beim Entladen geschrieben und von der Altversion nicht gelöscht. Da sie ein Laufzeitdatum ist, befindet sie sich nicht im Repository. Sie enthält keine Instanzkennung und kann daher bei mehreren Minmax-Instanzen nicht automatisch eindeutig zugeordnet werden. Bestehende sichtbare Werte in `common.custom[this.namespace]` haben Vorrang; Legacy-Werte ergänzen nur fehlende Einstellungen und dürfen nicht blind in jede Instanz kopiert werden. Nicht eindeutig zuordenbare Einträge werden verworfen, klar im Log gemeldet und führen zu einem Hinweis an den Benutzer, die sichtbaren aktivierten Datenpunkte und ihre Einstellungen genau zu prüfen. Nach Abschluss des Migrationsversuchs wird die Altdatei entfernt. Der neue Code muss außerdem den alten Root-Einstiegspunkt bei der Pfadermittlung berücksichtigen und darf den relativen `__dirname`-Pfad nicht direkt aus `build/main.js` wiederverwenden.
 - Cron startet täglich um Mitternacht in der konfigurierten Zeitzone und liest die aktuellen Quellen für alle in der gespeicherten Konfiguration enthaltenen Einträge ein. Die alte Reset-Erkennung vergleicht lokale Host-Kalenderfelder, nicht explizit die konfigurierte Zeitzone; diese Inkonsistenz muss im neuen Scheduler behoben werden.
 - Bestehende Ausgabe-IDs, Rollen und Formate sind in `architecture.md` dokumentiert. Als Periodenindikator soll zuerst `ts` der gespeicherten Min-/Max-States in der Adapter-Zeitzone geprüft werden. Erst wenn diese Controller-Zeitstempel bei Bestandsdaten nicht zuverlässig nutzbar sind, wird eine zusätzliche adapterlokale JSON-Datei erforderlich.
 
@@ -100,13 +100,15 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 **Arbeitsschritte:**
 
 1. Alte JSON-Konfiguration einmalig in das neue Konfigurationsmodell migrieren.
-2. Alte Konfigurationsdatei nur nach erfolgreicher, dauerhaft bestätigter Übernahme löschen; bei Fehlern erhalten.
+2. Alte Konfigurationsdatei nach Abschluss des Migrationsversuchs löschen; nicht eindeutig zuordenbare Einträge verwerfen, klar protokollieren und den Benutzer zur Prüfung der sichtbaren Objektkonfiguration auffordern.
 3. Bestehende Ausgabe-IDs, Datentypen und Datums-/Zeitformate gegen die Phase-1-Bestandsaufnahme verifizieren.
 4. Tests, Build und relevante Adapterprüfungen ausführen.
 5. Architektur- und Benutzer-Dokumentation aktualisieren; inkompatible Änderungen vorab kenntlich machen.
 
 **Abnahmekriterien:**
 
-- Migration ist wiederholbar und verhindert Datenverlust bei Unterbrechung oder Fehler.
+- Migration ist idempotent; vorhandene Custom-Einstellungen bleiben erhalten und haben Vorrang.
+- Mehrdeutige Einträge werden verworfen, klar protokolliert und lösen eine Aufforderung zur Prüfung der sichtbaren Einstellungen aus.
+- Die Legacy-Datei wird nach einem abgeschlossenen Migrationsversuch entfernt, auch wenn einzelne Einträge bewusst verworfen wurden; bei technischen Verarbeitungsfehlern bleibt sie zur Wiederholung erhalten.
 - Build und relevante Tests bestehen.
 - Kompatibilitätsprüfungen sind abgeschlossen und verbleibende Abweichungen klar dokumentiert.
