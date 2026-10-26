@@ -69,6 +69,7 @@ src/
   lib/
 	base.ts
 	types.ts
+	minmax-calculator.ts
 	config-validator.ts
 	minmax-controller.ts
 	minmax-tracker.ts
@@ -81,7 +82,8 @@ Die Dateiaufteilung ist ein Architekturvorschlag und kann bei der Umsetzung ange
 - **Adapterklasse (`main.ts`):** Verantwortlich für ioBroker-Lifecycle und Ereignisse (`ready`, `objectChange`, `stateChange`, `unload`). Liest beim Start aktivierte Objektkonfigurationen unter dem instanzspezifischen Namespace und koordiniert Initialisierung sowie Abonnements.
 - **`ConfigValidator`:** Prüft die Custom-Konfiguration, den numerischen Typ des Quellobjekts und die Eindeutigkeit des `logName` innerhalb der Instanz.
 - **`MinMaxController`:** Verwaltet die aktiven Tracker nach Quell-OID, verarbeitet Aktivierung, Deaktivierung und Konfigurationsänderungen und verteilt Messwerte sowie Grenzereignisse.
-- **`MinMaxTracker`:** Kapselt die fachliche Logik und Konfiguration eines überwachten Datenpunkts. Die Min-/Max- und Differenzberechnung soll möglichst unabhängig von ioBroker-I/O testbar sein.
+- **`MinMaxTracker`:** Kapselt die Konfiguration eines überwachten Datenpunkts und delegiert fachliche Messwertberechnungen an `MinMaxCalculator`.
+- **`MinMaxCalculator` (`src/lib/minmax-calculator.ts`):** Berechnet Tages-, Monats- und Jahresextrema aus einer numerischen Messung und expliziten Periodenwechsel-Flags. Die Klasse ist unabhängig von ioBroker-I/O und liefert optional Differenzen. Sie akzeptiert nur endliche Zahlen und einen gültigen Messzeitpunkt; ungültige Eingaben werden explizit abgewiesen.
 - **`BoundaryScheduler`:** Plant Cron-Ereignisse anhand der konfigurierten Zeitzone und benachrichtigt den Controller bei Kalenderwechseln. Beim Entladen des Adapters werden Cron-Jobs beendet. Falls das bisherige Cron-Verhalten nicht verfügbar oder nicht wiederverwendbar ist, kann die Grenzenerkennung neu implementiert werden.
 - **`MinMaxStateStore`:** Kapselt das Anlegen, Aktualisieren, Übertragen und Löschen der vom Adapter verwalteten ioBroker-Ausgabeobjekte und -zustände. Hier wird die Kompatibilität mit den bestehenden IDs und Datentypen sichergestellt.
 - **`base.ts`:** Kann für allgemeine Adapter-Hilfsfunktionen weiterverwendet werden. Die Fachlogik soll jedoch nicht unnötig an eine Adapter-Basisklasse oder direkt an ioBroker-API-Aufrufe gekoppelt werden.

@@ -36,16 +36,11 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Minmax = void 0;
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 const utils = __importStar(require("@iobroker/adapter-core"));
-const minmaxvalue_1 = __importDefault(require("./lib/minmaxvalue"));
 class Minmax extends utils.Adapter {
-    minmaxvalues = [];
     constructor(options = {}) {
         super({
             ...options,
@@ -61,13 +56,11 @@ class Minmax extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     async onReady() {
+        await Promise.resolve();
         // Initialize your adapter here
         // The adapters config (in the instance object everything under the attribute "native") is accessible via
         // this.config:
         this.log.debug("config : " + JSON.stringify(this.config));
-        //this.log.debug("API key : " + JSON.stringify(this.config.ApiKey));
-        // subscribe to objects, so the settings in the object are arriving to the adapter
-        this.subscribeForeignObjects("*");
     }
     /**
      * Is called when adapter shuts down - callback has to be called under any circumstances!
@@ -91,6 +84,7 @@ class Minmax extends utils.Adapter {
     //  * Is called if a subscribed object changes
     //  */
     async onObjectChange(id, obj) {
+        await Promise.resolve();
         if (obj) {
             // The object was changed
             this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
@@ -127,66 +121,20 @@ class Minmax extends utils.Adapter {
                 "ts": 1792170762861
             }
             */
-            await this.handleObject(obj);
         }
         else {
             // The object was deleted
             this.log.info(`object ${id} deleted`);
         }
     }
-    // Hilfsmethoden zum Hinzuf�gen/Aktualisieren/Entfernen von Eintr�gen in this.minmaxvalues
-    // Anpassungen m�glich (Typen, zus�tzliche Felder), hier bewusst generisch gehalten.
-    async handleObject(obj) {
-        // Objektpfad pr�fen (ioBroker-Objekte haben meist common.custom)
-        const custom = obj?.common?.custom?.['minmax.0'];
-        if (custom === undefined) {
-            // Kein minmax.0-Eintrag vorhanden -> nichts tun
-            return;
-        }
-        const enabled = !!custom.enabled;
-        const id = obj._id || obj.native.id;
-        if (!id) {
-            return;
-        }
-        const idx = this.minmaxvalues.findIndex((v) => v.id === id);
-        if (enabled) {
-            if (idx === -1) {
-                // Neu anlegen
-                const newMinmaxValue = this.createMinMaxValueFromObject(obj);
-                await newMinmaxValue.Start();
-                this.minmaxvalues.push(newMinmaxValue);
-            }
-        }
-        else {
-            if (idx !== -1) {
-                // Entfernen, wenn deaktiviert
-                this.minmaxvalues.splice(idx, 1);
-                this.log.info(`instance deleted`);
-            }
-        }
-    }
-    createMinMaxValueFromObject(obj) {
-        // Erstelle minmaxvalue aus dem Objekt. Felder anpassen wie ben�tigt.
-        const config = {
-            oid: obj._id || obj.native.id,
-            name: obj.common?.custom?.['minmax.0']?.logName || '',
-            calcdif: obj.common?.custom?.['minmax.0']?.calcdif || false,
-        };
-        const newMinmaxValue = new minmaxvalue_1.default(this, this.minmaxvalues.length, config);
-        return newMinmaxValue;
-    }
     /**
      * Is called if a subscribed state changes
      */
     async onStateChange(id, state) {
+        await Promise.resolve();
         if (state) {
             // The state was changed
             this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
-            for (const minmaxValue of this.minmaxvalues) {
-                if (minmaxValue.oid === id) {
-                    await minmaxValue.onStateChange(state);
-                }
-            }
         }
         else {
             // The state was deleted

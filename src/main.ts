@@ -9,10 +9,6 @@
 
 import * as utils from "@iobroker/adapter-core";
 
-import type { MinmaxConfig } from './lib/adapter-config';
-
-
-
 export class Minmax extends utils.Adapter {
 
 	

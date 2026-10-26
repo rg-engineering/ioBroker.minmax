@@ -40,7 +40,7 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - Cron startet täglich um Mitternacht in der konfigurierten Zeitzone und liest die aktuellen Quellen für alle in der gespeicherten Konfiguration enthaltenen Einträge ein. Die alte Reset-Erkennung vergleicht lokale Host-Kalenderfelder, nicht explizit die konfigurierte Zeitzone; diese Inkonsistenz muss im neuen Scheduler behoben werden.
 - Bestehende Ausgabe-IDs, Rollen und Formate sind in `architecture.md` dokumentiert. Als Periodenindikator soll zuerst `ts` der gespeicherten Min-/Max-States in der Adapter-Zeitzone geprüft werden. Erst wenn diese Controller-Zeitstempel bei Bestandsdaten nicht zuverlässig nutzbar sind, wird eine zusätzliche adapterlokale JSON-Datei erforderlich.
 
-## Phase 2: Typen und fachliche Berechnung
+## Phase 2: Typen und fachliche Berechnung (abgeschlossen)
 
 **Ziel:** Typisierte, testbare fachliche Logik für Minima, Maxima und optionale Differenzen bereitstellen.
 
@@ -55,6 +55,14 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 
 - Fachliche Berechnung ist ausreichend von ioBroker-I/O getrennt und gezielt testbar.
 - TypeScript-Build und gezielte Tests bestehen.
+
+**Ergebnis:**
+
+- `src/lib/types.ts` definiert Typen für Custom-Einstellungen, Tracker-Konfiguration, Extremwerte, Zeiträume, Reset-Flags und Berechnungsergebnisse. Die veraltete Custom-Konfigurationsdefinition mit `calcdif` wurde entfernt; der Admin-Schlüssel `calcDiff` ist maßgeblich.
+- `src/lib/minmax-calculator.ts` enthält den zustandslosen `MinMaxCalculator`. Er initialisiert leere oder zurückgesetzte Zeiträume mit dem eingehenden Wert, aktualisiert Minima/Maxima samt Epoch-Zeitstempeln bei strengen Extremwerten und berechnet Differenzen auf Anfrage. Kalendertagsberechnung und ioBroker-I/O bleiben außerhalb dieser Klasse.
+- Nichtnumerische Werte und nicht-endliche Zahlen werden ohne String-Koerzierung abgewiesen; ungültige Messzeitpunkte ebenfalls. Die Adapterintegration entscheidet in Phase 3, Laufzeitwerte nach der vereinbarten Regel zu ignorieren.
+- `test/unit.js` enthält sieben Unit-Tests zu Initialisierung, negativen Werten, Extremwertänderungen, Periodenresets, Differenzen, Gleichständen und ungültigen Eingaben.
+- Verifikation: `npm run build-backend`, `npm run test:unit` (7 Tests bestanden) und `npm run lint` erfolgreich. `npm ci` wurde benötigt, da im vorherigen `node_modules` deklarierte Pakete fehlten.
 
 ## Phase 3: Adapterintegration und Konfigurationslebenszyklus
 
