@@ -26,7 +26,7 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 **Abnahmekriterien:**
 
 - Der aktuelle Quellstand und alle relevanten Konfigurationsflächen sind identifiziert.
-- Ort, Format und Migrationsweg der alten JSON-Konfiguration sind nachweisbar beschrieben; fehlende Informationen sind ausdrücklich benannt.
+- Ort, Format und Migrationsweg der alten JSON-Konfiguration sind anhand der ausgelieferten `main.js` beschrieben; fehlende Informationen sind ausdrücklich benannt.
 - Der Kompatibilitätsumfang der vom Adapter erzeugten Datenpunkte ist dokumentiert.
 - Es ist begründet entschieden, ob Periodenmetadaten zusätzlich gespeichert werden müssen oder ob vorhandene Datums-/Zeitwerte ausreichen.
 - Es sind keine Implementierungsdateien verändert.
@@ -36,9 +36,9 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - `package.json` zeigt auf `build/main.js`; für die Neuentwicklung ist `src` maßgeblich. `src/main.ts` enthält derzeit nur das Adapter-Grundgerüst. `build` ist kein gültiger Verhaltensstand.
 - Zeitzone ist in `admin/jsonConfig.json5`, `io-package.json` und dem global augmentierten `ioBroker.AdapterConfig` vorgesehen.
 - `admin/jsonCustom.json` enthält `logName` und `calcDiff`; Instanzkonfiguration muss über `common.custom[this.namespace]` laufen.
-- Die alte JSON-Speicherung ist im Arbeitsstand nicht vollständig vorhanden: `main.js` verlangt `./lib/configstore`, aber diese Datei fehlt. Ableitbar ist eine `myObjects`-Liste mit `id`, `name`, `calcDiff` und `enabled: true` beim Anlegen. Pfad und komplettes Schema müssen anhand einer installierten Altversion oder Sicherung geklärt werden; ohne diese Quelle keine sichere Migration oder Löschung.
+- Die wiederhergestellte ausgelieferte `main.js` enthält `ReadSetup`, `SaveSetup` und die Cron-Funktionen. Die Legacy-Konfiguration liegt unter `path.normalize(__dirname + "/../../" + "iobroker-data/minmax/") + "minmax.json"` im JSON-Format `{ "myObjects": [...] }`; Einträge halten `id`, `name`, `enabled` und `calcDiff`. Die Datei wird beim Start gelesen, bei Objektänderungen und beim Entladen geschrieben und von der Altversion nicht gelöscht. Da sie ein Laufzeitdatum ist, befindet sie sich nicht im Repository; die neue Implementierung kann sie beim Adapterstart am hergeleiteten ioBroker-Datenpfad migrieren. Bei einer Migration haben bestehende sichtbare Werte in `common.custom[this.namespace]` Vorrang; Legacy-Werte ergänzen nur fehlende Einstellungen.
+- Cron startet täglich um Mitternacht in der konfigurierten Zeitzone und liest die aktuellen Quellen für alle in der gespeicherten Konfiguration enthaltenen Einträge ein. Die alte Reset-Erkennung vergleicht lokale Host-Kalenderfelder, nicht explizit die konfigurierte Zeitzone; diese Inkonsistenz muss im neuen Scheduler behoben werden.
 - Bestehende Ausgabe-IDs, Rollen und Formate sind in `architecture.md` dokumentiert. Als Periodenindikator soll zuerst `ts` der gespeicherten Min-/Max-States in der Adapter-Zeitzone geprüft werden. Erst wenn diese Controller-Zeitstempel bei Bestandsdaten nicht zuverlässig nutzbar sind, wird eine zusätzliche adapterlokale JSON-Datei erforderlich.
-- Cron-Funktionen werden in der alten `main.js` aufgerufen, dort aber nicht definiert; die Scheduler-Implementierung muss neu erstellt oder anhand einer installierten Altversion rekonstruiert werden.
 
 ## Phase 2: Typen und fachliche Berechnung
 
