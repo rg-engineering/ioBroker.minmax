@@ -60,7 +60,7 @@ function startAdapter(options) {
         //    adapter && adapter.log && adapter.log.info && adapter.log.info("cleaned everything up...");
         //    CronStop();
 
-            
+
         //},
 
         //#######################################
@@ -93,7 +93,7 @@ async function main() {
     // subscribe to objects, so the settings in the object are arriving to the adapter
     adapter.subscribeForeignObjects("*");
     await UpdateSubsriptions();
-    
+
     CronCreate();
     CronStatus();
 
@@ -219,7 +219,7 @@ function findObjectByKey(array, key, value) {
     return null;
     */
 
-    
+
     if (array !== undefined) {
         for (let i = 0; i < array.length; i++) {
             if (array[i][key] === value) {
@@ -228,7 +228,7 @@ function findObjectByKey(array, key, value) {
         }
     }
     return null;
-    
+
 }
 
 
@@ -261,7 +261,7 @@ function RemoveObjectByKey(array, key, value) {
 function CheckReset() {
     const now = new Date();
 
-    const bRet = { isNewDay: false, isNewMonth:false, isNewYear:false};
+    const bRet = { isNewDay: false, isNewMonth: false, isNewYear: false };
 
     //let minuteNow = now.getMinutes();
     //let minuteLast = lastUpdate.getMinutes();
@@ -305,11 +305,11 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let TodayMin = obj != null ? obj.val : 0;
-    if ( obj === undefined || obj === null  || toReset.isNewDay || value < obj.val) {
+    if (obj === undefined || obj === null || toReset.isNewDay || value < obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         TodayMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(null,true) });
+        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(null, true) });
     }
 
     key = name + ".TodayMax";
@@ -317,11 +317,11 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let TodayMax = obj != null ? obj.val : 0;
-    if (obj === undefined || obj === null  || toReset.isNewDay || value > obj.val) {
+    if (obj === undefined || obj === null || toReset.isNewDay || value > obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         TodayMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(null,true) });
+        await adapter.setStateAsync(key + "Time", { ack: true, val: timeConverter(null, true) });
     }
 
     key = name + ".MonthMin";
@@ -329,11 +329,11 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let MonthMin = obj != null ? obj.val : 0;
-    if ( obj === undefined || obj === null  || toReset.isNewMonth || value < obj.val) {
+    if (obj === undefined || obj === null || toReset.isNewMonth || value < obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         MonthMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null,false) });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null, false) });
     }
 
     key = name + ".MonthMax";
@@ -341,11 +341,11 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let MonthMax = obj != null ? obj.val : 0;
-    if ( obj === undefined || obj === null  || toReset.isNewMonth || value > obj.val) {
+    if (obj === undefined || obj === null || toReset.isNewMonth || value > obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         MonthMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null,false) });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null, false) });
     }
 
     key = name + ".YearMin";
@@ -353,11 +353,11 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let YearMin = obj != null ? obj.val : 0;
-    if ( obj === undefined || obj === null  || toReset.isNewYear || value < obj.val) {
+    if (obj === undefined || obj === null || toReset.isNewYear || value < obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         YearMin = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null,false) });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null, false) });
     }
 
     key = name + ".YearMax";
@@ -365,11 +365,11 @@ async function CalcMinMax(name, value, toReset, calcDiff) {
     obj = await adapter.getStateAsync(key);
     adapter.log.debug(key + " === " + JSON.stringify(obj));
     let YearMax = obj != null ? obj.val : 0;
-    if ( obj === undefined || obj === null  || toReset.isNewYear || value > obj.val) {
+    if (obj === undefined || obj === null || toReset.isNewYear || value > obj.val) {
         adapter.log.info(" ==== set new value for " + key + " " + value);
         YearMax = value;
         await adapter.setStateAsync(key, { ack: true, val: value });
-        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null,false) });
+        await adapter.setStateAsync(key + "Date", { ack: true, val: timeConverter(null, false) });
     }
 
     if (calcDiff) {
@@ -412,26 +412,26 @@ async function UpdateSubsriptions() {
             const type = typeof value.val;
             //add states 
 
-            AddObject(myObjects[i].name, "channel", "min and max",  type);
-            AddObject(myObjects[i].name + ".TodayMin", "state", "todays minimum value",  type);
+            AddObject(myObjects[i].name, "channel", "min and max", type);
+            AddObject(myObjects[i].name + ".TodayMin", "state", "todays minimum value", type);
             AddObject(myObjects[i].name + ".TodayMinTime", "state", "todays minimum value", "string");
-            AddObject(myObjects[i].name + ".TodayMax", "state", "todays maximum value",  type);
+            AddObject(myObjects[i].name + ".TodayMax", "state", "todays maximum value", type);
             AddObject(myObjects[i].name + ".TodayMaxTime", "state", "todays maximum value", "string");
 
-            AddObject(myObjects[i].name + ".MonthMin", "state", "month minimum value",  type);
+            AddObject(myObjects[i].name + ".MonthMin", "state", "month minimum value", type);
             AddObject(myObjects[i].name + ".MonthMinDate", "state", "month minimum value", "string");
-            AddObject(myObjects[i].name + ".MonthMax", "state", "month maximum value",  type);
+            AddObject(myObjects[i].name + ".MonthMax", "state", "month maximum value", type);
             AddObject(myObjects[i].name + ".MonthMaxDate", "state", "month maximum value", "string");
 
-            AddObject(myObjects[i].name + ".YearMin", "state", "year minimum value",  type);
+            AddObject(myObjects[i].name + ".YearMin", "state", "year minimum value", type);
             AddObject(myObjects[i].name + ".YearMinDate", "state", "year minimum value", "string");
-            AddObject(myObjects[i].name + ".YearMax", "state", "year maximum value",  type);
+            AddObject(myObjects[i].name + ".YearMax", "state", "year maximum value", type);
             AddObject(myObjects[i].name + ".YearMaxDate", "state", "year maximum value", "string");
 
             if (myObjects[i].calcDiff) {
-                AddObject(myObjects[i].name + ".TodayDiff", "state", "today diff value",  type);
-                AddObject(myObjects[i].name + ".MonthDiff", "state", "month diff value",  type);
-                AddObject(myObjects[i].name + ".YearDiff", "state", "year diff value",  type);
+                AddObject(myObjects[i].name + ".TodayDiff", "state", "today diff value", type);
+                AddObject(myObjects[i].name + ".MonthDiff", "state", "month diff value", type);
+                AddObject(myObjects[i].name + ".YearDiff", "state", "year diff value", type);
             }
 
             /*
@@ -565,7 +565,7 @@ async function AddObject(key, type, name, datatyp) {
         }
     });
 
-    
+
     const obj = await adapter.getObjectAsync(key);
 
     if (obj != null) {
@@ -573,7 +573,7 @@ async function AddObject(key, type, name, datatyp) {
         if (obj.common.role != "value"
             || obj.common.type != datatyp
             || obj.common.name != name
-            || obj.type != type ) {
+            || obj.type != type) {
             adapter.log.debug(" !!! need to extend for " + key);
             await adapter.extendObject(key, {
                 type: type,
@@ -594,35 +594,186 @@ async function AddObject(key, type, name, datatyp) {
     }
 }
 
+
 //#######################################
 // we need to store setup to get it back after restart of adapter
 const fs = require("fs");
 const path = require("path");
-const { saveConfig, readConfig } = require("./lib/configstore");
+//var dataDir = path.normalize(utils.controllerDir + '/' + require(utils.controllerDir + '/lib/tools').getDefaultDataDir());
+//var cacheFile = dataDir + 'minmax.json';
 
-// Speichert die aktuelle Konfiguration (myObjects) persistent
+//to do: besser im eigenen Install-Verzeichnis
+//const cachePath = path.normalize(utils.controllerDir + "/iobroker-data/");
+const cachePath = path.normalize(__dirname + "/../../" + "iobroker-data/minmax/");
+const cacheFile = cachePath + "minmax.json";
+
+//const rootDir = path.normalize(__dirname + "/../../" + "iobroker-data/minmax");
+
+//opt/iobroker/node_modules/iobroker.js-controller/iobroker-data/minmax.json']
+
 function SaveSetup() {
-    try {
-        saveConfig(myObjects);
-        adapter.log.debug("Konfiguration gespeichert.");
-    } catch (e) {
-        adapter.log.error("Fehler beim Speichern der Konfiguration: " + e);
+
+
+    //to do: Rechte richtig?
+    if (!fs.existsSync(cachePath)) {
+        adapter.log.info("creating path " + cachePath);
+        fs.mkdirSync(cachePath);
     }
+
+
+    const fileData = {};
+    try {
+        fileData.myObjects = myObjects;
+
+        fs.writeFileSync(cacheFile, JSON.stringify(fileData));
+
+        adapter.log.debug("config stored in " + cachePath);
+    } catch (e) {
+        adapter.log.error("exception in SaveSetup [" + e + "]");
+    }
+
 }
 
-// Liest die Konfiguration (myObjects) aus dem persistenten Speicher
 function ReadSetup() {
+
+
+    adapter.log.info("reading " + cacheFile);
+
     try {
-        const config = readConfig();
-        if (Array.isArray(config)) {
-            myObjects = config;
-            adapter.log.debug("Konfiguration geladen.");
-        } else {
-            myObjects = [];
-            adapter.log.debug("Keine gespeicherte Konfiguration gefunden, leere Liste verwendet.");
+        //if (fs.statSync(cacheFile).isFile()) {
+        const fileContent = fs.readFileSync(cacheFile);
+        const tempData = JSON.parse(fileContent, function (key, value) {
+
+            return value;
+        });
+        if (tempData.myObjects) {
+            myObjects = tempData.myObjects;
+        }
+
+        adapter.log.debug("### after file read objects: " + JSON.stringify(myObjects));
+        //fs.unlinkSync(cacheFile);
+        //}
+    } catch (err) {
+        adapter.log.warn("No stored data from last exit found " + err);
+    }
+
+}
+
+//#######################################
+// reset at midnight
+
+
+function CronCreate() {
+    const timezone = adapter.config.timezone || "Europe/Berlin";
+
+    // test every minute
+    //crons.daySave = new CronJob('0 * * * * *',
+    const nextCron = cronJobs.length;
+    //details see https://www.npmjs.com/package/cron
+    const cronString = "0 0 0 * * *";
+
+    adapter.log.debug("start cron " + cronString + " " + timezone);
+
+    cronJobs[nextCron] = new CronJob(cronString,
+        () => ResetValues(),
+        () => adapter.log.debug("cron job stopped"), // This function is executed when the job stops
+        true,
+        timezone
+    );
+
+}
+
+async function ResetValues() {
+
+
+    adapter.log.info("check to reset?");
+    const toReset = CheckReset();
+
+    //test only; to be removed
+    //toReset.isNewDay = true;
+
+    try {
+        for (let i = 0; i < myObjects.length; i++) {
+
+            if (myObjects[i] !== null) {
+
+                await getCurrentValue(i, toReset);
+            }
         }
     } catch (e) {
-        myObjects = [];
-        adapter.log.error("Fehler beim Laden der Konfiguration: " + e);
+        adapter.log.error("exception in ResetValues [" + e + "]");
+    }
+    CronStatus();
+}
+
+
+async function getCurrentValue(idx, toReset) {
+
+    adapter.log.debug("get value for " + myObjects[idx].id);
+
+    const id = myObjects[idx].id;
+    const name = myObjects[idx].name;
+    const calcDiff = myObjects[idx].calcDiff;
+
+    const obj = await adapter.getForeignStateAsync(id);
+
+    adapter.log.debug("+++ " + JSON.stringify(obj));
+    //{ "val": 93, "ack": true, "ts": 1545926525405, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545925016555 }
+    //{ "val": 3.9, "ack": true, "ts": 1545926525360, "q": 0, "from": "system.adapter.hm-rpc.0", "lc": 1545926375376 }
+
+    if (obj !== null) {
+        adapter.log.debug("reset for " + name + " to " + obj.val);
+        await CalcMinMax(name, obj.val, toReset, calcDiff);
+    }
+
+}
+
+
+function CronStatus() {
+    let n = 0;
+    let length = 0;
+    try {
+        if (cronJobs !== undefined && cronJobs != null) {
+
+            length = cronJobs.length;
+            //adapter.log.debug("cron jobs");
+            for (n = 0; n < length; n++) {
+                if (cronJobs[n] !== undefined && cronJobs[n] != null) {
+                    adapter.log.debug("cron status = " + cronJobs[n].running + " next event: " + timeConverter("DE", cronJobs[n].nextDate()));
+                }
+            }
+
+            if (length > 500) {
+                adapter.log.warn("more then 500 cron jobs existing for this adapter, this might be a configuration error! (" + length + ")");
+            } else {
+                adapter.log.info(length + " cron job(s) created");
+            }
+        }
+    } catch (e) {
+        adapter.log.error("exception in getCronStat [" + e + "] : " + n + " of " + length);
     }
 }
+
+function CronStop() {
+    if (cronJobs.length > 0) {
+        adapter.log.debug("delete " + cronJobs.length + " cron jobs");
+        //cancel all cron jobs...
+        const start = cronJobs.length - 1;
+        for (let n = start; n >= 0; n--) {
+            //adapter.log.debug("stop cron job " + n);
+            cronJobs[n].stop();
+        }
+        cronJobs = [];
+    }
+}
+
+
+
+
+// If started as allInOne/compact mode => return function to create instance
+if (module && module.parent) {
+    module.exports = startAdapter;
+} else {
+    // or start the instance directly
+    startAdapter();
+} 
