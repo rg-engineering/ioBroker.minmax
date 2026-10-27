@@ -128,6 +128,9 @@ Eine echte Altdatei liegt nicht im Quellrepository, da sie erst zur Laufzeit im 
 - Die Ausgabe-IDs, Rollen, numerischen und String-Datentypen sowie Zeit-/Datumsformate wurden gegen die aktive `AddObject`-Implementierung der alten `main.js` geprüft. Die neuen Datumswerte verwenden weiterhin `d MMM yyyy HH:mm:ss`, aber entsprechend der vereinbarten Kalenderlogik die Adapter-Zeitzone statt der Host-Zeitzone. Ungültige, alte Channel-Common-Felder werden nicht neu erzeugt.
 - Verifikation: Backend-Build, Lint, 22 Unit-Tests und 64 ioBroker-Pakettests bestanden.
 
-## Noch offene Umsetzungsentscheidungen
+## Ergebnis Phase 6: Laufzeit- und Releasebereitschaft
 
-1. **Fehlerprotokollierung:**
+- Die leere TypeScript-Testvorlage `src/main.test.ts` wurde entfernt. Sie prüfte nur einen lokal fest kodierten Wert gegen denselben Wert und verursachte Fehler in der Visual-Studio-Testprojektansicht.
+- Der ioBroker-Integrationstest bestätigt den Adapterstart in einer temporären Installation unter js-controller 8.0.0-alpha.8. Er validiert nicht die Legacy-Migration mit einer echten Bestandsdatei oder Live-Objektänderungen.
+- Ein npm-Paket-Trockenlauf bestätigt, dass `build/main.js` und die Migration im Paket enthalten sind; Quell- und Testdateien sowie lokale Legacy-Daten werden nicht verpackt. Verwaiste `build/lib/minmaxvalue.js`-Dateien ohne passende TypeScript-Quelle wurden entfernt.
+- Build, Lint, 22 Unit-Tests, 64 Pakettests und ein Integrationstest bestanden. Ein manueller Lauf in einer produktiven ioBroker-Installation sowie ein Deployment oder Release stehen noch aus.

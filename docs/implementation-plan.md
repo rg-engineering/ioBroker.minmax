@@ -5,8 +5,8 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 ## Verbindliche Ausgangslage
 
 - Der Einstiegspunkt in `package.json` ist `build/main.js`.
-- `build` enthält derzeit keine verlässliche Grundlage: Es wurde noch nicht aus dem aktuellen Quellstand gebaut beziehungsweise enthält eine andere, nicht mehr verwendete Version.
-- Maßgeblich für die Neuentwicklung ist daher der aktuelle TypeScript-Quellstand unter `src`. Vorhandene Build-Dateien werden nicht als Spezifikation oder Referenz für die neue Implementierung behandelt.
+- Zu Beginn des Redesigns enthielt `build` keine verlässliche Grundlage; die Build-Ausgabe war veraltet oder aus einem anderen Quellstand erzeugt.
+- Maßgeblich für die Implementierung ist der aktuelle TypeScript-Quellstand unter `src`. Die Build-Ausgabe wird aus diesem Quellstand erzeugt und nicht als unabhängige Verhaltensspezifikation verwendet.
 - Die alte Implementierung `main.js` im Projektstamm und die vorhandenen Installationsdaten dienen dazu, bestehendes Verhalten, Datenpunktkompatibilität und Migrationsbedarf zu ermitteln.
 - Die Arbeit erfolgt phasenweise. Vor der fachlichen Implementierung wird Phase 1 abgeschlossen, damit Migrations- und Kompatibilitätsrisiken bekannt sind.
 
@@ -147,3 +147,28 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - Historische Ausgabe-IDs, Rollen, Wert-/Zeitdatentypen sowie das Format `HH:mm:ss` und `d MMM yyyy HH:mm:ss` wurden gegen `main.js` geprüft. Kalenderdatum und Uhrzeit folgen jetzt absichtlich der konfigurierten Adapter-Zeitzone statt der Host-Zeitzone. Ungültige Channel-Metadaten aus der alten Implementierung werden nicht neu erzeugt.
 - Die README informiert über die Prüfung der sichtbaren Objektkonfiguration nach einer mehrdeutigen Migration.
 - Verifikation: `npm run build-backend`, `npm run lint`, `npm run test:unit` (22 Tests) und `npm run test:package` (64 Tests) bestanden.
+
+## Phase 6: Laufzeit- und Releasebereitschaft (abgeschlossen)
+
+**Ziel:** Die umgesetzten Phasen abschließend anhand des tatsächlich paketierten TypeScript-Builds und der ioBroker-Adapterprüfungen absichern.
+
+**Arbeitsschritte:**
+
+1. Veraltete oder leere Testvorlagen entfernen, die den Workspace-Build blockieren oder eine falsche Testbasis suggerieren.
+2. Paket-Build und ioBroker-Testläufe ausführen; vorhandene Integrationsprüfungen und deren Aussagekraft dokumentieren.
+3. Sicherstellen, dass das npm-Paket den neuen Build und die Migration enthält, aber keine lokale Legacy-Konfiguration oder unnötige Quelldateien.
+4. Dokumentation zu tatsächlich durchgeführten Prüfungen und gegebenenfalls nötigen manuellen ioBroker-Laufzeittests ergänzen.
+
+**Abnahmekriterien:**
+
+- TypeScript-Build, Lint, Unit- und Paketprüfungen bestehen.
+- Das erzeugte Paket enthält `build/main.js` und die verwendeten Laufzeitmodule.
+- Kein nicht ausgeführter Test wird als bestanden dokumentiert; fehlende Live-ioBroker-Validierung wird ausdrücklich benannt.
+
+**Ergebnis:**
+
+- Die nichtssagende `src/main.test.ts`-Vorlage wurde entfernt; sie testete lediglich eine lokal gesetzte Konstante gegen denselben festen Wert und verursachte außerdem TypeScript-Fehler im Visual-Studio-Testprojekt.
+- `npm run test:integration` bestand (1 Test). Dieser ioBroker-Integrationstest bestätigt den Adapterstart in einer temporären Installation unter js-controller 8.0.0-alpha.8; er führt keine Live-Objektkonfiguration oder reale Legacy-Migration durch.
+- `npm pack --dry-run --json` bestätigt, dass `build/main.js` und `build/lib/legacy-config-migrator.js` im Paket liegen und keine `src/`-, `test/`- oder Legacy-JSON-Datei verpackt wird. Zwei verwaiste `build/lib/minmaxvalue.js`-Artefakte ohne zugehörige TypeScript-Quelle wurden entfernt, damit keine alte Implementierung versehentlich ausgeliefert wird.
+- Verifikation: `npm run build-backend`, `npm run lint`, `npm run test:unit` (22 Tests), `npm run test:package` (64 Tests) und `npm run test:integration` (1 Test) bestanden.
+- Ein vollständiger manueller Test in einer produktiven ioBroker-Installation steht aus; Versionsveröffentlichung oder produktives Deployment wurden nicht durchgeführt.
