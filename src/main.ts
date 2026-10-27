@@ -8,8 +8,10 @@
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 
 import * as utils from "@iobroker/adapter-core";
+import { join } from "node:path";
 import BoundaryScheduler from "./lib/boundary-scheduler";
 import { describeError } from "./lib/error-utils";
+import LegacyConfigMigrator from "./lib/legacy-config-migrator";
 import MinmaxController from "./lib/minmax-controller";
 
 export class Minmax extends utils.Adapter {
@@ -51,6 +53,8 @@ export class Minmax extends utils.Adapter {
 		this.boundaryScheduler = scheduler;
 		this.subscribeForeignObjects("*");
 
+		const legacyConfigPath = join(utils.getAbsoluteDefaultDataDir(), "minmax", "minmax.json");
+		await new LegacyConfigMigrator(this, legacyConfigPath).migrate();
 		const objects = await this.getForeignObjectsAsync("*", "state");
 		await controller.initialize(objects);
 		await scheduler.start();

@@ -119,7 +119,7 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - Tests decken verschiedene IANA-Zeitzonen, den Jahreswechsel, den DST-Kalendertag, Grenzrefresh und die Wiederaufnahme mit veralteten Daten ab.
 - Verifikation: `npm run build-backend`, `npm run test:unit` (18 Tests bestanden) und `npm run lint` erfolgreich.
 
-## Phase 5: Migration und Abschlussprüfung
+## Phase 5: Migration und Abschlussprüfung (abgeschlossen)
 
 **Ziel:** Vorhandene Konfiguration sicher übernehmen und das Redesign gegen Kompatibilitätsanforderungen absichern.
 
@@ -138,3 +138,12 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - Die Legacy-Datei wird nach einem abgeschlossenen Migrationsversuch entfernt, auch wenn einzelne Einträge bewusst verworfen wurden; bei technischen Verarbeitungsfehlern bleibt sie zur Wiederholung erhalten.
 - Build und relevante Tests bestehen.
 - Kompatibilitätsprüfungen sind abgeschlossen und verbleibende Abweichungen klar dokumentiert.
+
+**Ergebnis:**
+
+- `src/lib/legacy-config-migrator.ts` migriert `myObjects` einmalig aus `minmax/minmax.json` im ioBroker-Standard-Datenverzeichnis. Der Pfad wird über `getAbsoluteDefaultDataDir()` bestimmt, nicht relativ zum Build-Verzeichnis.
+- Die Datei wird nur einer einzelnen, eindeutig identifizierten Minmax-Instanz zugeordnet. Bestehende Custom-Werte werden nicht überschrieben; bei eindeutiger Zuordnung füllt die Migration nur fehlende Felder. Bei mehreren Instanzen oder fremden Minmax-Custom-Konfigurationen werden nicht zuordenbare Einträge verworfen, die Datei nach dem Versuch gelöscht und der Benutzer im Log zur genauen Prüfung der sichtbaren Einstellungen aufgefordert.
+- Wenn Lesen, Parsen oder das Schreiben der Custom-Einstellungen technisch scheitert, bleibt die Legacy-Datei für einen erneuten Versuch erhalten. Erfolgreich migrierte Einträge sind idempotent; anschließend gibt es die Altdatei nicht mehr.
+- Historische Ausgabe-IDs, Rollen, Wert-/Zeitdatentypen sowie das Format `HH:mm:ss` und `d MMM yyyy HH:mm:ss` wurden gegen `main.js` geprüft. Kalenderdatum und Uhrzeit folgen jetzt absichtlich der konfigurierten Adapter-Zeitzone statt der Host-Zeitzone. Ungültige Channel-Metadaten aus der alten Implementierung werden nicht neu erzeugt.
+- Die README informiert über die Prüfung der sichtbaren Objektkonfiguration nach einer mehrdeutigen Migration.
+- Verifikation: `npm run build-backend`, `npm run lint`, `npm run test:unit` (22 Tests) und `npm run test:package` (64 Tests) bestanden.

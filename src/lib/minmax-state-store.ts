@@ -33,8 +33,11 @@ export default class MinmaxStateStore {
     public async ensureObjects(logName: string, includeDifferences: boolean): Promise<void> {
         await this.adapter.setObjectNotExistsAsync(logName, {
             type: "channel",
-            common: { name: "min and max" },
-            native: {},
+            common: {
+                name: "min and max",
+                role: "value",
+            },
+            native: { location: logName },
         });
 
         const numericStates = [
@@ -142,7 +145,7 @@ export default class MinmaxStateStore {
                 read: true,
                 write: false,
             },
-            native: { id },
+            native: { location: id },
         });
     }
 

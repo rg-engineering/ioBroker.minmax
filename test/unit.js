@@ -1,16 +1,23 @@
 const path = require("path");
+const os = require("os");
+const fs = require("fs/promises");
 const { expect } = require("chai");
 const { tests } = require("@iobroker/testing");
 const { isNumericValue, MinMaxCalculator } = require("../build/lib/minmax-calculator");
 const MinmaxController = require("../build/lib/minmax-controller").default;
-const { getCalendarKeys, getPeriodResetFlags } = require("../build/lib/timezone-utils");
+const LegacyConfigMigrator = require("../build/lib/legacy-config-migrator").default;
+const { formatDateTimeInZone, formatTimeInZone, getCalendarKeys, getPeriodResetFlags } = require("../build/lib/timezone-utils");
 
 function createMockAdapter(namespace, sourceStates = {}) {
     const states = new Map();
     const objects = new Map();
     const subscriptions = new Set();
     const errors = [];
-    return {
+    const warnings = [];
+    const infos = [];
+    const foreignObjects = new Map();
+    const instances = {};
+    const adapter = {
         namespace,
         config: { timezone: "Europe/Berlin" },
         sourceStates,
@@ -18,7 +25,16 @@ function createMockAdapter(namespace, sourceStates = {}) {
         objects,
         subscriptions,
         errors,
-        log: { error: (message) => errors.push(message) },
+        warnings,
+        infos,
+        foreignObjects,
+        instances,
+        log: {
+            error: (message) => errors.push(message),
+            warn: (message) => warnings.push(message),
+            info: (message) => infos.push(message),
+            debug: () => undefined,
+        },
         setObjectNotExistsAsync: async (id, object) => {
             if (!objects.has(id)) objects.set(id, object);
         },
@@ -35,7 +51,23 @@ function createMockAdapter(namespace, sourceStates = {}) {
         getForeignStateAsync: async (id) => sourceStates[id] || null,
         subscribeForeignStates: (id) => subscriptions.add(id),
         unsubscribeForeignStates: (id) => subscriptions.delete(id),
+        getForeignObjectsAsync: async (pattern) => pattern === "system.adapter.minmax.*" ? instances : Object.fromEntries(foreignObjects),
+        getForeignObjectAsync: async (id) => foreignObjects.get(id) || null,
+        extendForeignObjectAsync: async (id, patch) => {
+            const current = foreignObjects.get(id);
+            const next = {
+                ...current,
+                common: {
+                    ...current.common,
+                    ...patch.common,
+                    custom: { ...(current.common.custom || {}), ...patch.common.custom },
+                },
+            };
+            foreignObjects.set(id, next);
+            return next;
+        },
     };
+    return adapter;
 }
 
 function sourceObject(id, namespace, custom, type = "number") {
@@ -45,6 +77,19 @@ function sourceObject(id, namespace, custom, type = "number") {
         common: { name: id, type, custom: { [namespace]: custom } },
         native: {},
     };
+}
+
+async function withLegacyFile(contents, run) {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "minmax-migration-"));
+    const legacyDirectory = path.join(root, "minmax");
+    const legacyFile = path.join(legacyDirectory, "minmax.json");
+    await fs.mkdir(legacyDirectory);
+    await fs.writeFile(legacyFile, contents, "utf8");
+    try {
+        await run(legacyFile);
+    } finally {
+        await fs.rm(root, { recursive: true, force: true });
+    }
 }
 
 tests.unit(path.join(__dirname, ".."), {
@@ -185,6 +230,93 @@ tests.unit(path.join(__dirname, ".."), {
                 expect(afterTransition.day).to.equal("2026-03-29");
                 expect(beforeTransition.month).to.equal(afterTransition.month);
             });
+
+            it("preserves the legacy time and date output formats in the configured timezone", () => {
+                const timestamp = new Date("2026-07-07T10:05:06.000Z").getTime();
+
+                expect(formatTimeInZone(timestamp, "Europe/Berlin")).to.equal("12:05:06");
+                expect(formatDateTimeInZone(timestamp, "Europe/Berlin")).to.equal(" 7 Jul 2026 12:05:06");
+            });
+        });
+
+        describe("Legacy configuration migration", () => {
+            it("migrates once and preserves existing visible custom values", async () => {
+                await withLegacyFile(JSON.stringify({
+                    myObjects: [
+                        { id: "sensor.temperature", name: "LegacyName", enabled: true, calcDiff: true },
+                    ],
+                }), async (legacyFile) => {
+                    const namespace = "minmax.0";
+                    const adapter = createMockAdapter(namespace);
+                    adapter.instances[`system.adapter.${namespace}`] = { type: "instance" };
+                    adapter.foreignObjects.set("sensor.temperature", sourceObject("sensor.temperature", namespace, {
+                        enabled: false,
+                        keep: "visible",
+                    }));
+
+                    await new LegacyConfigMigrator(adapter, legacyFile).migrate();
+                    const migrated = adapter.foreignObjects.get("sensor.temperature").common.custom[namespace];
+
+                    expect(migrated).to.deep.equal({
+                        enabled: false,
+                        keep: "visible",
+                        logName: "LegacyName",
+                        calcDiff: true,
+                    });
+                    expect(adapter.infos[0]).to.contain("Migrated 1");
+                    const legacyFileWasRemoved = await fs.access(legacyFile).then(() => false, () => true);
+                    expect(legacyFileWasRemoved).to.equal(true);
+
+                    await new LegacyConfigMigrator(adapter, legacyFile).migrate();
+                    expect(adapter.foreignObjects.get("sensor.temperature").common.custom[namespace]).to.deep.equal(migrated);
+                });
+            });
+
+            it("discards legacy entries when multiple adapter instances make ownership ambiguous", async () => {
+                await withLegacyFile(JSON.stringify({
+                    myObjects: [
+                        { id: "sensor.temperature", name: "LegacyName", enabled: true, calcDiff: false },
+                    ],
+                }), async (legacyFile) => {
+                    const adapter = createMockAdapter("minmax.0");
+                    adapter.instances["system.adapter.minmax.0"] = { type: "instance" };
+                    adapter.instances["system.adapter.minmax.1"] = { type: "instance" };
+                    adapter.foreignObjects.set("sensor.temperature", sourceObject("sensor.temperature", "minmax.1", {
+                        enabled: true,
+                        logName: "OtherInstance",
+                        calcDiff: false,
+                    }));
+
+                    await new LegacyConfigMigrator(adapter, legacyFile).migrate();
+
+                    expect(adapter.foreignObjects.get("sensor.temperature").common.custom).not.to.have.property("minmax.0");
+                    expect(adapter.warnings[0]).to.contain("carefully check");
+                    const legacyFileWasRemoved = await fs.access(legacyFile).then(() => false, () => true);
+                    expect(legacyFileWasRemoved).to.equal(true);
+                });
+            });
+
+            it("keeps the legacy file when writing migrated settings fails", async () => {
+                await withLegacyFile(JSON.stringify({
+                    myObjects: [
+                        { id: "sensor.temperature", name: "LegacyName", enabled: true, calcDiff: false },
+                    ],
+                }), async (legacyFile) => {
+                    const namespace = "minmax.0";
+                    const adapter = createMockAdapter(namespace);
+                    adapter.instances[`system.adapter.${namespace}`] = { type: "instance" };
+                    adapter.foreignObjects.set("sensor.temperature", sourceObject("sensor.temperature", namespace, {}));
+                    adapter.extendForeignObjectAsync = async () => {
+                        throw new Error("object database unavailable");
+                    };
+
+                    await new LegacyConfigMigrator(adapter, legacyFile).migrate();
+
+                    const legacyFileStillExists = await fs.access(legacyFile).then(() => true, () => false);
+                    expect(legacyFileStillExists).to.equal(true);
+                    expect(adapter.errors[0]).to.contain("kept for retry");
+                });
+            });
         });
 
         describe("MinmaxController", () => {
@@ -212,6 +344,20 @@ tests.unit(path.join(__dirname, ".."), {
                 expect(adapter.states.get("Temperature.TodayMax").val).to.equal(21);
                 expect(adapter.states.get("Temperature.TodayDiff").val).to.equal(0);
                 expect(adapter.objects.has("Humidity.TodayMin")).to.equal(false);
+                for (const id of [
+                    "TodayMin", "TodayMax", "TodayMinTime", "TodayMaxTime",
+                    "MonthMin", "MonthMax", "MonthMinDate", "MonthMaxDate",
+                    "YearMin", "YearMax", "YearMinDate", "YearMaxDate",
+                    "TodayDiff", "MonthDiff", "YearDiff",
+                ]) {
+                    expect(adapter.objects.has(`Temperature.${id}`), id).to.equal(true);
+                }
+                expect(adapter.objects.get("Temperature").common).to.include({ role: "value" });
+                expect(adapter.objects.get("Temperature").native.location).to.equal("Temperature");
+                expect(adapter.objects.get("Temperature.TodayMin").common).to.include({ type: "number", role: "value" });
+                expect(adapter.objects.get("Temperature.TodayMin").native.location).to.equal("Temperature.TodayMin");
+                expect(adapter.objects.get("Temperature.TodayMinTime").common).to.include({ type: "string", role: "value" });
+                expect(adapter.objects.get("Temperature.TodayDiff").common).to.include({ type: "number", role: "value" });
             });
 
             it("rejects duplicate log names without interrupting the existing tracker", async () => {

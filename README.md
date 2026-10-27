@@ -31,7 +31,9 @@ This adapter logs the minimum and maximum values of a given data point for today
 The value is reset at the beginning of the period and changed to the current time.
 
 ## Settings
-When the adapter is running, simply enable logging for the required data point in the object view. Optionally, you can assign a specific name.
+When the adapter is running, simply enable logging for the required data point in the object view. Optionally, you can assign a specific name. The adapter tracks numeric states and uses the configured timezone for day, month, and year boundaries.
+
+After an upgrade that migrates the old saved configuration, check the adapter log. If entries could not be assigned safely (for example, because multiple minmax instances exist), the legacy file is discarded and the log asks you to carefully verify the enabled data points and their visible settings in the object view.
 
 ## Changelog
 <!--

@@ -26,8 +26,11 @@ class MinmaxStateStore {
     async ensureObjects(logName, includeDifferences) {
         await this.adapter.setObjectNotExistsAsync(logName, {
             type: "channel",
-            common: { name: "min and max" },
-            native: {},
+            common: {
+                name: "min and max",
+                role: "value",
+            },
+            native: { location: logName },
         });
         const numericStates = [
             ["TodayMin", "todays minimum value"],
@@ -123,7 +126,7 @@ class MinmaxStateStore {
                 read: true,
                 write: false,
             },
-            native: { id },
+            native: { location: id },
         });
     }
     async loadPeriod(logName, minName, maxName) {
