@@ -16,3 +16,4 @@ lib/i18n/*/flat.txt
 .commitinfo
 /bin/Microsoft.NodejsTools.WebRole.dll
 /obj/Debug/
+/iobroker.minmax-*.tgz
