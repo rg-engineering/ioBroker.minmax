@@ -42,7 +42,7 @@
   "scripts": {
     "test": "npm run test:package",
     "test:package": "mocha test/package --exit",
-    "test:unit": "mocha test/unit --exit",
+    "test:unit": "npm run build-backend && mocha test/unit --exit",
     "test:integration": "mocha test/integration --exit",
     "lint": "eslint -c eslint.config.mjs .",
     "translate": "translate-adapter",
