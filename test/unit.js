@@ -6,7 +6,14 @@ const { tests } = require("@iobroker/testing");
 const { isNumericValue, MinMaxCalculator } = require("../build/lib/minmax-calculator");
 const MinmaxController = require("../build/lib/minmax-controller").default;
 const LegacyConfigMigrator = require("../build/lib/legacy-config-migrator").default;
-const { formatDateTimeInZone, formatTimeInZone, getCalendarKeys, getPeriodResetFlags } = require("../build/lib/timezone-utils");
+const { getLegacyConfigPaths } = require("../build/lib/legacy-config-migrator");
+const {
+    formatDateTimeInZone,
+    formatTimeInZone,
+    getCalendarKeys,
+    getPeriodResetFlags,
+    parseDateTimeInZone,
+} = require("../build/lib/timezone-utils");
 
 function createMockAdapter(namespace, sourceStates = {}) {
     const states = new Map();
@@ -198,6 +205,13 @@ tests.unit(path.join(__dirname, ".."), {
         });
 
         describe("Timezone utilities", () => {
+            it("parses legacy formatted dates in the configured timezone", () => {
+                const timestamp = parseDateTimeInZone(" 7 Jul 2026 12:05:06", "Europe/Berlin");
+
+                expect(timestamp).to.equal(new Date("2026-07-07T10:05:06.000Z").getTime());
+                expect(parseDateTimeInZone("not a date", "Europe/Berlin")).to.equal(null);
+            });
+
             it("calculates calendar periods in the configured timezone", () => {
                 const instant = new Date("2026-01-01T00:30:00.000Z");
 
@@ -240,6 +254,15 @@ tests.unit(path.join(__dirname, ".."), {
         });
 
         describe("Legacy configuration migration", () => {
+            it("searches the legacy root-relative location and the controller data directory", () => {
+                const buildDirectory = path.join(path.sep, "opt", "iobroker", "node_modules", "iobroker.minmax", "build");
+                const defaultDataDirectory = path.join(path.sep, "opt", "iobroker", "iobroker-data");
+
+                expect(getLegacyConfigPaths(buildDirectory, defaultDataDirectory)).to.deep.equal([
+                    path.join(path.sep, "opt", "iobroker", "iobroker-data", "minmax", "minmax.json"),
+                ]);
+            });
+
             it("migrates once and preserves existing visible custom values", async () => {
                 await withLegacyFile(JSON.stringify({
                     myObjects: [
@@ -254,7 +277,7 @@ tests.unit(path.join(__dirname, ".."), {
                         keep: "visible",
                     }));
 
-                    await new LegacyConfigMigrator(adapter, legacyFile).migrate();
+                    await new LegacyConfigMigrator(adapter, [legacyFile]).migrate();
                     const migrated = adapter.foreignObjects.get("sensor.temperature").common.custom[namespace];
 
                     expect(migrated).to.deep.equal({
@@ -267,7 +290,7 @@ tests.unit(path.join(__dirname, ".."), {
                     const legacyFileWasRemoved = await fs.access(legacyFile).then(() => false, () => true);
                     expect(legacyFileWasRemoved).to.equal(true);
 
-                    await new LegacyConfigMigrator(adapter, legacyFile).migrate();
+                    await new LegacyConfigMigrator(adapter, [legacyFile]).migrate();
                     expect(adapter.foreignObjects.get("sensor.temperature").common.custom[namespace]).to.deep.equal(migrated);
                 });
             });
@@ -287,7 +310,7 @@ tests.unit(path.join(__dirname, ".."), {
                         calcDiff: false,
                     }));
 
-                    await new LegacyConfigMigrator(adapter, legacyFile).migrate();
+                    await new LegacyConfigMigrator(adapter, [legacyFile]).migrate();
 
                     expect(adapter.foreignObjects.get("sensor.temperature").common.custom).not.to.have.property("minmax.0");
                     expect(adapter.warnings[0]).to.contain("carefully check");
@@ -310,7 +333,7 @@ tests.unit(path.join(__dirname, ".."), {
                         throw new Error("object database unavailable");
                     };
 
-                    await new LegacyConfigMigrator(adapter, legacyFile).migrate();
+                    await new LegacyConfigMigrator(adapter, [legacyFile]).migrate();
 
                     const legacyFileStillExists = await fs.access(legacyFile).then(() => true, () => false);
                     expect(legacyFileStillExists).to.equal(true);
@@ -463,6 +486,42 @@ tests.unit(path.join(__dirname, ".."), {
                 expect(adapter.states.get("Temperature.MonthMin").val).to.equal(20);
                 expect(adapter.states.get("Temperature.MonthMax").val).to.equal(25);
                 expect(adapter.states.get("Temperature.TodayDiff").val).to.equal(0);
+            });
+
+            it("preserves existing extrema on startup when legacy states lack timestamps", async () => {
+                const namespace = "minmax.0";
+                const adapter = createMockAdapter(namespace, { "sensor.temperature": { val: 15, ack: true } });
+                const logName = "Temperature";
+                const now = Date.now();
+                const currentFormattedDate = formatDateTimeInZone(now, "Europe/Berlin");
+                adapter.states.set(`${logName}.TodayMin`, { val: -3, ts: 0, ack: true });
+                adapter.states.set(`${logName}.TodayMax`, { val: 30, ts: 0, ack: true });
+                adapter.states.set(`${logName}.TodayMinTime`, { val: "06:00:00", ack: true });
+                adapter.states.set(`${logName}.TodayMaxTime`, { val: "14:00:00", ack: true });
+                adapter.states.set(`${logName}.MonthMin`, { val: 1, ts: 0, ack: true });
+                adapter.states.set(`${logName}.MonthMax`, { val: 29, ts: 0, ack: true });
+                adapter.states.set(`${logName}.MonthMinDate`, { val: currentFormattedDate, ack: true });
+                adapter.states.set(`${logName}.MonthMaxDate`, { val: currentFormattedDate, ack: true });
+                adapter.states.set(`${logName}.YearMin`, { val: 0, ts: 0, ack: true });
+                adapter.states.set(`${logName}.YearMax`, { val: 35, ts: 0, ack: true });
+                adapter.states.set(`${logName}.YearMinDate`, { val: currentFormattedDate, ack: true });
+                adapter.states.set(`${logName}.YearMaxDate`, { val: currentFormattedDate, ack: true });
+                const controller = new MinmaxController(adapter);
+                await controller.initialize({
+                    "sensor.temperature": sourceObject("sensor.temperature", namespace, {
+                        enabled: true,
+                        logName,
+                        calcDiff: false,
+                    }),
+                });
+
+                expect(adapter.states.get(`${logName}.TodayMin`).val).to.equal(-3);
+                expect(adapter.states.get(`${logName}.TodayMax`).val).to.equal(30);
+                expect(adapter.states.get(`${logName}.MonthMin`).val).to.equal(1);
+                expect(adapter.states.get(`${logName}.MonthMax`).val).to.equal(29);
+                expect(adapter.states.get(`${logName}.YearMin`).val).to.equal(0);
+                expect(adapter.states.get(`${logName}.YearMax`).val).to.equal(35);
+                expect(adapter.warnings).to.have.length(2);
             });
 
             it("reinitializes stale statistics after a missed period while resuming", async () => {

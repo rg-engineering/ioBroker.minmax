@@ -141,12 +141,13 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 
 **Ergebnis:**
 
-- `src/lib/legacy-config-migrator.ts` migriert `myObjects` einmalig aus `minmax/minmax.json` im ioBroker-Standard-Datenverzeichnis. Der Pfad wird über `getAbsoluteDefaultDataDir()` bestimmt, nicht relativ zum Build-Verzeichnis.
+- `src/lib/legacy-config-migrator.ts` migriert `myObjects` einmalig von der historischen Position relativ zum Adapterpfad und prüft zusätzlich das Controller-Standard-Datenverzeichnis. Die Pfade funktionieren unabhängig vom Build-Verzeichnis; wenn keine Datei gefunden wird, werden die geprüften Pfade geloggt.
 - Die Datei wird nur einer einzelnen, eindeutig identifizierten Minmax-Instanz zugeordnet. Bestehende Custom-Werte werden nicht überschrieben; bei eindeutiger Zuordnung füllt die Migration nur fehlende Felder. Bei mehreren Instanzen oder fremden Minmax-Custom-Konfigurationen werden nicht zuordenbare Einträge verworfen, die Datei nach dem Versuch gelöscht und der Benutzer im Log zur genauen Prüfung der sichtbaren Einstellungen aufgefordert.
 - Wenn Lesen, Parsen oder das Schreiben der Custom-Einstellungen technisch scheitert, bleibt die Legacy-Datei für einen erneuten Versuch erhalten. Erfolgreich migrierte Einträge sind idempotent; anschließend gibt es die Altdatei nicht mehr.
-- Historische Ausgabe-IDs, Rollen, Wert-/Zeitdatentypen sowie das Format `HH:mm:ss` und `d MMM yyyy HH:mm:ss` wurden gegen `main.js` geprüft. Kalenderdatum und Uhrzeit folgen jetzt absichtlich der konfigurierten Adapter-Zeitzone statt der Host-Zeitzone. Ungültige Channel-Metadaten aus der alten Implementierung werden nicht neu erzeugt.
+- Historische Ausgabe-IDs, Rollen, Wert-/Zeitdatentypen sowie das Format `HH:mm:ss` und `d MMM yyyy HH:mm:ss` wurden gegen `main.js` geprüft. Kalenderdatum und Uhrzeit folgen jetzt absichtlich der konfigurierten Adapter-Zeitzone statt der Host-Zeitzone.
+- Der erste Live-Test zeigte außerdem, dass nicht alle bestehenden States einen verwertbaren `ts`-Zeitstempel liefern. Der State-Store verwendet deshalb `ts`, ersatzweise `lc` oder das zugehörige Datumsfeld bei Monats-/Jahreswerten. Vorhandene Tageswerte ohne Datum und ohne brauchbaren Zeitstempel werden mit Warnung beibehalten, nicht blind durch den Startmesswert ersetzt.
 - Die README informiert über die Prüfung der sichtbaren Objektkonfiguration nach einer mehrdeutigen Migration.
-- Verifikation: `npm run build-backend`, `npm run lint`, `npm run test:unit` (22 Tests) und `npm run test:package` (64 Tests) bestanden.
+- Verifikation nach dem Live-Test-Fix: `npm run build-backend`, `npm run lint`, `npm run test:unit` (25 Tests) und `npm run test:package` (64 Tests) bestanden.
 
 ## Phase 6: Laufzeit- und Releasebereitschaft (abgeschlossen)
 
@@ -171,4 +172,5 @@ Dieser Phasenplan beschreibt die schrittweise Umsetzung des TypeScript-Redesigns
 - `npm run test:integration` bestand (1 Test). Dieser ioBroker-Integrationstest bestätigt den Adapterstart in einer temporären Installation unter js-controller 8.0.0-alpha.8; er führt keine Live-Objektkonfiguration oder reale Legacy-Migration durch.
 - `npm pack --dry-run --json` bestätigt, dass `build/main.js` und `build/lib/legacy-config-migrator.js` im Paket liegen und keine `src/`-, `test/`- oder Legacy-JSON-Datei verpackt wird. Zwei verwaiste `build/lib/minmaxvalue.js`-Artefakte ohne zugehörige TypeScript-Quelle wurden entfernt, damit keine alte Implementierung versehentlich ausgeliefert wird.
 - Verifikation: `npm run build-backend`, `npm run lint`, `npm run test:unit` (22 Tests), `npm run test:package` (64 Tests) und `npm run test:integration` (1 Test) bestanden.
-- Ein vollständiger manueller Test in einer produktiven ioBroker-Installation steht aus; Versionsveröffentlichung oder produktives Deployment wurden nicht durchgeführt.
+- Der erste manuelle Test in der ioBroker-Testumgebung deckte die zuvor fehlende Kompatibilität mit fehlenden/ungültigen State-Zeitstempeln auf. Der Fix ist durch Unit- und Integrationstests abgesichert, muss in der Testumgebung aber noch einmal mit den Bestandsdaten verifiziert werden.
+- Ein vollständiger erfolgreicher Lauf mit echter Legacy-Datei steht aus; Versionsveröffentlichung oder produktives Deployment wurden nicht durchgeführt.

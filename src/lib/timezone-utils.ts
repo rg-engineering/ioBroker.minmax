@@ -84,3 +84,56 @@ export function formatDateTimeInZone(timestamp: number, timeZone: string): strin
     const month = new Intl.DateTimeFormat("en-US", { timeZone, month: "short" }).format(new Date(timestamp));
     return `${day} ${month} ${parts.year} ${parts.hour}:${parts.minute}:${parts.second}`;
 }
+
+export function parseDateTimeInZone(value: string, timeZone: string): number | null {
+    const match = /^\s*(\d{1,2}) ([A-Za-zÄÖÜäöü]{3}) (\d{4}) (\d{2}):(\d{2}):(\d{2})$/.exec(value);
+    if (!match) {
+        return null;
+    }
+
+    const monthNames: Record<string, number> = {
+        Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6,
+        Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12,
+        Mär: 3, Mai: 5, Okt: 10, Dez: 12,
+    };
+    const [, dayText, monthText, yearText, hourText, minuteText, secondText] = match;
+    const month = monthNames[monthText];
+    if (month === undefined) {
+        return null;
+    }
+
+    const dateParts = {
+        year: yearText,
+        month: month.toString().padStart(2, "0"),
+        day: dayText.padStart(2, "0"),
+        hour: hourText,
+        minute: minuteText,
+        second: secondText,
+    };
+    const localTimestamp = Date.UTC(
+        Number(dateParts.year),
+        month - 1,
+        Number(dateParts.day),
+        Number(dateParts.hour),
+        Number(dateParts.minute),
+        Number(dateParts.second),
+    );
+    let timestamp = localTimestamp;
+    for (let attempt = 0; attempt < 4; attempt++) {
+        const actualParts = getCalendarParts(new Date(timestamp), timeZone);
+        const representedLocalTimestamp = Date.UTC(
+            Number(actualParts.year),
+            Number(actualParts.month) - 1,
+            Number(actualParts.day),
+            Number(actualParts.hour),
+            Number(actualParts.minute),
+            Number(actualParts.second),
+        );
+        const adjustment = localTimestamp - representedLocalTimestamp;
+        if (adjustment === 0) {
+            return timestamp;
+        }
+        timestamp += adjustment;
+    }
+    return null;
+}
