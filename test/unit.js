@@ -295,6 +295,28 @@ tests.unit(path.join(__dirname, ".."), {
                 });
             });
 
+            it("defaults an omitted legacy calcDiff setting to false", async () => {
+                await withLegacyFile(JSON.stringify({
+                    myObjects: [
+                        { id: "sensor.temperature", name: "Temperature", enabled: true },
+                    ],
+                }), async (legacyFile) => {
+                    const namespace = "minmax.0";
+                    const adapter = createMockAdapter(namespace);
+                    adapter.instances[`system.adapter.${namespace}`] = { type: "instance" };
+                    adapter.foreignObjects.set("sensor.temperature", sourceObject("sensor.temperature", namespace, {}));
+
+                    await new LegacyConfigMigrator(adapter, [legacyFile]).migrate();
+
+                    expect(adapter.foreignObjects.get("sensor.temperature").common.custom[namespace]).to.deep.equal({
+                        enabled: true,
+                        logName: "Temperature",
+                        calcDiff: false,
+                    });
+                    expect(adapter.errors).to.have.length(0);
+                });
+            });
+
             it("discards legacy entries when multiple adapter instances make ownership ambiguous", async () => {
                 await withLegacyFile(JSON.stringify({
                     myObjects: [

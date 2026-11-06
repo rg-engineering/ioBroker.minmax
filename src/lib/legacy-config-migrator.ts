@@ -28,7 +28,7 @@ function parseLegacyEntries(contents: string): LegacyEntry[] {
             typeof entry.name !== "string" ||
             entry.name.length === 0 ||
             typeof entry.enabled !== "boolean" ||
-            typeof entry.calcDiff !== "boolean"
+            (entry.calcDiff !== undefined && typeof entry.calcDiff !== "boolean")
         ) {
             throw new TypeError(`Legacy configuration entry ${index} has an invalid shape`);
         }
@@ -37,7 +37,7 @@ function parseLegacyEntries(contents: string): LegacyEntry[] {
             id: entry.id,
             name: entry.name,
             enabled: entry.enabled,
-            calcDiff: entry.calcDiff,
+            calcDiff: entry.calcDiff === true,
         };
     });
 }
