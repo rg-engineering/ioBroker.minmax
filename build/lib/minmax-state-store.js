@@ -63,9 +63,9 @@ class MinmaxStateStore {
     }
     async loadStatistics(logName) {
         const [day, month, year] = await Promise.all([
-            this.loadPeriod(logName, "TodayMin", "TodayMax"),
-            this.loadPeriod(logName, "MonthMin", "MonthMax"),
-            this.loadPeriod(logName, "YearMin", "YearMax"),
+            this.loadPeriod(logName, "TodayMin", "TodayMax", "TodayMinTime", "TodayMaxTime"),
+            this.loadPeriod(logName, "MonthMin", "MonthMax", "MonthMinDate", "MonthMaxDate"),
+            this.loadPeriod(logName, "YearMin", "YearMax", "YearMinDate", "YearMaxDate"),
         ]);
         return { day, month, year };
     }
@@ -129,20 +129,36 @@ class MinmaxStateStore {
             native: { location: id },
         });
     }
-    async loadPeriod(logName, minName, maxName) {
-        const [minimumState, maximumState] = await Promise.all([
+    async loadPeriod(logName, minName, maxName, minDateName, maxDateName) {
+        const [minimumState, maximumState, minimumDateState, maximumDateState] = await Promise.all([
             this.adapter.getStateAsync(`${logName}.${minName}`),
             this.adapter.getStateAsync(`${logName}.${maxName}`),
+            this.adapter.getStateAsync(`${logName}.${minDateName}`),
+            this.adapter.getStateAsync(`${logName}.${maxDateName}`),
         ]);
-        const minimum = this.toExtremum(minimumState);
-        const maximum = this.toExtremum(maximumState);
+        const minimum = this.toExtremum(minimumState, minimumDateState, `${logName}.${minName}`);
+        const maximum = this.toExtremum(maximumState, maximumDateState, `${logName}.${maxName}`);
         return minimum && maximum ? { minimum, maximum } : null;
     }
-    toExtremum(state) {
-        if (!state || typeof state.val !== "number" || !Number.isFinite(state.val) || !Number.isFinite(state.ts)) {
+    toExtremum(state, dateState, stateId) {
+        if (!state || typeof state.val !== "number" || !Number.isFinite(state.val)) {
             return null;
         }
-        return { value: state.val, timestamp: state.ts };
+        let timestamp = typeof state.ts === "number" && Number.isFinite(state.ts) && state.ts > 0
+            ? state.ts
+            : typeof state.lc === "number" && Number.isFinite(state.lc) && state.lc > 0
+                ? state.lc
+                : undefined;
+        if (typeof timestamp !== "number" || !Number.isFinite(timestamp)) {
+            if (typeof dateState?.val === "string") {
+                timestamp = (0, timezone_utils_1.parseDateTimeInZone)(dateState.val, this.timeZone) ?? undefined;
+            }
+        }
+        if (typeof timestamp !== "number" || !Number.isFinite(timestamp)) {
+            this.adapter.log.warn(`Cannot determine the period timestamp for existing statistic ${stateId}; preserving its value until a new extremum is recorded`);
+            timestamp = Date.now();
+        }
+        return { value: state.val, timestamp };
     }
     async savePeriod(logName, periodName, previous, current) {
         const writes = [];

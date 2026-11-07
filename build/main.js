@@ -43,10 +43,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Minmax = void 0;
 //https://www.iobroker.net/#en/documentation/dev/adapterdev.md
 const utils = __importStar(require("@iobroker/adapter-core"));
-const node_path_1 = require("node:path");
 const boundary_scheduler_1 = __importDefault(require("./lib/boundary-scheduler"));
 const error_utils_1 = require("./lib/error-utils");
-const legacy_config_migrator_1 = __importDefault(require("./lib/legacy-config-migrator"));
+const legacy_config_migrator_1 = __importStar(require("./lib/legacy-config-migrator"));
 const minmax_controller_1 = __importDefault(require("./lib/minmax-controller"));
 class Minmax extends utils.Adapter {
     minmaxController;
@@ -80,8 +79,8 @@ class Minmax extends utils.Adapter {
         const scheduler = new boundary_scheduler_1.default(timeZone, (resetPeriods) => controller.handleBoundary(resetPeriods), (error) => this.log.error(`Calendar boundary job failed: ${(0, error_utils_1.describeError)(error)}`));
         this.boundaryScheduler = scheduler;
         this.subscribeForeignObjects("*");
-        const legacyConfigPath = (0, node_path_1.join)(utils.getAbsoluteDefaultDataDir(), "minmax", "minmax.json");
-        await new legacy_config_migrator_1.default(this, legacyConfigPath).migrate();
+        const legacyConfigPaths = (0, legacy_config_migrator_1.getLegacyConfigPaths)(__dirname, utils.getAbsoluteDefaultDataDir());
+        await new legacy_config_migrator_1.default(this, legacyConfigPaths).migrate();
         const objects = await this.getForeignObjectsAsync("*", "state");
         await controller.initialize(objects);
         await scheduler.start();

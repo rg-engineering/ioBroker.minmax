@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getLegacyConfigPaths = getLegacyConfigPaths;
 const promises_1 = require("node:fs/promises");
+const node_path_1 = require("node:path");
 const error_utils_1 = require("./error-utils");
 function isRecord(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -17,14 +19,14 @@ function parseLegacyEntries(contents) {
             typeof entry.name !== "string" ||
             entry.name.length === 0 ||
             typeof entry.enabled !== "boolean" ||
-            typeof entry.calcDiff !== "boolean") {
+            (entry.calcDiff !== undefined && typeof entry.calcDiff !== "boolean")) {
             throw new TypeError(`Legacy configuration entry ${index} has an invalid shape`);
         }
         return {
             id: entry.id,
             name: entry.name,
             enabled: entry.enabled,
-            calcDiff: entry.calcDiff,
+            calcDiff: entry.calcDiff === true,
         };
     });
 }
@@ -34,24 +36,37 @@ function hasOwn(record, key) {
 function hasOtherMinmaxConfig(custom, namespace) {
     return Object.keys(custom).some((key) => /^minmax\.\d+$/.test(key) && key !== namespace);
 }
+function getLegacyConfigPaths(adapterBuildDirectory, defaultDataDirectory) {
+    const historicalPath = (0, node_path_1.join)(adapterBuildDirectory, "..", "..", "..", "iobroker-data", "minmax", "minmax.json");
+    const controllerDefaultPath = (0, node_path_1.join)(defaultDataDirectory, "minmax", "minmax.json");
+    return [...new Set([historicalPath, controllerDefaultPath])];
+}
 class LegacyConfigMigrator {
     adapter;
-    legacyFilePath;
-    constructor(adapter, legacyFilePath) {
+    legacyFilePaths;
+    constructor(adapter, legacyFilePaths) {
         this.adapter = adapter;
-        this.legacyFilePath = legacyFilePath;
+        this.legacyFilePaths = legacyFilePaths;
     }
     async migrate() {
         let contents;
-        try {
-            contents = await (0, promises_1.readFile)(this.legacyFilePath, "utf8");
-        }
-        catch (error) {
-            if (isRecord(error) && error.code === "ENOENT") {
-                this.adapter.log.debug("No legacy minmax configuration found");
+        let legacyFilePath;
+        for (const candidatePath of this.legacyFilePaths) {
+            try {
+                contents = await (0, promises_1.readFile)(candidatePath, "utf8");
+                legacyFilePath = candidatePath;
+                break;
+            }
+            catch (error) {
+                if (isRecord(error) && error.code === "ENOENT") {
+                    continue;
+                }
+                this.adapter.log.error(`Cannot read legacy minmax configuration at "${candidatePath}"; it was kept for retry: ${(0, error_utils_1.describeError)(error)}`);
                 return;
             }
-            this.adapter.log.error(`Cannot read legacy minmax configuration; it was kept for retry: ${(0, error_utils_1.describeError)(error)}`);
+        }
+        if (contents === undefined || legacyFilePath === undefined) {
+            this.adapter.log.debug(`No legacy minmax configuration found at: ${this.legacyFilePaths.join(", ")}`);
             return;
         }
         let entries;
@@ -59,7 +74,7 @@ class LegacyConfigMigrator {
             entries = parseLegacyEntries(contents);
         }
         catch (error) {
-            this.adapter.log.error(`Cannot parse legacy minmax configuration; it was kept for retry: ${(0, error_utils_1.describeError)(error)}`);
+            this.adapter.log.error(`Cannot parse legacy minmax configuration at "${legacyFilePath}"; it was kept for retry: ${(0, error_utils_1.describeError)(error)}`);
             return;
         }
         try {
@@ -130,7 +145,7 @@ class LegacyConfigMigrator {
                 migratedCount++;
             }
             try {
-                await (0, promises_1.unlink)(this.legacyFilePath);
+                await (0, promises_1.unlink)(legacyFilePath);
             }
             catch (error) {
                 if (!isRecord(error) || error.code !== "ENOENT") {
@@ -145,7 +160,7 @@ class LegacyConfigMigrator {
             }
         }
         catch (error) {
-            this.adapter.log.error(`Legacy minmax migration failed; the file was kept for retry: ${(0, error_utils_1.describeError)(error)}`);
+            this.adapter.log.error(`Legacy minmax migration failed for "${legacyFilePath}"; the file was kept for retry: ${(0, error_utils_1.describeError)(error)}`);
         }
     }
 }
