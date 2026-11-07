@@ -78,7 +78,7 @@
     "!www/",
     "io-package.json",
     "LICENSE",
-    "!main.js",
+    "!legacy-main.js.txt",
     "build/",
     "!readme.txt",
     "!docs/iconos.zip",
