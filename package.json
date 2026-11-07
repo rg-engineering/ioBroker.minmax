@@ -4,7 +4,7 @@
   "description": "ioBroker min max Adapter",
   "author": {
     "name": "René G.",
-    "email": "info@rg-enginerring.eu"
+    "email": "info@rg-engineering.eu"
   },
   "homepage": "https://github.com/rg-engineering/ioBroker.minmax",
   "license": "MIT",
