@@ -29,13 +29,19 @@ For more details and for information how to disable the error reporting see [Sen
 [![paypal](https://www.paypalobjects.com/en_US/DK/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/donate/?hosted_button_id=34ESBMJ932QZC) 
 
 ## Description
-This adapter logs the minimum and maximum values of a given data point for today, the current month, and the current year.
-The value is reset at the beginning of the period and changed to the current time.
+This adapter tracks the minimum and maximum values of selected numeric states for the current day, month, and year. Statistics are updated when a state changes and refreshed at calendar boundaries, even if the source value has not changed. The current source value initializes the statistics for a new period. Optionally, the adapter also calculates the difference between minimum and maximum for each period.
 
 ## Settings
-When the adapter is running, simply enable logging for the required data point in the object view. Optionally, you can assign a specific name. The adapter tracks numeric states and uses the configured timezone for day, month, and year boundaries.
+Enable min/max tracking for each required state in the object view. You can optionally set a name for its output states and enable calculation of the daily, monthly, and yearly differences. Each output name must be unique within the adapter instance. Only states whose object type is `number` are tracked; non-numeric runtime values are ignored.
 
-After an upgrade that migrates the old saved configuration, check the adapter log. If entries could not be assigned safely (for example, because multiple minmax instances exist), the legacy file is discarded and the log asks you to carefully verify the enabled data points and their visible settings in the object view.
+Configure the timezone in the adapter settings. It determines the day, month, and year boundaries as well as the displayed times and dates. The default timezone is `Europe/Berlin`.
+
+The adapter requires Node.js 22 or newer.
+
+### Upgrade to version 2.x
+On the first start after upgrading to 2.x, the adapter attempts to migrate the old `minmax.json` configuration into the per-state settings visible in the object view (`common.custom`). Existing visible settings take precedence; missing settings can be filled from the legacy file. After a migration attempt has been completed, `minmax.json` is deleted and is no longer needed.
+
+The legacy file does not identify which adapter instance owns its entries. If entries cannot be assigned safely, for example when multiple minmax instances are configured, the adapter logs a warning and discards those entries. Carefully check the enabled states and their settings in the object view after the upgrade. If the file cannot be read or parsed, or the migration cannot be saved, it is retained so the adapter can retry on a later start.
 
 ## Changelog
 <!--
