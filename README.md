@@ -140,6 +140,8 @@ The legacy file does not identify which adapter instance owns its entries. If en
 ### 0.0.2 (2018-12-21)
 * (René) initial release
 
+[Older changelog](CHANGELOG_OLD.md)
+
 ## License
 
 MIT License
